@@ -1,0 +1,119 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Node.js / SvelteKit
+node_modules/
+.svelte-kit/
+build/
+dist/
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment variables (keep .example files)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+!.env.*.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Docker
+*.log
+
+# Kubernetes
+*.secret.yaml
+secrets/
+.kube/
+kubeconfig*
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Helm
+.helm/
+
+# Coverage
+coverage/
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# MinIO/S3 local
+.local-storage/
+
+# Music files (don't commit MP3s)
+*.mp3
+*.wav
+*.flac
+*.ogg
+
+# Temporary files
+tmp/
+temp/
+*.bak
+*.backup
+

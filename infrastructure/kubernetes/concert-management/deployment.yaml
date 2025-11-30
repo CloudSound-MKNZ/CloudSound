@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: concert-management
+  namespace: cloudsound
+  labels:
+    app: concert-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: concert-management
+  template:
+    metadata:
+      labels:
+        app: concert-management
+    spec:
+      containers:
+      - name: concert-management
+        image: cloudsound-concert-management:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8005
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "development"
+        - name: POSTGRES_HOST
+          value: "postgres"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: "cloudsound"
+        - name: POSTGRES_USER
+          value: "cloudsound"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "cloudsound"
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: password
+        - name: MINIO_ENDPOINT
+          value: "minio:9000"
+        - name: MINIO_ACCESS_KEY
+          value: "minioadmin"
+        - name: MINIO_SECRET_KEY
+          value: "minioadmin"
+        - name: MINIO_BUCKET
+          value: "cloudsound-music"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: LOG_FORMAT
+          value: "json"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8005
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: concert-management
+  namespace: cloudsound
+spec:
+  selector:
+    app: concert-management
+  ports:
+  - port: 8005
+    targetPort: 8005
+    name: http
+  type: ClusterIP
+

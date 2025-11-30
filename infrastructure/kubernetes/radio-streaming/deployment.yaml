@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radio-streaming
+  namespace: cloudsound
+  labels:
+    app: radio-streaming
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: radio-streaming
+  template:
+    metadata:
+      labels:
+        app: radio-streaming
+    spec:
+      containers:
+      - name: radio-streaming
+        image: cloudsound-radio-streaming:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8004
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "development"
+        - name: POSTGRES_HOST
+          value: "postgres"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: "cloudsound"
+        - name: POSTGRES_USER
+          value: "cloudsound"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "cloudsound"
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: password
+        - name: MINIO_ENDPOINT
+          value: "minio:9000"
+        - name: MINIO_ACCESS_KEY
+          value: "minioadmin"
+        - name: MINIO_SECRET_KEY
+          value: "minioadmin"
+        - name: MINIO_BUCKET
+          value: "cloudsound-music"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: LOG_FORMAT
+          value: "json"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8004
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radio-streaming
+  namespace: cloudsound
+spec:
+  selector:
+    app: radio-streaming
+  ports:
+  - port: 8004
+    targetPort: 8004
+    name: http
+  type: ClusterIP
+
