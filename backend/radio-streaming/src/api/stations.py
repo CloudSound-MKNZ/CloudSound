@@ -28,6 +28,22 @@ class StationResponse(BaseModel):
     
     class Config:
         from_attributes = True
+    
+    @classmethod
+    def model_validate(cls, obj, **kwargs):
+        """Override to convert datetime to string."""
+        if hasattr(obj, '__dict__'):
+            data = {}
+            for key, value in obj.__dict__.items():
+                if hasattr(value, 'isoformat'):  # datetime objects
+                    data[key] = value.isoformat()
+                else:
+                    data[key] = value
+            # Handle enum types
+            if hasattr(obj, 'type'):
+                data['type'] = obj.type.value if hasattr(obj.type, 'value') else str(obj.type)
+            return cls(**data)
+        return super().model_validate(obj, **kwargs)
 
 
 class TrackResponse(BaseModel):

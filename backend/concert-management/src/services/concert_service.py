@@ -35,13 +35,49 @@ class ConcertService:
         # Sort by date (chronological order)
         query = query.order_by(Concert.date.asc())
         
-        # Load relationships
+        # Load concert_artists relationships
         query = query.options(
-            selectinload(Concert.concert_artists).selectinload(ConcertArtist.artist)
+            selectinload(Concert.concert_artists)
         )
         
         result = await self.db.execute(query)
         concerts = result.scalars().all()
+        
+        # Manually load artists for each concert_artist using raw SQL
+        # This avoids import issues with radio-streaming service
+        from sqlalchemy import text
+        
+        class MinimalArtist:
+            """Minimal artist object for response."""
+            def __init__(self, artist_id, name=None, genre=None):
+                self.id = artist_id
+                self.name = name or "Unknown Artist"
+                self.genre = genre
+        
+        # Collect all artist IDs
+        artist_ids = set()
+        for concert in concerts:
+            for ca in concert.concert_artists:
+                artist_ids.add(ca.artist_id)
+        
+        # Load all artists in one query
+        if artist_ids:
+            artist_ids_list = list(artist_ids)
+            placeholders = ','.join([f"'{str(aid)}'" for aid in artist_ids_list])
+            result = await self.db.execute(
+                text(f"SELECT id, name, genre FROM artists WHERE id IN ({placeholders})")
+            )
+            artists_dict = {row[0]: MinimalArtist(row[0], row[1], row[2]) for row in result.fetchall()}
+            
+            # Assign artists to concert_artists
+            for concert in concerts:
+                for ca in concert.concert_artists:
+                    ca.artist = artists_dict.get(ca.artist_id, MinimalArtist(ca.artist_id))
+        else:
+            # No artists to load
+            for concert in concerts:
+                for ca in concert.concert_artists:
+                    ca.artist = MinimalArtist(ca.artist_id)
         
         logger.info("retrieved_concerts", count=len(concerts), upcoming_only=upcoming_only)
         return list(concerts)
@@ -50,13 +86,20 @@ class ConcertService:
         """Get a concert by ID."""
         query = select(Concert).where(Concert.id == concert_id)
         query = query.options(
-            selectinload(Concert.concert_artists).selectinload(ConcertArtist.artist)
+            selectinload(Concert.concert_artists)
         )
         
         result = await self.db.execute(query)
         concert = result.scalar_one_or_none()
         
         if concert:
+            # Manually load artists
+            from backend.radio_streaming.src.models.artist import Artist
+            for ca in concert.concert_artists:
+                artist_query = select(Artist).where(Artist.id == ca.artist_id)
+                artist_result = await self.db.execute(artist_query)
+                ca.artist = artist_result.scalar_one_or_none()
+            
             logger.info("retrieved_concert", concert_id=str(concert_id), location=concert.location)
         else:
             logger.warning("concert_not_found", concert_id=str(concert_id))

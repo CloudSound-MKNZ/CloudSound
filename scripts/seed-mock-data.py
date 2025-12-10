@@ -14,15 +14,54 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend.shared.config.settings import app_settings
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.shared.db.pool import AsyncSessionLocal, engine, Base
+from backend.shared.db.pool import AsyncSessionLocal, engine
 from backend.shared.models.base import Base, UUIDMixin, TimestampMixin
-from sqlalchemy import Column, String, Boolean, ForeignKey, Text, DateTime, Integer
+from sqlalchemy import Column, String, Boolean, ForeignKey, Text, DateTime, Integer, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta
 import uuid
+import enum
 
-# Mock data models (simplified versions for seeding)
+# Define models inline to match actual schema (avoiding import path issues with hyphens)
+import enum
+
+class StationType(str, enum.Enum):
+    """Radio station type enumeration."""
+    UPCOMING = "upcoming"
+    PAST = "past"
+    GENRE = "genre"
+
+class Artist(Base, UUIDMixin, TimestampMixin):
+    __tablename__ = "artists"
+    name = Column(String(255), nullable=False, unique=True, index=True)
+    genre = Column(String(100), nullable=True, index=True)
+    bio = Column(String(2000), nullable=True)
+
+class Track(Base, UUIDMixin, TimestampMixin):
+    __tablename__ = "tracks"
+    title = Column(String(255), nullable=False, index=True)
+    artist_id = Column(UUID(as_uuid=True), ForeignKey("artists.id", ondelete="CASCADE"), nullable=False, index=True)
+    duration_seconds = Column(Integer, nullable=False)
+    file_path = Column(String(512), nullable=False)
+    file_size = Column(Integer, nullable=False)
+    file_format = Column(String(10), nullable=False, default="mp3")
+
+class RadioStation(Base, UUIDMixin, TimestampMixin):
+    __tablename__ = "radio_stations"
+    name = Column(String(255), nullable=False, unique=True, index=True)
+    type = Column(SQLEnum(StationType), nullable=False, index=True)
+    genre = Column(String(100), nullable=True, index=True)
+    description = Column(String(1000), nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+
+class StationTrack(Base, UUIDMixin, TimestampMixin):
+    __tablename__ = "station_tracks"
+    station_id = Column(UUID(as_uuid=True), ForeignKey("radio_stations.id", ondelete="CASCADE"), nullable=False, index=True)
+    track_id = Column(UUID(as_uuid=True), ForeignKey("tracks.id", ondelete="CASCADE"), nullable=False, index=True)
+    order = Column(Integer, nullable=False, default=0)
+
+# Mock data models for other services (admin, concerts)
 class AdminUser(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "admin_users"
     email = Column(String(255), unique=True, nullable=False)
@@ -31,38 +70,6 @@ class AdminUser(Base, UUIDMixin, TimestampMixin):
     role = Column(String(50), default="admin")
     tenant_id = Column(UUID(as_uuid=True), nullable=True)
     is_active = Column(Boolean, default=True)
-
-class Artist(Base, UUIDMixin, TimestampMixin):
-    __tablename__ = "artists"
-    name = Column(String(255), nullable=False)
-    genre = Column(String(100))
-    bio = Column(Text)
-    image_url = Column(String(500))
-
-class Track(Base, UUIDMixin, TimestampMixin):
-    __tablename__ = "tracks"
-    title = Column(String(255), nullable=False)
-    artist_id = Column(UUID(as_uuid=True), ForeignKey("artists.id"), nullable=False)
-    duration_seconds = Column(Integer)
-    file_path = Column(String(500))  # Path in MinIO/S3
-    source_url = Column(String(500))  # Original YouTube/Bandcamp URL
-    source_type = Column(String(50))  # "youtube" or "bandcamp"
-    artist = relationship("Artist", backref="tracks")
-
-class RadioStation(Base, UUIDMixin, TimestampMixin):
-    __tablename__ = "radio_stations"
-    name = Column(String(255), nullable=False)
-    description = Column(Text)
-    station_type = Column(String(50))  # "upcoming", "genre", "past_performers"
-    genre = Column(String(100), nullable=True)  # For genre stations
-
-class StationTrack(Base, UUIDMixin, TimestampMixin):
-    __tablename__ = "station_tracks"
-    station_id = Column(UUID(as_uuid=True), ForeignKey("radio_stations.id"), nullable=False)
-    track_id = Column(UUID(as_uuid=True), ForeignKey("tracks.id"), nullable=False)
-    play_order = Column(Integer, default=0)
-    station = relationship("RadioStation", backref="station_tracks")
-    track = relationship("Track", backref="station_tracks")
 
 class Concert(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "concerts"
@@ -106,31 +113,37 @@ MOCK_TRACKS = [
 ]
 
 MOCK_STATIONS = [
-    {"name": "Upcoming Bands", "type": "upcoming", "description": "Music from artists with upcoming concerts"},
-    {"name": "Rock Radio", "type": "genre", "genre": "Rock", "description": "All rock, all the time"},
-    {"name": "Jazz Lounge", "type": "genre", "genre": "Jazz", "description": "Smooth jazz for your evening"},
-    {"name": "Electronic Beats", "type": "genre", "genre": "Electronic", "description": "Electronic music selection"},
-    {"name": "Past Performers", "type": "past_performers", "description": "Music from past concert performers"},
+    {"name": "Upcoming Bands", "type": StationType.UPCOMING, "description": "Music from artists with upcoming concerts"},
+    {"name": "Rock Radio", "type": StationType.GENRE, "genre": "Rock", "description": "All rock, all the time"},
+    {"name": "Jazz Lounge", "type": StationType.GENRE, "genre": "Jazz", "description": "Smooth jazz for your evening"},
+    {"name": "Electronic Beats", "type": StationType.GENRE, "genre": "Electronic", "description": "Electronic music selection"},
+    {"name": "Past Performers", "type": StationType.PAST, "description": "Music from past concert performers"},
 ]
 
 async def seed_data():
     """Seed database with mock data."""
     async with AsyncSessionLocal() as session:
         try:
-            # Create admin user
-            admin = AdminUser(
-                id=uuid.uuid4(),
-                email="admin@cloudsound.local",
-                password_hash="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyY5Y5Y5Y5Y5",  # password: admin123
-                name="Admin User",
-                role="admin",
-                is_active=True,
+            # Create admin user (skip if already exists)
+            from sqlalchemy import select as sql_select
+            existing_admin = await session.execute(
+                sql_select(AdminUser).where(AdminUser.email == "admin@cloudsound.local")
             )
-            session.add(admin)
-            await session.flush()
+            if not existing_admin.scalar_one_or_none():
+                admin = AdminUser(
+                    id=uuid.uuid4(),
+                    email="admin@cloudsound.local",
+                    password_hash="$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyY5Y5Y5Y5Y5",  # password: admin123
+                    name="Admin User",
+                    role="admin",
+                    is_active=True,
+                )
+                session.add(admin)
+                await session.flush()
             
             # Create artists
             artists = {}
+            artists_by_name = {}
             for artist_data in MOCK_ARTISTS:
                 artist = Artist(
                     id=uuid.uuid4(),
@@ -141,19 +154,22 @@ async def seed_data():
                 session.add(artist)
                 await session.flush()
                 artists[artist_data["genre"]] = artist
+                artists_by_name[artist_data["name"]] = artist
             
             # Create tracks (assign to artists by genre)
             tracks = []
             for i, track_data in enumerate(MOCK_TRACKS):
                 artist = artists.get(track_data["genre"], list(artists.values())[0])
+                # Create mock file path - in real scenario, files would be uploaded to MinIO
+                file_path = f"tracks/{track_data['title'].lower().replace(' ', '_')}.mp3"
                 track = Track(
                     id=uuid.uuid4(),
                     title=track_data["title"],
                     artist_id=artist.id,
                     duration_seconds=track_data["duration"],
-                    file_path=f"tracks/{track_data['title'].lower().replace(' ', '_')}.mp3",
-                    source_url=f"https://youtube.com/watch?v=mock{i}",
-                    source_type="youtube",
+                    file_path=file_path,
+                    file_size=1024 * 1024 * (3 + i),  # Mock file size: 3-12 MB
+                    file_format="mp3",
                 )
                 session.add(track)
                 await session.flush()
@@ -166,8 +182,9 @@ async def seed_data():
                     id=uuid.uuid4(),
                     name=station_data["name"],
                     description=station_data["description"],
-                    station_type=station_data["type"],
+                    type=station_data["type"],  # Use 'type' not 'station_type'
                     genre=station_data.get("genre"),
+                    is_active=True,
                 )
                 session.add(station)
                 await session.flush()
@@ -175,15 +192,18 @@ async def seed_data():
             
             # Assign tracks to stations
             for station_name, station in stations.items():
-                if station.station_type == "genre":
+                if station.type == StationType.GENRE:
                     # Assign tracks matching the genre
-                    genre_tracks = [t for t in tracks if any(a.genre == station.genre for a in [artists.get(station.genre)])]
+                        # Get artist for this genre
+                    genre_artist = artists.get(station.genre)
+                    if genre_artist:
+                        genre_tracks = [t for t in tracks if t.artist_id == genre_artist.id]
                     if not genre_tracks:
                         genre_tracks = tracks[:3]  # Fallback
-                elif station.station_type == "upcoming":
+                elif station.type == StationType.UPCOMING:
                     # Assign first 5 tracks
                     genre_tracks = tracks[:5]
-                else:
+                else:  # PAST
                     # Past performers - random selection
                     genre_tracks = tracks[3:8]
                 
@@ -192,31 +212,73 @@ async def seed_data():
                         id=uuid.uuid4(),
                         station_id=station.id,
                         track_id=track.id,
-                        play_order=order,
+                        order=order,  # Use 'order' not 'play_order'
                     )
                     session.add(station_track)
             
-            # Create upcoming concerts
-            upcoming_date = datetime.utcnow() + timedelta(days=7)
+            # Create concerts (Phase 4)
+            # Define Concert and ConcertArtist models inline to avoid import issues
+            from datetime import datetime, timedelta, timezone
+            
+            class Concert(Base, UUIDMixin, TimestampMixin):
+                __tablename__ = "concerts"
+                date = Column(DateTime(timezone=True), nullable=False, index=True)
+                location = Column(String(255), nullable=False)
+                description = Column(String(2000), nullable=True)
+                facebook_event_id = Column(String(255), nullable=True, unique=True, index=True)
+                version = Column(Integer, nullable=False, default=1)
+            
+            class ConcertArtist(Base, UUIDMixin, TimestampMixin):
+                __tablename__ = "concert_artists"
+                concert_id = Column(UUID(as_uuid=True), ForeignKey("concerts.id", ondelete="CASCADE"), nullable=False, index=True)
+                artist_id = Column(UUID(as_uuid=True), ForeignKey("artists.id", ondelete="CASCADE"), nullable=False, index=True)
+            
+            # Get some artists for concerts
+            artist_list = list(artists_by_name.values())
+            
+            # Create upcoming concert
+            upcoming_date = datetime.now(timezone.utc) + timedelta(days=7)
             concert = Concert(
                 id=uuid.uuid4(),
-                title="Summer Music Festival",
                 date=upcoming_date,
                 location="Main Stage",
                 description="A great summer music festival featuring local artists.",
-                status="scheduled",
+                version=1,
             )
             session.add(concert)
             await session.flush()
             
-            # Link artists to concert
-            for artist in list(artists.values())[:3]:
+            # Link first 3 artists to concert
+            for artist in artist_list[:3]:
                 concert_artist = ConcertArtist(
                     id=uuid.uuid4(),
                     concert_id=concert.id,
                     artist_id=artist.id,
                 )
                 session.add(concert_artist)
+            
+            # Create another upcoming concert
+            upcoming_date2 = datetime.now(timezone.utc) + timedelta(days=14)
+            concert2 = Concert(
+                id=uuid.uuid4(),
+                date=upcoming_date2,
+                location="Outdoor Venue",
+                description="Rock night with amazing local bands.",
+                version=1,
+            )
+            session.add(concert2)
+            await session.flush()
+            
+            # Link different artists
+            for artist in artist_list[3:5]:
+                concert_artist = ConcertArtist(
+                    id=uuid.uuid4(),
+                    concert_id=concert2.id,
+                    artist_id=artist.id,
+                )
+                session.add(concert_artist)
+            
+            print(f"   - Created 2 concerts")
             
             await session.commit()
             print("✅ Mock data seeded successfully!")

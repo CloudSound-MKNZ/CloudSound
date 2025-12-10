@@ -15,7 +15,7 @@ class ConcertArtist(Base, UUIDMixin, TimestampMixin):
     
     # Relationships
     concert = relationship("Concert", back_populates="concert_artists")
-    artist = relationship("Artist", foreign_keys=[artist_id], lazy="select")
+    # Note: Artist model is in radio-streaming service, relationship loaded via join in service layer
     
     def __repr__(self) -> str:
         return f"<ConcertArtist(id={self.id}, concert_id={self.concert_id}, artist_id={self.artist_id})>"

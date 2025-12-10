@@ -4,92 +4,61 @@ A cloud-native microservices radio streaming platform for local music clubs, ena
 
 ## Quick Start
 
-### Development Environment
-
 ```bash
-# 1. Setup development environment (creates .env, starts Docker services, seeds data)
-./scripts/setup-dev.sh
+# Start everything with Docker Compose (default for development)
+./scripts/start.sh
 
-# 2. Start a backend service
-cd backend/authentication
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn src.main:app --reload --port 8006
-
-# 3. Start frontend (requires Node.js 20+)
-cd frontend
-npm install
-npm run dev
+# Stop everything
+./scripts/stop.sh
 ```
 
-## Environment Configuration
+**Note**: The `start.sh` script uses **Docker Compose** by default for local development. It does NOT automatically deploy k3s/Kubernetes. For k3s deployment, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-**Important**: CloudSound uses environment-based configuration, NOT Git branches.
+For more details, see [scripts/README.md](scripts/README.md) or [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
-- **Development**: Mock APIs enabled, mock data seeded
-- **Test**: Mock APIs enabled, isolated test database
-- **Production**: Real APIs required, no mock data
+## Project Status & Tasks
 
-See [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) for detailed configuration guide.
+**Single Source of Truth**: [`specs/001-cloudsound-platform/tasks.md`](specs/001-cloudsound-platform/tasks.md)
+
+All tasks, progress tracking, and implementation status are tracked in the `specs/` folder using Spec-Driven Development (Specify).
+
+> **Note**: For active work tracking, you can use `/speckit.taskstoissues` to convert tasks to GitHub Issues, or use GitHub Issues/Projects directly.
+
+## Documentation
+
+- **[Quick Start](docs/QUICKSTART.md)** - Get up and running locally
+- **[Development Guide](docs/DEVELOPMENT.md)** - Environment config, testing, troubleshooting
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - k3s/Kubernetes deployment
+- **[Project Design](docs/PROJECT_DESIGN.md)** - Architecture and design decisions
+- **[Cursor IDE Setup](docs/CURSOR.md)** - Development guidelines and commands
+- **[Specifications](specs/001-cloudsound-platform/)** - Feature specs, plans, and tasks
+- **[Constitution](memory/constitution.md)** - Project principles and standards
 
 ## Project Structure
 
 ```
 .
-├── frontend/              # SvelteKit frontend service
+├── frontend/              # SvelteKit frontend
 ├── backend/               # Microservices
-│   ├── api-gateway/
-│   ├── authentication/
-│   ├── concert-management/
-│   ├── event-manager/
-│   ├── music-discovery/
 │   ├── radio-streaming/
-│   ├── admin-management/
+│   ├── concert-management/
+│   ├── analytics/
 │   └── shared/           # Shared utilities
-├── infrastructure/       # Infrastructure as code
-│   ├── docker/          # Docker Compose files
-│   ├── kubernetes/       # K8s manifests
-│   └── helm/            # Helm charts
-├── scripts/              # Helper scripts
-└── specs/               # Spec-Driven Development artifacts
+├── infrastructure/        # Docker, Kubernetes, Helm
+├── scripts/               # Helper scripts
+├── specs/                 # Spec-Driven Development (tasks & progress)
+└── docs/                  # Documentation
 ```
 
 ## Technology Stack
 
 - **Backend**: Python 3.11+ + FastAPI
-- **Frontend**: SvelteKit
+- **Frontend**: SvelteKit + TypeScript
 - **Database**: PostgreSQL 15+
 - **Message Brokers**: Apache Kafka, RabbitMQ
 - **Storage**: MinIO/S3
-- **Observability**: Prometheus, Grafana, ELK Stack
 - **Orchestration**: Kubernetes/k3s
-- **Containerization**: Docker
-
-## Development Workflow
-
-1. **Setup**: Run `./scripts/setup-dev.sh` to initialize development environment
-2. **Code**: Make changes following the [Constitution](memory/constitution.md)
-3. **Test**: Run tests with `pytest`
-4. **Commit**: Follow conventional commits
-5. **Deploy**: Use CI/CD pipelines for test/production
-
-## Mock Data & APIs
-
-Mock data and API clients are automatically enabled in development and test environments:
-
-- **Mock APIs**: YouTube, Bandcamp, Facebook Events
-- **Mock Data**: Artists, tracks, radio stations, concerts
-- **Seeding**: Automatic in dev/test, blocked in production
-
-See [scripts/README.md](scripts/README.md) for details.
-
-## Documentation
-
-- [Environment Configuration](docs/ENVIRONMENTS.md)
-- [Project Design](project_design.md)
-- [Constitution](memory/constitution.md)
-- [Spec-Driven Development](specs/001-cloudsound-platform/)
+- **Observability**: Prometheus, Grafana, ELK Stack
 
 ## License
 

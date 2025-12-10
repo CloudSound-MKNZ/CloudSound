@@ -1,15 +1,13 @@
 """Playback event tracking API endpoints."""
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
-from backend.shared.db.pool import get_db
-from backend.analytics.src.services.playback_service import PlaybackEventService
 from backend.shared.logging import get_logger
 from backend.shared.metrics import playback_events_total
 from ..producers.kafka_producer import publish_playback_event
 import time
+from datetime import datetime
 
 logger = get_logger(__name__)
 
@@ -34,19 +32,18 @@ class PlaybackEventResponse(BaseModel):
 
 @router.post("/events", response_model=PlaybackEventResponse, status_code=status.HTTP_201_CREATED)
 async def create_playback_event(
-    event: PlaybackEventRequest,
-    db: AsyncSession = Depends(get_db)
+    event: PlaybackEventRequest
 ) -> PlaybackEventResponse:
-    """Create a playback event for tracking statistics."""
+    """Create a playback event for tracking statistics.
+    
+    Publishes the event to Kafka for async processing by the analytics service.
+    """
     start_time = time.time()
     
     try:
-        service = PlaybackEventService(db)
-        playback_event = await service.create_playback_event(
-            station_id=event.station_id,
-            track_id=event.track_id,
-            duration_seconds=event.duration_seconds
-        )
+        from uuid import uuid4
+        event_id = uuid4()
+        timestamp = datetime.utcnow()
         
         # Update metrics
         playback_events_total.labels(
@@ -54,7 +51,7 @@ async def create_playback_event(
             track_id=str(event.track_id)
         ).inc()
         
-        # Publish to Kafka for async processing
+        # Publish to Kafka for async processing by analytics service
         publish_playback_event(
             station_id=event.station_id,
             track_id=event.track_id,
@@ -62,19 +59,19 @@ async def create_playback_event(
         )
         
         logger.info(
-            "playback_event_created",
-            event_id=str(playback_event.id),
+            "playback_event_published",
+            event_id=str(event_id),
             station_id=str(event.station_id),
             track_id=str(event.track_id),
             duration_seconds=event.duration_seconds
         )
         
         return PlaybackEventResponse(
-            id=playback_event.id,
-            station_id=playback_event.station_id,
-            track_id=playback_event.track_id,
-            timestamp=playback_event.timestamp.isoformat(),
-            duration_seconds=playback_event.duration_seconds
+            id=event_id,
+            station_id=event.station_id,
+            track_id=event.track_id,
+            timestamp=timestamp.isoformat(),
+            duration_seconds=event.duration_seconds
         )
     
     except Exception as e:

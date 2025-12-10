@@ -11,4 +11,6 @@ grpcio>=1.62.0
 grpcio-tools>=1.62.0
 prometheus-client>=0.20.0
 structlog>=24.1.0
+minio>=7.2.0
+psycopg2-binary>=2.9.0  # For Alembic migrations
 

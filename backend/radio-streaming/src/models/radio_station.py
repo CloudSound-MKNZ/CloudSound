@@ -25,7 +25,7 @@ class RadioStation(Base, UUIDMixin, TimestampMixin):
     
     # Relationships
     station_tracks = relationship("StationTrack", back_populates="station", cascade="all, delete-orphan", order_by="StationTrack.order")
-    playback_events = relationship("PlaybackEvent", back_populates="station", cascade="all, delete-orphan")
+    # Note: PlaybackEvent is in analytics service, not radio-streaming
     
     def __repr__(self) -> str:
         return f"<RadioStation(id={self.id}, name='{self.name}', type='{self.type}')>"

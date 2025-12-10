@@ -117,3 +117,36 @@ temp/
 *.bak
 *.backup
 
+# Cursor IDE
+.cursor/
+.cursorrules
+.cursorignore
+
+# Local development
+.local/
+*.local
+
+# Build artifacts
+*.tar.gz
+*.zip
+*.tar
+
+# Test artifacts
+.pytest_cache/
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+
+# Logs
+logs/
+*.log.*
+*.log
+
+# Specs (generated/working files)
+specs/
+
+# Keep documentation tracked (explicitly allow)
+!docs/
+!docs/**/*.md
+

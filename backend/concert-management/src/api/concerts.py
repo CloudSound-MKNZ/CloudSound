@@ -38,13 +38,13 @@ class ConcertArtistResponse(BaseModel):
 class ConcertResponse(BaseModel):
     """Concert response model."""
     id: UUID
-    date: datetime
+    date: str  # ISO format string
     location: str
     description: Optional[str] = None
     facebook_event_id: Optional[str] = None
     version: int
-    created_at: datetime
-    updated_at: datetime
+    created_at: str  # ISO format string
+    updated_at: str  # ISO format string
     artists: List[ArtistResponse] = []
     
     class Config:
@@ -65,13 +65,13 @@ class ConcertResponse(BaseModel):
         
         return cls(
             id=concert.id,
-            date=concert.date,
+            date=concert.date.isoformat() if hasattr(concert.date, 'isoformat') else str(concert.date),
             location=concert.location,
             description=concert.description,
             facebook_event_id=concert.facebook_event_id,
             version=concert.version,
-            created_at=concert.created_at,
-            updated_at=concert.updated_at,
+            created_at=concert.created_at.isoformat() if hasattr(concert.created_at, 'isoformat') else str(concert.created_at),
+            updated_at=concert.updated_at.isoformat() if hasattr(concert.updated_at, 'isoformat') else str(concert.updated_at),
             artists=artists
         )
 

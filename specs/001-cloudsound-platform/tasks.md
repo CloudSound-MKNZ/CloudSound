@@ -66,32 +66,32 @@
 
 ### Implementation for User Story 1
 
-- [ ] T028 [P] [US1] Create Artist model in backend/radio-streaming/src/models/artist.py
-- [ ] T029 [P] [US1] Create Track model in backend/radio-streaming/src/models/track.py
-- [ ] T030 [P] [US1] Create RadioStation model in backend/radio-streaming/src/models/radio_station.py
-- [ ] T031 [P] [US1] Create StationTrack junction model in backend/radio-streaming/src/models/station_track.py
-- [ ] T032 [P] [US1] Create PlaybackEvent model in backend/analytics/src/models/playback_event.py
-- [ ] T033 [US1] Create database migration for Artist, Track, RadioStation, StationTrack, PlaybackEvent tables in backend/shared/db/migrations/
-- [ ] T034 [US1] Implement RadioStationService for managing stations in backend/radio-streaming/src/services/station_service.py
-- [ ] T035 [US1] Implement TrackService for managing tracks in backend/radio-streaming/src/services/track_service.py
-- [ ] T036 [US1] Implement PlaybackEventService for tracking playback statistics in backend/analytics/src/services/playback_service.py
-- [ ] T037 [US1] Implement audio streaming endpoint with HTTP range requests in backend/radio-streaming/src/api/streaming.py
-- [ ] T038 [US1] Implement playback event tracking in streaming endpoint in backend/radio-streaming/src/api/streaming.py
-- [ ] T039 [US1] Implement radio station list endpoint in backend/radio-streaming/src/api/stations.py
-- [ ] T040 [US1] Implement station stream endpoint in backend/radio-streaming/src/api/stations.py
-- [ ] T041 [US1] Create frontend radio station browser component in frontend/src/lib/components/RadioStationBrowser.svelte
-- [ ] T042 [US1] Create frontend audio player component with crossfade in frontend/src/lib/components/AudioPlayer.svelte
-- [ ] T043 [US1] Implement crossfade logic in frontend/src/lib/utils/crossfade.js
-- [ ] T044 [US1] Create radio station route in frontend/src/routes/radio/+page.svelte
-- [ ] T045 [US1] Implement Kafka producer for radio.playback.events topic in backend/radio-streaming/src/producers/kafka_producer.py
-- [ ] T046 [US1] Implement Kafka consumer for playback events in backend/analytics/src/consumers/playback_consumer.py
-- [ ] T047 [US1] Add Prometheus metrics for streaming requests in backend/radio-streaming/src/metrics.py
-- [ ] T048 [US1] Add structured logging for streaming operations in backend/radio-streaming/src/main.py
-- [ ] T049 [US1] Create Dockerfile for radio-streaming service in backend/radio-streaming/Dockerfile
-- [ ] T050 [US1] Create Dockerfile for analytics service in backend/analytics/Dockerfile
-- [ ] T051 [US1] Create Kubernetes deployment manifest in infrastructure/kubernetes/radio-streaming/deployment.yaml
-- [ ] T052 [US1] Create Kubernetes service manifest in infrastructure/kubernetes/radio-streaming/service.yaml
-- [ ] T053 [US1] Create Kubernetes deployment manifest for analytics service in infrastructure/kubernetes/analytics/deployment.yaml
+- [x] T028 [P] [US1] Create Artist model in backend/radio-streaming/src/models/artist.py
+- [x] T029 [P] [US1] Create Track model in backend/radio-streaming/src/models/track.py
+- [x] T030 [P] [US1] Create RadioStation model in backend/radio-streaming/src/models/radio_station.py
+- [x] T031 [P] [US1] Create StationTrack junction model in backend/radio-streaming/src/models/station_track.py
+- [x] T032 [P] [US1] Create PlaybackEvent model in backend/analytics/src/models/playback_event.py
+- [x] T033 [US1] Create database migration for Artist, Track, RadioStation, StationTrack, PlaybackEvent tables in backend/shared/db/migrations/
+- [x] T034 [US1] Implement RadioStationService for managing stations in backend/radio-streaming/src/services/station_service.py
+- [x] T035 [US1] Implement TrackService for managing tracks in backend/radio-streaming/src/services/track_service.py
+- [x] T036 [US1] Implement PlaybackEventService for tracking playback statistics in backend/analytics/src/services/playback_service.py
+- [x] T037 [US1] Implement audio streaming endpoint with HTTP range requests in backend/radio-streaming/src/api/streaming.py
+- [x] T038 [US1] Implement playback event tracking in streaming endpoint in backend/radio-streaming/src/api/streaming.py
+- [x] T039 [US1] Implement radio station list endpoint in backend/radio-streaming/src/api/stations.py
+- [x] T040 [US1] Implement station stream endpoint in backend/radio-streaming/src/api/stations.py
+- [x] T041 [US1] Create frontend radio station browser component in frontend/src/lib/components/RadioStationBrowser.svelte
+- [x] T042 [US1] Create frontend audio player component with crossfade in frontend/src/lib/components/AudioPlayer.svelte
+- [x] T043 [US1] Implement crossfade logic in frontend/src/lib/utils/crossfade.ts
+- [x] T044 [US1] Create radio station route in frontend/src/routes/radio/+page.svelte
+- [x] T045 [US1] Implement Kafka producer for radio.playback.events topic in backend/radio-streaming/src/producers/kafka_producer.py
+- [x] T046 [US1] Implement Kafka consumer for playback events in backend/analytics/src/consumers/playback_consumer.py
+- [x] T047 [US1] Add Prometheus metrics for streaming requests in backend/radio-streaming/src/metrics.py
+- [x] T048 [US1] Add structured logging for streaming operations in backend/radio-streaming/src/main.py
+- [x] T049 [US1] Create Dockerfile for radio-streaming service in backend/radio-streaming/Dockerfile
+- [x] T050 [US1] Create Dockerfile for analytics service in backend/analytics/Dockerfile
+- [x] T051 [US1] Create Kubernetes deployment manifest in infrastructure/kubernetes/radio-streaming/deployment.yaml
+- [x] T052 [US1] Create Kubernetes service manifest in infrastructure/kubernetes/radio-streaming/service.yaml
+- [x] T053 [US1] Create Kubernetes deployment manifest for analytics service in infrastructure/kubernetes/analytics/deployment.yaml
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Users can browse and listen to radio stations with crossfade transitions.
 
@@ -105,21 +105,21 @@
 
 ### Implementation for User Story 2
 
-- [ ] T054 [P] [US2] Create Concert model with optimistic locking (version field) in backend/concert-management/src/models/concert.py
-- [ ] T055 [P] [US2] Create ConcertArtist junction model in backend/concert-management/src/models/concert_artist.py
-- [ ] T056 [US2] Create database migration for Concert and ConcertArtist tables in backend/shared/db/migrations/
-- [ ] T057 [US2] Implement ConcertService for managing concerts with conflict detection in backend/concert-management/src/services/concert_service.py
-- [ ] T058 [US2] Implement concert list endpoint (GET /api/v1/concerts) in backend/concert-management/src/api/concerts.py
-- [ ] T059 [US2] Implement concert detail endpoint (GET /api/v1/concerts/{id}) in backend/concert-management/src/api/concerts.py
-- [ ] T060 [US2] Create frontend concert schedule component in frontend/src/lib/components/ConcertSchedule.svelte
-- [ ] T061 [US2] Create concert schedule route in frontend/src/routes/concerts/+page.svelte
-- [ ] T062 [US2] Implement concert sorting by date (chronological) in backend/concert-management/src/services/concert_service.py
-- [ ] T063 [US2] Add empty state handling in frontend/src/lib/components/ConcertSchedule.svelte
-- [ ] T064 [US2] Add Prometheus metrics for concert API requests in backend/concert-management/src/metrics.py
-- [ ] T065 [US2] Add structured logging for concert operations in backend/concert-management/src/main.py
-- [ ] T066 [US2] Create Dockerfile for concert-management service in backend/concert-management/Dockerfile
-- [ ] T067 [US2] Create Kubernetes deployment manifest in infrastructure/kubernetes/concert-management/deployment.yaml
-- [ ] T068 [US2] Create Kubernetes service manifest in infrastructure/kubernetes/concert-management/service.yaml
+- [x] T054 [P] [US2] Create Concert model with optimistic locking (version field) in backend/concert-management/src/models/concert.py
+- [x] T055 [P] [US2] Create ConcertArtist junction model in backend/concert-management/src/models/concert_artist.py
+- [x] T056 [US2] Create database migration for Concert and ConcertArtist tables in backend/shared/db/migrations/
+- [x] T057 [US2] Implement ConcertService for managing concerts with conflict detection in backend/concert-management/src/services/concert_service.py
+- [x] T058 [US2] Implement concert list endpoint (GET /api/v1/concerts) in backend/concert-management/src/api/concerts.py
+- [x] T059 [US2] Implement concert detail endpoint (GET /api/v1/concerts/{id}) in backend/concert-management/src/api/concerts.py
+- [x] T060 [US2] Create frontend concert schedule component in frontend/src/lib/components/ConcertSchedule.svelte
+- [x] T061 [US2] Create concert schedule route in frontend/src/routes/concerts/+page.svelte
+- [x] T062 [US2] Implement concert sorting by date (chronological) in backend/concert-management/src/services/concert_service.py
+- [x] T063 [US2] Add empty state handling in frontend/src/lib/components/ConcertSchedule.svelte
+- [x] T064 [US2] Add Prometheus metrics for concert API requests in backend/concert-management/src/metrics.py
+- [x] T065 [US2] Add structured logging for concert operations in backend/concert-management/src/main.py
+- [x] T066 [US2] Create Dockerfile for concert-management service in backend/concert-management/Dockerfile
+- [x] T067 [US2] Create Kubernetes deployment manifest in infrastructure/kubernetes/concert-management/deployment.yaml
+- [x] T068 [US2] Create Kubernetes service manifest in infrastructure/kubernetes/concert-management/service.yaml
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. Users can view concerts and listen to radio stations.
 
@@ -133,15 +133,15 @@
 
 ### Implementation for User Story 3
 
-- [ ] T069 [US3] Implement search service for artists and tracks in backend/radio-streaming/src/services/search_service.py
-- [ ] T070 [US3] Create database indexes for search performance on artist.name and track.title in backend/shared/db/migrations/
-- [ ] T071 [US3] Implement search endpoint (GET /api/v1/search) in backend/radio-streaming/src/api/search.py
-- [ ] T072 [US3] Create frontend search component in frontend/src/lib/components/SearchBar.svelte
-- [ ] T073 [US3] Create search results component in frontend/src/lib/components/SearchResults.svelte
-- [ ] T074 [US3] Create search route in frontend/src/routes/search/+page.svelte
-- [ ] T075 [US3] Implement "no results" empty state in frontend/src/lib/components/SearchResults.svelte
-- [ ] T076 [US3] Add search metrics to Prometheus in backend/radio-streaming/src/metrics.py
-- [ ] T077 [US3] Add search logging in backend/radio-streaming/src/main.py
+- [x] T069 [US3] Implement search service for artists and tracks in backend/radio-streaming/src/services/search_service.py
+- [x] T070 [US3] Create database indexes for search performance on artist.name and track.title in backend/shared/db/migrations/
+- [x] T071 [US3] Implement search endpoint (GET /api/v1/search) in backend/radio-streaming/src/api/search.py
+- [x] T072 [US3] Create frontend search component in frontend/src/lib/components/SearchBar.svelte
+- [x] T073 [US3] Create search results component in frontend/src/lib/components/SearchResults.svelte
+- [x] T074 [US3] Create search route in frontend/src/routes/search/+page.svelte
+- [x] T075 [US3] Implement "no results" empty state in frontend/src/lib/components/SearchResults.svelte
+- [x] T076 [US3] Add search metrics to Prometheus in backend/radio-streaming/src/metrics.py
+- [x] T077 [US3] Add search logging in backend/radio-streaming/src/main.py
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently. Users can search for music, view concerts, and listen to radio stations.
 

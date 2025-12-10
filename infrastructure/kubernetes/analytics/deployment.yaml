@@ -42,6 +42,17 @@ spec:
           value: "INFO"
         - name: LOG_FORMAT
           value: "json"
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "cloudsound"
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: password
         livenessProbe:
           httpGet:
             path: /health
@@ -50,7 +61,7 @@ spec:
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /ready
+            path: /health/ready
             port: 8007
           initialDelaySeconds: 10
           periodSeconds: 5

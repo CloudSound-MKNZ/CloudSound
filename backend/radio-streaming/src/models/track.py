@@ -20,7 +20,7 @@ class Track(Base, UUIDMixin, TimestampMixin):
     # Relationships
     artist = relationship("Artist", back_populates="tracks")
     station_tracks = relationship("StationTrack", back_populates="track", cascade="all, delete-orphan")
-    playback_events = relationship("PlaybackEvent", back_populates="track", cascade="all, delete-orphan")
+    # Note: PlaybackEvent is in analytics service, not radio-streaming
     
     def __repr__(self) -> str:
         return f"<Track(id={self.id}, title='{self.title}', artist_id={self.artist_id})>"

@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-mock-data
+  namespace: cloudsound
+spec:
+  template:
+    spec:
+      containers:
+      - name: seed
+        image: cloudsound-radio-streaming:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            cp /scripts/seed-mock-data.py /tmp/seed.py
+            cd /app
+            python3 /tmp/seed.py
+        env:
+        - name: POSTGRES_HOST
+          value: "postgres"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: "cloudsound"
+        - name: POSTGRES_USER
+          value: "cloudsound"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        - name: RABBITMQ_HOST
+          value: "rabbitmq"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "cloudsound"
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-secret
+              key: password
+        - name: PYTHONPATH
+          value: "/app"
+        - name: ENVIRONMENT
+          value: "development"
+        volumeMounts:
+        - name: seed-script
+          mountPath: /scripts
+      volumes:
+      - name: seed-script
+        configMap:
+          name: seed-script
+      restartPolicy: Never
+  backoffLimit: 2

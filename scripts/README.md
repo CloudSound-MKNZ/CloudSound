@@ -1,85 +1,136 @@
 # Development Scripts
 
-## Mock Data and Testing
+## Quick Start
 
-### Seed Mock Data
+### 🚀 Start Everything (Docker Compose - Default)
+```bash
+./scripts/start.sh
+```
+Starts infrastructure using **Docker Compose** (PostgreSQL, Kafka, RabbitMQ, MinIO), runs database migrations, seeds mock data, and optionally starts all services.
 
-Seed the database with mock data for development and testing:
+**This is the default for local development.** No k3s/Kubernetes needed!
+
+**Options:**
+- `--no-services` - Skip starting backend/frontend services (just setup infrastructure and database)
+- `--no-infra` - Skip starting infrastructure (assumes it's already running)
+- `--no-seed` - Skip seeding mock data
+- `--k3s` - Use k3s instead of Docker Compose (requires k3s already installed and running)
+
+**Examples:**
+```bash
+# Full startup with Docker Compose (default - recommended for dev)
+./scripts/start.sh
+
+# Just setup infrastructure and database, don't start services
+./scripts/start.sh --no-services
+
+# Skip infrastructure (already running), just run migrations
+./scripts/start.sh --no-infra
+
+# Use k3s instead of Docker Compose (for production-like testing)
+# Note: k3s must be installed and running first
+./scripts/start.sh --k3s
+```
+
+### 📦 Docker Compose vs k3s
+
+- **Docker Compose (default)**: For local development. Automatically starts all infrastructure services.
+- **k3s**: For production deployment or production-like testing. **k3s is NOT automatically installed or deployed** - you must install and configure it separately. See [DEPLOYMENT.md](../docs/DEPLOYMENT.md) for k3s setup.
+
+### 🛑 Stop Everything
+```bash
+./scripts/stop.sh
+```
+Stops all running services (backend and frontend). Infrastructure (Docker/k3s) keeps running by default.
+
+**Options:**
+- `--infra` - Also stop infrastructure (Docker Compose/k3s)
+
+**Examples:**
+```bash
+# Stop services only (default)
+./scripts/stop.sh
+
+# Stop everything including infrastructure
+./scripts/stop.sh --infra
+```
+
+## What the Scripts Do
+
+### `start.sh`
+1. **Infrastructure**: 
+   - **Default**: Starts Docker Compose services (PostgreSQL, Kafka, RabbitMQ, MinIO)
+   - **With --k3s**: Detects k3s cluster (but does NOT deploy it - you must deploy separately)
+2. **Database**: Creates migration venv, runs Alembic migrations
+3. **Data**: Seeds mock data (artists, tracks, radio stations, concerts)
+4. **Services** (optional): Starts backend services and frontend in background
+
+### `stop.sh`
+1. **Services**: Stops all backend services (radio-streaming, analytics) and frontend
+2. **Infrastructure** (optional): Stops Docker Compose services if `--infra` flag is used
+   - Note: k3s deployments must be stopped manually with `kubectl`
+
+## Manual Service Startup
+
+If you prefer to start services manually in separate terminals:
 
 ```bash
+# Radio Streaming Service
+cd backend/radio-streaming
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+uvicorn src.main:app --reload --port 8004
+
+# Analytics Service
+cd backend/analytics
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+uvicorn src.main:app --reload --port 8007
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+## Data Seeding
+
+### Seed Mock Data
+```bash
 # Make sure PostgreSQL is running (via docker-compose)
-cd /home/tef/Gits/CloudSound
 python scripts/seed-mock-data.py
 ```
 
-This will create:
+This creates:
 - 1 admin user (admin@cloudsound.local / admin123)
 - 8 artists across different genres
 - 10 tracks
 - 5 radio stations
 - 1 upcoming concert
 
-### Mock API Clients
+### Seed Concerts
+```bash
+python scripts/seed-concerts.py
+```
 
-The system uses mock implementations of external APIs by default for development. These are located in `backend/shared/clients/mock_apis.py`:
+## Access Points
 
-- **MockYouTubeClient**: Returns mock YouTube video data
-- **MockBandcampClient**: Returns mock Bandcamp album/track data
-- **MockFacebookEventsClient**: Returns mock Facebook event data
+Once everything is running:
 
-To use real APIs, set `USE_MOCK_APIS = False` in `backend/shared/clients/mock_apis.py` and configure API keys in environment variables.
+- **Frontend**: http://localhost:5173
+- **Radio Stations**: http://localhost:5173/radio
+- **Radio API**: http://localhost:8004
+- **Radio API Docs**: http://localhost:8004/docs
+- **Analytics API**: http://localhost:8007
+- **Analytics Docs**: http://localhost:8007/docs
 
-### Sample Music Files
+## Logs
 
-For testing audio streaming, you'll need sample MP3 files. Options:
+Service logs are written to:
+- `/tmp/cloudsound-radio-streaming.log`
+- `/tmp/cloudsound-analytics.log`
+- `/tmp/cloudsound-frontend.log`
 
-1. **Use royalty-free music**: Download from sources like:
-   - [Free Music Archive](https://freemusicarchive.org/)
-   - [Incompetech](https://incompetech.com/music/royalty-free/)
-   - [Bensound](https://www.bensound.com/)
+## Helper Scripts
 
-2. **Generate test audio**: Use tools like `ffmpeg` to generate test tones:
-   ```bash
-   # Generate 30-second test tone
-   ffmpeg -f lavfi -i "sine=frequency=440:duration=30" -c:a libmp3lame test_tone.mp3
-   ```
-
-3. **Place files in MinIO**: Upload sample files to MinIO bucket:
-   ```bash
-   # Using MinIO client
-   mc cp test_tone.mp3 cloudsound-music/tracks/
-   ```
-
-### Development Workflow
-
-1. **Start infrastructure**:
-   ```bash
-   docker-compose -f infrastructure/docker/docker-compose.yml up -d
-   ```
-
-2. **Run migrations**:
-   ```bash
-   cd backend/shared/db
-   alembic upgrade head
-   ```
-
-3. **Seed mock data**:
-   ```bash
-   python scripts/seed-mock-data.py
-   ```
-
-4. **Start services**:
-   ```bash
-   # In separate terminals
-   cd backend/authentication && uvicorn src.main:app --reload --port 8006
-   cd backend/radio-streaming && uvicorn src.main:app --reload --port 8004
-   # ... etc
-   ```
-
-5. **Start frontend**:
-   ```bash
-   cd frontend
-   npm install  # May need Node.js 20+ for SvelteKit
-   npm run dev
-   ```
-
+The `bash/` and `powershell/` directories contain scripts used by the `.specify` system for spec-driven development. These should not be modified manually.

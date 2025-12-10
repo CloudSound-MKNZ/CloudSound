@@ -9,14 +9,15 @@ import sys
 # Add parent directory to path to import shared modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
-from backend.shared.db.pool import Base, engine
+from backend.shared.db.pool import Base, engine, db_settings
 from backend.shared.config.settings import app_settings
 
 # this is the Alembic Config object
 config = context.config
 
-# Override sqlalchemy.url with actual database URL
-config.set_main_option("sqlalchemy.url", app_settings.database_url.replace("+asyncpg", ""))
+# Override sqlalchemy.url with actual database URL (remove +asyncpg for sync connection)
+database_url = db_settings.database_url.replace("+asyncpg", "")
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 if config.config_file_name is not None:

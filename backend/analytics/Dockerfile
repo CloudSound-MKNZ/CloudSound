@@ -9,14 +9,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
-COPY requirements.txt .
+COPY backend/analytics/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy shared dependencies (from parent directory)
-COPY ../../shared /app/backend/shared
+# Copy shared dependencies
+COPY backend/shared /app/backend/shared
 
 # Copy service code
-COPY ./src /app/src
+COPY backend/analytics/src /app/src
 
 # Set Python path
 ENV PYTHONPATH=/app
