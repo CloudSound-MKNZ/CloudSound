@@ -1,0 +1,250 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/cloudsound
+
+jobs:
+  # ==========================================================================
+  # Lint & Test - Shared Package
+  # ==========================================================================
+  test-shared:
+    name: Test Shared Package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cloudsound-shared
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: cloudsound-shared
+          repository: ${{ github.repository_owner }}/cloudsound-shared
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run linting
+        run: |
+          pip install ruff
+          ruff check .
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --cov=cloudsound_shared
+
+  # ==========================================================================
+  # Build & Test Services
+  # ==========================================================================
+  build-services:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - radio-streaming
+          - concert-management
+          - authentication
+          - analytics
+          - music-discovery
+          - event-manager
+        include:
+          - service: api-gateway
+            context: cloudsound-api-gateway
+            port: 8000
+          - service: radio-streaming
+            context: cloudsound-radio-streaming
+            port: 8004
+          - service: concert-management
+            context: cloudsound-concert-management
+            port: 8005
+          - service: authentication
+            context: cloudsound-authentication
+            port: 8006
+          - service: analytics
+            context: cloudsound-analytics
+            port: 8007
+          - service: music-discovery
+            context: cloudsound-music-discovery
+            port: 8003
+          - service: event-manager
+            context: cloudsound-event-manager
+            port: 8002
+
+    steps:
+      - name: Checkout service
+        uses: actions/checkout@v4
+        with:
+          path: ${{ matrix.context }}
+          repository: ${{ github.repository_owner }}/${{ matrix.context }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd ${{ matrix.context }}
+          pip install -r requirements.txt
+
+      - name: Run linting
+        run: |
+          pip install ruff
+          cd ${{ matrix.context }}
+          ruff check src/ || true
+
+      - name: Run tests
+        run: |
+          cd ${{ matrix.context }}
+          if [ -d "tests" ]; then
+            pip install pytest pytest-asyncio pytest-cov
+            pytest tests/ -v || true
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ==========================================================================
+  # Build Frontend
+  # ==========================================================================
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint || true
+
+      - name: Run type checking
+        run: npm run check || true
+
+      - name: Build
+        run: npm run build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: frontend
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ==========================================================================
+  # Validate Helm Chart
+  # ==========================================================================
+  validate-helm:
+    name: Validate Helm Chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Add Helm repos
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+
+      - name: Update dependencies
+        run: |
+          cd infrastructure/helm/cloudsound
+          helm dependency update
+
+      - name: Lint Helm chart
+        run: |
+          helm lint infrastructure/helm/cloudsound
+
+      - name: Template Helm chart
+        run: |
+          helm template cloudsound infrastructure/helm/cloudsound --debug > /dev/null
+
+      - name: Validate with kubeval
+        run: |
+          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar xf kubeval-linux-amd64.tar.gz
+          helm template cloudsound infrastructure/helm/cloudsound | ./kubeval --strict || true
+

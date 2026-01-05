@@ -1,0 +1,133 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      version:
+        description: 'Image tag to deploy (default: latest)'
+        required: false
+        default: 'latest'
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/helm/**'
+
+env:
+  REGISTRY: ghcr.io
+  HELM_RELEASE: cloudsound
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.0
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.28.0
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Add Helm repos
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+
+      - name: Update Helm dependencies
+        run: |
+          cd infrastructure/helm/cloudsound
+          helm dependency update
+
+      - name: Deploy to Kubernetes
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
+          VERSION: ${{ github.event.inputs.version || 'latest' }}
+        run: |
+          NAMESPACE="${HELM_RELEASE}-${ENVIRONMENT}"
+          VALUES_FILE="values.yaml"
+          
+          if [ "$ENVIRONMENT" = "production" ]; then
+            VALUES_FILE="values-production.yaml"
+          fi
+          
+          # Create namespace if not exists
+          kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Deploy with Helm
+          helm upgrade --install ${HELM_RELEASE} infrastructure/helm/cloudsound \
+            --namespace ${NAMESPACE} \
+            -f infrastructure/helm/cloudsound/${VALUES_FILE} \
+            --set global.imageRegistry="${{ env.REGISTRY }}/${{ github.repository_owner }}" \
+            --set apiGateway.image.tag=${VERSION} \
+            --set radioStreaming.image.tag=${VERSION} \
+            --set concertManagement.image.tag=${VERSION} \
+            --set authentication.image.tag=${VERSION} \
+            --set analytics.image.tag=${VERSION} \
+            --set musicDiscovery.image.tag=${VERSION} \
+            --set eventManager.image.tag=${VERSION} \
+            --set frontend.image.tag=${VERSION} \
+            --set secrets.secretKey="${{ secrets.SECRET_KEY }}" \
+            --set postgresql.auth.password="${{ secrets.POSTGRES_PASSWORD }}" \
+            --set rabbitmq.auth.password="${{ secrets.RABBITMQ_PASSWORD }}" \
+            --set minio.auth.rootPassword="${{ secrets.MINIO_PASSWORD }}" \
+            --set grafana.adminPassword="${{ secrets.GRAFANA_PASSWORD }}" \
+            --wait \
+            --timeout 10m
+
+      - name: Verify deployment
+        run: |
+          NAMESPACE="${HELM_RELEASE}-${{ github.event.inputs.environment || 'staging' }}"
+          kubectl get pods -n ${NAMESPACE}
+          kubectl get svc -n ${NAMESPACE}
+          
+      - name: Run smoke tests
+        run: |
+          NAMESPACE="${HELM_RELEASE}-${{ github.event.inputs.environment || 'staging' }}"
+          
+          # Wait for pods to be ready
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/instance=${HELM_RELEASE} \
+            -n ${NAMESPACE} \
+            --timeout=300s
+          
+          # Port forward and test health endpoints
+          kubectl port-forward svc/${HELM_RELEASE}-api-gateway 8000:80 -n ${NAMESPACE} &
+          sleep 5
+          
+          curl -f http://localhost:8000/health || exit 1
+          
+          echo "✅ Smoke tests passed!"
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          NAMESPACE="${HELM_RELEASE}-${{ github.event.inputs.environment || 'staging' }}"
+          helm rollback ${HELM_RELEASE} -n ${NAMESPACE} || true
+          echo "⚠️ Deployment failed, rolled back to previous version"
+

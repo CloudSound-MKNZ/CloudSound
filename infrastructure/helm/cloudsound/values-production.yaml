@@ -1,0 +1,88 @@
+# CloudSound Production Values
+# Use: helm install cloudsound ./cloudsound -f values-production.yaml
+
+global:
+  environment: production
+  imageRegistry: "ghcr.io/cloudsound-mknz"  # Update with your registry
+
+# Production replicas
+apiGateway:
+  replicaCount: 3
+  ingress:
+    host: api.cloudsound.io  # Update with your domain
+    tls: true
+
+radioStreaming:
+  replicaCount: 3
+
+concertManagement:
+  replicaCount: 2
+
+analytics:
+  replicaCount: 2
+
+musicDiscovery:
+  replicaCount: 2
+  storage:
+    quotaGB: 100
+
+eventManager:
+  replicaCount: 2
+  facebook:
+    enabled: true
+    pollIntervalMinutes: 15
+
+authentication:
+  replicaCount: 2
+
+frontend:
+  replicaCount: 3
+  ingress:
+    host: cloudsound.io  # Update with your domain
+    tls: true
+
+# Production resources
+postgresql:
+  primary:
+    persistence:
+      size: 100Gi
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+
+kafka:
+  replicaCount: 3
+  persistence:
+    size: 50Gi
+
+rabbitmq:
+  replicaCount: 3
+  persistence:
+    size: 20Gi
+
+minio:
+  mode: distributed
+  replicas: 4
+  persistence:
+    size: 500Gi
+
+# Observability
+prometheus:
+  server:
+    retention: "30d"
+    persistentVolume:
+      size: 50Gi
+
+grafana:
+  persistence:
+    size: 10Gi
+
+loki:
+  persistence:
+    size: 100Gi
+
+# Secrets - MUST be overridden via --set or external secrets
+secrets:
+  secretKey: ""  # Set via --set secrets.secretKey=<value>
+

@@ -1,0 +1,249 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: cloudsound
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: []
+
+    rule_files:
+      - /etc/prometheus/alerts/*.yml
+
+    scrape_configs:
+      # Prometheus itself
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      # API Gateway
+      - job_name: 'api-gateway'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['cloudsound']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: api-gateway
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: '${1}:8000'
+        metrics_path: /metrics
+
+      # Radio Streaming
+      - job_name: 'radio-streaming'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['cloudsound']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: radio-streaming
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: '${1}:8004'
+        metrics_path: /metrics
+
+      # Concert Management
+      - job_name: 'concert-management'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['cloudsound']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: concert-management
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: '${1}:8005'
+        metrics_path: /metrics
+
+      # Analytics
+      - job_name: 'analytics'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['cloudsound']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: analytics
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: '${1}:8007'
+        metrics_path: /metrics
+
+      # Music Discovery
+      - job_name: 'music-discovery'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['cloudsound']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: music-discovery
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: '${1}:8003'
+        metrics_path: /metrics
+
+      # Event Manager
+      - job_name: 'event-manager'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['cloudsound']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: event-manager
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip]
+            target_label: __address__
+            replacement: '${1}:8002'
+        metrics_path: /metrics
+
+      # PostgreSQL (if using postgres_exporter)
+      - job_name: 'postgresql'
+        static_configs:
+          - targets: ['postgres:9187']
+
+      # Kafka (if using kafka_exporter)
+      - job_name: 'kafka'
+        static_configs:
+          - targets: ['kafka:9308']
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: cloudsound
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.47.0
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus'
+          - '--storage.tsdb.retention.time=15d'
+          - '--web.enable-lifecycle'
+          - '--web.enable-admin-api'
+        ports:
+        - containerPort: 9090
+          name: http
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+        - name: alerts
+          mountPath: /etc/prometheus/alerts
+        - name: data
+          mountPath: /prometheus
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: prometheus-config
+      - name: alerts
+        configMap:
+          name: prometheus-alerts
+      - name: data
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: cloudsound
+spec:
+  selector:
+    app: prometheus
+  ports:
+  - port: 9090
+    targetPort: 9090
+    name: http
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: cloudsound
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: cloudsound
+

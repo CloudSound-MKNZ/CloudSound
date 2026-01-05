@@ -9,3 +9,6 @@ python-multipart>=0.0.9
 prometheus-client>=0.20.0
 structlog>=24.1.0
 
+
+# Shared utilities package
+cloudsound-shared @ git+https://github.com/CloudSound-MKNZ/cloudsound-shared.git@main

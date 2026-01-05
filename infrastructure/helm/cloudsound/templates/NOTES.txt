@@ -1,0 +1,91 @@
+🎵 CloudSound Radio Platform has been deployed!
+
+=============================================================================
+ ACCESS INFORMATION
+=============================================================================
+
+{{- if .Values.frontend.ingress.enabled }}
+Frontend URL:     http://{{ .Values.frontend.ingress.host }}
+{{- else }}
+Frontend:         kubectl port-forward svc/{{ .Release.Name }}-frontend 3000:{{ .Values.frontend.service.port }}
+                  Then visit: http://localhost:3000
+{{- end }}
+
+{{- if .Values.apiGateway.ingress.enabled }}
+API Gateway URL:  http://{{ .Values.apiGateway.ingress.host }}
+{{- else }}
+API Gateway:      kubectl port-forward svc/{{ .Release.Name }}-api-gateway 8000:{{ .Values.apiGateway.service.port }}
+                  Then visit: http://localhost:8000/docs
+{{- end }}
+
+{{- if .Values.grafana.enabled }}
+Grafana:          kubectl port-forward svc/{{ .Release.Name }}-grafana 3001:80
+                  Then visit: http://localhost:3001
+                  Username: admin
+                  Password: (see values.yaml or secret)
+{{- end }}
+
+{{- if .Values.prometheus.enabled }}
+Prometheus:       kubectl port-forward svc/{{ .Release.Name }}-prometheus-server 9090:80
+                  Then visit: http://localhost:9090
+{{- end }}
+
+=============================================================================
+ SERVICES STATUS
+=============================================================================
+
+Check all pods are running:
+  kubectl get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+
+Check services:
+  kubectl get svc -l app.kubernetes.io/instance={{ .Release.Name }}
+
+View logs:
+  kubectl logs -l app=api-gateway -f
+  kubectl logs -l app=radio-streaming -f
+
+=============================================================================
+ CONFIGURATION
+=============================================================================
+
+Environment: {{ .Values.global.environment }}
+
+Services enabled:
+  - API Gateway:        {{ .Values.apiGateway.enabled }}
+  - Radio Streaming:    {{ .Values.radioStreaming.enabled }}
+  - Concert Management: {{ .Values.concertManagement.enabled }}
+  - Analytics:          {{ .Values.analytics.enabled }}
+  - Music Discovery:    {{ .Values.musicDiscovery.enabled }}
+  - Event Manager:      {{ .Values.eventManager.enabled }}
+  - Authentication:     {{ .Values.authentication.enabled }}
+  - Frontend:           {{ .Values.frontend.enabled }}
+
+Infrastructure:
+  - PostgreSQL:         {{ .Values.postgresql.enabled }}
+  - Kafka:              {{ .Values.kafka.enabled }}
+  - RabbitMQ:           {{ .Values.rabbitmq.enabled }}
+  - MinIO:              {{ .Values.minio.enabled }}
+
+Observability:
+  - Prometheus:         {{ .Values.prometheus.enabled }}
+  - Grafana:            {{ .Values.grafana.enabled }}
+  - Loki:               {{ .Values.loki.enabled }}
+
+=============================================================================
+ NEXT STEPS
+=============================================================================
+
+1. Wait for all pods to be ready:
+   kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance={{ .Release.Name }} --timeout=300s
+
+2. Run database migrations (if not automatic):
+   kubectl create job --from=cronjob/{{ .Release.Name }}-migrations {{ .Release.Name }}-migrations-manual
+
+3. Seed sample data (development only):
+   kubectl exec -it deploy/{{ .Release.Name }}-radio-streaming -- python scripts/seed-mock-data.py
+
+4. Configure DNS or /etc/hosts:
+   Add entries for {{ .Values.frontend.ingress.host }} and {{ .Values.apiGateway.ingress.host }}
+
+Happy streaming! 🎶
+

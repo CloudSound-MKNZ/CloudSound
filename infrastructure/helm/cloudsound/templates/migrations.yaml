@@ -1,0 +1,64 @@
+{{- if .Values.migrations.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migrations
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app: migrations
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: wait-for-postgres
+        image: busybox:1.36
+        command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-postgresql 5432; do echo waiting for postgres; sleep 2; done;']
+      containers:
+      - name: migrations
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.migrations) }}
+        command: ["alembic", "upgrade", "head"]
+        workingDir: /app/db
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+  backoffLimit: 3
+{{- end }}
+
+---
+{{- if .Values.seedData.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-seed-data
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app: seed-data
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: wait-for-migrations
+        image: busybox:1.36
+        command: ['sh', '-c', 'sleep 30']
+      containers:
+      - name: seed-data
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.seedData) }}
+        command: ["python", "scripts/seed-mock-data.py"]
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+  backoffLimit: 1
+{{- end }}
+

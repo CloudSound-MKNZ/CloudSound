@@ -1,0 +1,195 @@
+{
+	"folders": [
+		{
+			"name": "📋 CloudSound (Infrastructure & Specs)",
+			"path": "."
+		},
+		{
+			"name": "📦 cloudsound-shared",
+			"path": "../cloudsound-shared"
+		},
+		{
+			"name": "🎵 cloudsound-radio-streaming",
+			"path": "../cloudsound-radio-streaming"
+		},
+		{
+			"name": "🎤 cloudsound-concert-management",
+			"path": "../cloudsound-concert-management"
+		},
+		{
+			"name": "🔐 cloudsound-authentication",
+			"path": "../cloudsound-authentication"
+		},
+		{
+			"name": "📊 cloudsound-analytics",
+			"path": "../cloudsound-analytics"
+		},
+		{
+			"name": "👤 cloudsound-admin-management",
+			"path": "../cloudsound-admin-management"
+		},
+		{
+			"name": "🚪 cloudsound-api-gateway",
+			"path": "../cloudsound-api-gateway"
+		},
+		{
+			"name": "📅 cloudsound-event-manager",
+			"path": "../cloudsound-event-manager"
+		},
+		{
+			"name": "🔍 cloudsound-music-discovery",
+			"path": "../cloudsound-music-discovery"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/__pycache__": true,
+			"**/node_modules": true,
+			"**/.git": true,
+			"**/venv": true,
+			"**/.venv": true,
+			"**/*.pyc": true,
+			"**/.pytest_cache": true,
+			"**/.mypy_cache": true
+		},
+		"search.exclude": {
+			"**/node_modules": true,
+			"**/venv": true,
+			"**/.venv": true,
+			"**/__pycache__": true
+		},
+		"python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python",
+		"[python]": {
+			"editor.defaultFormatter": "charliermarsh.ruff",
+			"editor.formatOnSave": true
+		},
+		"[svelte]": {
+			"editor.defaultFormatter": "svelte.svelte-vscode"
+		},
+		"editor.rulers": [100],
+		"files.associations": {
+			"*.yaml": "yaml",
+			"*.yml": "yaml",
+			"Dockerfile*": "dockerfile"
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-python.python",
+			"charliermarsh.ruff",
+			"svelte.svelte-vscode",
+			"redhat.vscode-yaml",
+			"ms-kubernetes-tools.vscode-kubernetes-tools",
+			"ms-azuretools.vscode-docker",
+			"dbaeumer.vscode-eslint",
+			"esbenp.prettier-vscode"
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Radio Streaming Service",
+				"type": "debugpy",
+				"request": "launch",
+				"module": "uvicorn",
+				"args": ["src.main:app", "--reload", "--port", "8004"],
+				"cwd": "${workspaceFolder}/../cloudsound-radio-streaming",
+				"env": {
+					"PYTHONPATH": "${workspaceFolder}/../cloudsound-radio-streaming"
+				}
+			},
+			{
+				"name": "Concert Management Service",
+				"type": "debugpy",
+				"request": "launch",
+				"module": "uvicorn",
+				"args": ["src.main:app", "--reload", "--port", "8005"],
+				"cwd": "${workspaceFolder}/../cloudsound-concert-management",
+				"env": {
+					"PYTHONPATH": "${workspaceFolder}/../cloudsound-concert-management"
+				}
+			},
+			{
+				"name": "Analytics Service",
+				"type": "debugpy",
+				"request": "launch",
+				"module": "uvicorn",
+				"args": ["src.main:app", "--reload", "--port", "8007"],
+				"cwd": "${workspaceFolder}/../cloudsound-analytics",
+				"env": {
+					"PYTHONPATH": "${workspaceFolder}/../cloudsound-analytics"
+				}
+			},
+			{
+				"name": "Authentication Service",
+				"type": "debugpy",
+				"request": "launch",
+				"module": "uvicorn",
+				"args": ["src.main:app", "--reload", "--port", "8001"],
+				"cwd": "${workspaceFolder}/../cloudsound-authentication",
+				"env": {
+					"PYTHONPATH": "${workspaceFolder}/../cloudsound-authentication"
+				}
+			}
+		],
+		"compounds": [
+			{
+				"name": "All Backend Services",
+				"configurations": [
+					"Radio Streaming Service",
+					"Concert Management Service",
+					"Analytics Service",
+					"Authentication Service"
+				]
+			}
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Start Infrastructure",
+				"type": "shell",
+				"command": "docker compose -f infrastructure/docker/docker-compose.dev.yml up -d",
+				"options": {
+					"cwd": "${workspaceFolder}"
+				},
+				"problemMatcher": [],
+				"group": "build"
+			},
+			{
+				"label": "Stop Infrastructure",
+				"type": "shell",
+				"command": "docker compose -f infrastructure/docker/docker-compose.dev.yml down",
+				"options": {
+					"cwd": "${workspaceFolder}"
+				},
+				"problemMatcher": [],
+				"group": "build"
+			},
+			{
+				"label": "Run Migrations",
+				"type": "shell",
+				"command": "cd backend/shared/db && alembic upgrade head",
+				"options": {
+					"cwd": "${workspaceFolder}"
+				},
+				"problemMatcher": [],
+				"group": "build"
+			},
+			{
+				"label": "Start Frontend Dev",
+				"type": "shell",
+				"command": "npm run dev",
+				"options": {
+					"cwd": "${workspaceFolder}/frontend"
+				},
+				"problemMatcher": [],
+				"group": "build",
+				"isBackground": true
+			}
+		]
+	}
+}
+

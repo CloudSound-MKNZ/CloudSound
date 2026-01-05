@@ -1,0 +1,347 @@
+{{/*
+Radio Streaming Service
+*/}}
+{{- if .Values.radioStreaming.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-radio-streaming
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+    app: radio-streaming
+spec:
+  replicas: {{ .Values.radioStreaming.replicaCount }}
+  selector:
+    matchLabels:
+      app: radio-streaming
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: radio-streaming
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: radio-streaming
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.radioStreaming) }}
+        imagePullPolicy: {{ .Values.radioStreaming.image.pullPolicy }}
+        ports:
+        - containerPort: 8004
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8004
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.radioStreaming.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-radio-streaming
+spec:
+  type: {{ .Values.radioStreaming.service.type }}
+  ports:
+  - port: {{ .Values.radioStreaming.service.port }}
+    targetPort: 8004
+  selector:
+    app: radio-streaming
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+---
+{{/*
+Concert Management Service
+*/}}
+{{- if .Values.concertManagement.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-concert-management
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+    app: concert-management
+spec:
+  replicas: {{ .Values.concertManagement.replicaCount }}
+  selector:
+    matchLabels:
+      app: concert-management
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: concert-management
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: concert-management
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.concertManagement) }}
+        imagePullPolicy: {{ .Values.concertManagement.image.pullPolicy }}
+        ports:
+        - containerPort: 8005
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.concertManagement.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-concert-management
+spec:
+  type: {{ .Values.concertManagement.service.type }}
+  ports:
+  - port: {{ .Values.concertManagement.service.port }}
+    targetPort: 8005
+  selector:
+    app: concert-management
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+---
+{{/*
+Analytics Service
+*/}}
+{{- if .Values.analytics.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-analytics
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+    app: analytics
+spec:
+  replicas: {{ .Values.analytics.replicaCount }}
+  selector:
+    matchLabels:
+      app: analytics
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: analytics
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: analytics
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.analytics) }}
+        imagePullPolicy: {{ .Values.analytics.image.pullPolicy }}
+        ports:
+        - containerPort: 8007
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8007
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.analytics.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-analytics
+spec:
+  type: {{ .Values.analytics.service.type }}
+  ports:
+  - port: {{ .Values.analytics.service.port }}
+    targetPort: 8007
+  selector:
+    app: analytics
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+---
+{{/*
+Music Discovery Service
+*/}}
+{{- if .Values.musicDiscovery.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-music-discovery
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+    app: music-discovery
+spec:
+  replicas: {{ .Values.musicDiscovery.replicaCount }}
+  selector:
+    matchLabels:
+      app: music-discovery
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: music-discovery
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: music-discovery
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.musicDiscovery) }}
+        imagePullPolicy: {{ .Values.musicDiscovery.image.pullPolicy }}
+        ports:
+        - containerPort: 8003
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+        - name: USE_MOCK_APIS
+          value: "true"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.musicDiscovery.resources | nindent 10 }}
+        volumeMounts:
+        - name: download-temp
+          mountPath: /tmp/cloudsound-downloads
+      volumes:
+      - name: download-temp
+        emptyDir:
+          sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-music-discovery
+spec:
+  type: {{ .Values.musicDiscovery.service.type }}
+  ports:
+  - port: {{ .Values.musicDiscovery.service.port }}
+    targetPort: 8003
+  selector:
+    app: music-discovery
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+---
+{{/*
+Event Manager Service
+*/}}
+{{- if .Values.eventManager.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-event-manager
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+    app: event-manager
+spec:
+  replicas: {{ .Values.eventManager.replicaCount }}
+  selector:
+    matchLabels:
+      app: event-manager
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: event-manager
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: event-manager
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.eventManager) }}
+        imagePullPolicy: {{ .Values.eventManager.image.pullPolicy }}
+        ports:
+        - containerPort: 8002
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+        {{- include "cloudsound.serviceUrls" . | nindent 8 }}
+        - name: USE_MOCK_APIS
+          value: "true"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.eventManager.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-event-manager
+spec:
+  type: {{ .Values.eventManager.service.type }}
+  ports:
+  - port: {{ .Values.eventManager.service.port }}
+    targetPort: 8002
+  selector:
+    app: event-manager
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+---
+{{/*
+Authentication Service
+*/}}
+{{- if .Values.authentication.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-authentication
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+    app: authentication
+spec:
+  replicas: {{ .Values.authentication.replicaCount }}
+  selector:
+    matchLabels:
+      app: authentication
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: authentication
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: authentication
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.authentication) }}
+        imagePullPolicy: {{ .Values.authentication.image.pullPolicy }}
+        ports:
+        - containerPort: 8006
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        resources:
+          {{- toYaml .Values.authentication.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-authentication
+spec:
+  type: {{ .Values.authentication.service.type }}
+  ports:
+  - port: {{ .Values.authentication.service.port }}
+    targetPort: 8006
+  selector:
+    app: authentication
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+

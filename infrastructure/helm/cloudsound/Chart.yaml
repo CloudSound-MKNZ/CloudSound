@@ -1,0 +1,65 @@
+apiVersion: v2
+name: cloudsound
+description: CloudSound Radio Platform - A cloud-native microservices radio streaming platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - radio
+  - streaming
+  - music
+  - concerts
+  - microservices
+
+home: https://github.com/CloudSound-MKNZ/CloudSound
+sources:
+  - https://github.com/CloudSound-MKNZ/CloudSound
+
+maintainers:
+  - name: CloudSound Team
+    email: team@cloudsound.local
+
+dependencies:
+  # PostgreSQL
+  - name: postgresql
+    version: "13.2.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+
+  # Kafka
+  - name: kafka
+    version: "26.4.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: kafka.enabled
+
+  # RabbitMQ
+  - name: rabbitmq
+    version: "12.5.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: rabbitmq.enabled
+
+  # MinIO
+  - name: minio
+    version: "12.8.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: minio.enabled
+
+  # Prometheus (optional - use kube-prometheus-stack in production)
+  - name: prometheus
+    version: "25.0.0"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: prometheus.enabled
+
+  # Grafana
+  - name: grafana
+    version: "7.0.0"
+    repository: https://grafana.github.io/helm-charts
+    condition: grafana.enabled
+
+  # Loki
+  - name: loki
+    version: "5.0.0"
+    repository: https://grafana.github.io/helm-charts
+    condition: loki.enabled
+

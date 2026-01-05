@@ -1,30 +1,50 @@
 # Tasks: CloudSound Radio Platform
 
-**Input**: Design documents from `/specs/001-cloudsound-platform/`
+**Input**: Design documents from `/specs/001-cloudsound-platform/`  
+**Architecture**: Multi-repo microservices  
 **Prerequisites**: plan.md (required), spec.md (required for user stories)
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-## Format: `[ID] [P?] [Story] Description`
+## Format: `[ID] [P?] [Story] [@repo] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[@repo]**: Target repository for the change
 - Include exact file paths in descriptions
+
+### Repository Key
+
+| Tag | Repository | Description |
+|-----|------------|-------------|
+| `@shared` | cloudsound-shared | Shared Python package |
+| `@radio` | cloudsound-radio-streaming | Radio streaming service |
+| `@concerts` | cloudsound-concert-management | Concert management |
+| `@auth` | cloudsound-authentication | Authentication service |
+| `@analytics` | cloudsound-analytics | Analytics service |
+| `@admin` | cloudsound-admin-management | Admin management |
+| `@gateway` | cloudsound-api-gateway | API Gateway |
+| `@events` | cloudsound-event-manager | Event manager |
+| `@discovery` | cloudsound-music-discovery | Music discovery |
+| `@infra` | CloudSound | Infrastructure, frontend, specs |
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [x] T001 Create project root directory structure (frontend/, backend/, infrastructure/, scripts/)
-- [x] T002 [P] Initialize frontend service structure in frontend/ with SvelteKit
-- [x] T003 [P] Initialize backend service directories (api-gateway/, concert-management/, event-manager/, music-discovery/, radio-streaming/, admin-management/, authentication/)
-- [x] T004 [P] Create infrastructure directory structure (kubernetes/, helm/, docker/)
-- [x] T005 [P] Setup Python virtual environments and requirements.txt templates for each backend service
-- [x] T006 [P] Configure linting tools (ruff, black) for Python services
-- [x] T007 [P] Configure ESLint and Prettier for SvelteKit frontend
-- [x] T008 Create Docker Compose file for local development infrastructure in infrastructure/docker/docker-compose.yml
-- [x] T009 Create .gitignore files for Python and Node.js projects
-- [x] T010 Create README.md files for each service directory
+- [x] T001 [@infra] Create project root directory structure (frontend/, backend/, infrastructure/, scripts/)
+- [x] T002 [P] [@infra] Initialize frontend service structure in frontend/ with SvelteKit
+- [x] T003 [P] [@all-services] Initialize backend service directories (api-gateway/, concert-management/, event-manager/, music-discovery/, radio-streaming/, admin-management/, authentication/)
+- [x] T004 [P] [@infra] Create infrastructure directory structure (kubernetes/, helm/, docker/)
+- [x] T005 [P] [@all-services] Setup Python virtual environments and requirements.txt templates for each backend service
+- [x] T006 [P] [@all-services] Configure linting tools (ruff, black) for Python services
+- [x] T007 [P] [@infra] Configure ESLint and Prettier for SvelteKit frontend
+- [x] T008 [@infra] Create Docker Compose file for local development infrastructure in infrastructure/docker/docker-compose.yml
+- [x] T009 [@all-repos] Create .gitignore files for Python and Node.js projects
+- [x] T010 [@all-repos] Create README.md files for each service directory
+- [x] **T011-MR** [@all-repos] Migrate from monorepo to multi-repo structure (9 separate repositories)
+- [x] **T012-MR** [@infra] Update infrastructure configs for multi-repo (Docker Compose, Kubernetes, Helm)
+- [x] **T013-MR** [@all-services] Set up CI/CD workflows for all services (GitHub Actions)
 
 ---
 
@@ -36,23 +56,23 @@
 
 **Note**: Mock data and API clients are provided for development. See `scripts/seed-mock-data.py` and `backend/shared/clients/mock_apis.py`.
 
-- [x] T011 Setup PostgreSQL database schema and migrations framework using Alembic in backend/shared/db/
-- [x] T012 Create database connection pool configuration in backend/shared/db/pool.py
-- [x] T013 [P] Implement base database models (Base class) in backend/shared/models/base.py
-- [x] T014 [P] Create authentication service structure in backend/authentication/
-- [x] T015 [P] Implement JWT token generation and validation in backend/authentication/src/jwt_handler.py
-- [x] T016 [P] Create authentication API endpoints in backend/authentication/src/api/auth.py
-- [x] T017 [P] Setup Kafka cluster configuration and connection utilities in backend/shared/kafka/
-- [x] T018 [P] Setup RabbitMQ connection utilities in backend/shared/rabbitmq/
-- [x] T019 [P] Configure MinIO/S3 client utilities in backend/shared/storage/
-- [x] T020 [P] Create shared logging configuration (structlog) in backend/shared/logging/
-- [x] T021 [P] Create shared Prometheus metrics utilities in backend/shared/metrics/
-- [x] T022 [P] Create health check endpoint template in backend/shared/health/
-- [x] T023 [P] Create error handling middleware in backend/shared/middleware/
-- [x] T024 [P] Setup environment configuration management (pydantic-settings) in backend/shared/config/
-- [x] T025 Create database migration for AdminUser table in backend/shared/db/migrations/
-- [x] T026 [P] Create correlation ID middleware for request tracing in backend/shared/middleware/correlation.py
-- [x] T027 Create Kubernetes namespace and base configurations in infrastructure/kubernetes/base/
+- [x] T011 [@shared] Setup PostgreSQL database schema and migrations framework using Alembic in db/
+- [x] T012 [@shared] Create database connection pool configuration in db/pool.py
+- [x] T013 [P] [@shared] Implement base database models (Base class) in models/base.py
+- [x] T014 [P] [@auth] Create authentication service structure
+- [x] T015 [P] [@auth] Implement JWT token generation and validation in src/jwt_handler.py
+- [x] T016 [P] [@auth] Create authentication API endpoints in src/api/auth.py
+- [x] T017 [P] [@shared] Setup Kafka cluster configuration and connection utilities in kafka/
+- [x] T018 [P] [@shared] Setup RabbitMQ connection utilities in rabbitmq/
+- [x] T019 [P] [@shared] Configure MinIO/S3 client utilities in storage/
+- [x] T020 [P] [@shared] Create shared logging configuration (structlog) in logging/
+- [x] T021 [P] [@shared] Create shared Prometheus metrics utilities in metrics/
+- [x] T022 [P] [@shared] Create health check endpoint template in health/
+- [x] T023 [P] [@shared] Create error handling middleware in middleware/
+- [x] T024 [P] [@shared] Setup environment configuration management (pydantic-settings) in config/
+- [x] T025 [@shared] Create database migration for AdminUser table in db/migrations/
+- [x] T026 [P] [@shared] Create correlation ID middleware for request tracing in middleware/correlation.py
+- [x] T027 [@infra] Create Kubernetes namespace and base configurations in infrastructure/kubernetes/base/
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,32 +86,32 @@
 
 ### Implementation for User Story 1
 
-- [x] T028 [P] [US1] Create Artist model in backend/radio-streaming/src/models/artist.py
-- [x] T029 [P] [US1] Create Track model in backend/radio-streaming/src/models/track.py
-- [x] T030 [P] [US1] Create RadioStation model in backend/radio-streaming/src/models/radio_station.py
-- [x] T031 [P] [US1] Create StationTrack junction model in backend/radio-streaming/src/models/station_track.py
-- [x] T032 [P] [US1] Create PlaybackEvent model in backend/analytics/src/models/playback_event.py
-- [x] T033 [US1] Create database migration for Artist, Track, RadioStation, StationTrack, PlaybackEvent tables in backend/shared/db/migrations/
-- [x] T034 [US1] Implement RadioStationService for managing stations in backend/radio-streaming/src/services/station_service.py
-- [x] T035 [US1] Implement TrackService for managing tracks in backend/radio-streaming/src/services/track_service.py
-- [x] T036 [US1] Implement PlaybackEventService for tracking playback statistics in backend/analytics/src/services/playback_service.py
-- [x] T037 [US1] Implement audio streaming endpoint with HTTP range requests in backend/radio-streaming/src/api/streaming.py
-- [x] T038 [US1] Implement playback event tracking in streaming endpoint in backend/radio-streaming/src/api/streaming.py
-- [x] T039 [US1] Implement radio station list endpoint in backend/radio-streaming/src/api/stations.py
-- [x] T040 [US1] Implement station stream endpoint in backend/radio-streaming/src/api/stations.py
-- [x] T041 [US1] Create frontend radio station browser component in frontend/src/lib/components/RadioStationBrowser.svelte
-- [x] T042 [US1] Create frontend audio player component with crossfade in frontend/src/lib/components/AudioPlayer.svelte
-- [x] T043 [US1] Implement crossfade logic in frontend/src/lib/utils/crossfade.ts
-- [x] T044 [US1] Create radio station route in frontend/src/routes/radio/+page.svelte
-- [x] T045 [US1] Implement Kafka producer for radio.playback.events topic in backend/radio-streaming/src/producers/kafka_producer.py
-- [x] T046 [US1] Implement Kafka consumer for playback events in backend/analytics/src/consumers/playback_consumer.py
-- [x] T047 [US1] Add Prometheus metrics for streaming requests in backend/radio-streaming/src/metrics.py
-- [x] T048 [US1] Add structured logging for streaming operations in backend/radio-streaming/src/main.py
-- [x] T049 [US1] Create Dockerfile for radio-streaming service in backend/radio-streaming/Dockerfile
-- [x] T050 [US1] Create Dockerfile for analytics service in backend/analytics/Dockerfile
-- [x] T051 [US1] Create Kubernetes deployment manifest in infrastructure/kubernetes/radio-streaming/deployment.yaml
-- [x] T052 [US1] Create Kubernetes service manifest in infrastructure/kubernetes/radio-streaming/service.yaml
-- [x] T053 [US1] Create Kubernetes deployment manifest for analytics service in infrastructure/kubernetes/analytics/deployment.yaml
+- [x] T028 [P] [US1] [@radio] Create Artist model in src/models/artist.py
+- [x] T029 [P] [US1] [@radio] Create Track model in src/models/track.py
+- [x] T030 [P] [US1] [@radio] Create RadioStation model in src/models/radio_station.py
+- [x] T031 [P] [US1] [@radio] Create StationTrack junction model in src/models/station_track.py
+- [x] T032 [P] [US1] [@analytics] Create PlaybackEvent model in src/models/playback_event.py
+- [x] T033 [US1] [@shared] Create database migration for Artist, Track, RadioStation, StationTrack, PlaybackEvent tables in db/migrations/
+- [x] T034 [US1] [@radio] Implement RadioStationService for managing stations in src/services/station_service.py
+- [x] T035 [US1] [@radio] Implement TrackService for managing tracks in src/services/track_service.py
+- [x] T036 [US1] [@analytics] Implement PlaybackEventService for tracking playback statistics in src/services/playback_service.py
+- [x] T037 [US1] [@radio] Implement audio streaming endpoint with HTTP range requests in src/api/streaming.py
+- [x] T038 [US1] [@radio] Implement playback event tracking in streaming endpoint in src/api/streaming.py
+- [x] T039 [US1] [@radio] Implement radio station list endpoint in src/api/stations.py
+- [x] T040 [US1] [@radio] Implement station stream endpoint in src/api/stations.py
+- [x] T041 [US1] [@infra] Create frontend radio station browser component in frontend/src/lib/components/RadioStationBrowser.svelte
+- [x] T042 [US1] [@infra] Create frontend audio player component with crossfade in frontend/src/lib/components/AudioPlayer.svelte
+- [x] T043 [US1] [@infra] Implement crossfade logic in frontend/src/lib/utils/crossfade.ts
+- [x] T044 [US1] [@infra] Create radio station route in frontend/src/routes/radio/+page.svelte
+- [x] T045 [US1] [@radio] Implement Kafka producer for radio.playback.events topic in src/producers/kafka_producer.py
+- [x] T046 [US1] [@analytics] Implement Kafka consumer for playback events in src/consumers/playback_consumer.py
+- [x] T047 [US1] [@radio] Add Prometheus metrics for streaming requests in src/metrics.py
+- [x] T048 [US1] [@radio] Add structured logging for streaming operations in src/main.py
+- [x] T049 [US1] [@radio] Create Dockerfile in Dockerfile
+- [x] T050 [US1] [@analytics] Create Dockerfile in Dockerfile
+- [x] T051 [US1] [@infra] Create Kubernetes deployment manifest in infrastructure/kubernetes/radio-streaming/deployment.yaml
+- [x] T052 [US1] [@infra] Create Kubernetes service manifest in infrastructure/kubernetes/radio-streaming/service.yaml
+- [x] T053 [US1] [@infra] Create Kubernetes deployment manifest for analytics service in infrastructure/kubernetes/analytics/deployment.yaml
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. Users can browse and listen to radio stations with crossfade transitions.
 
@@ -105,21 +125,21 @@
 
 ### Implementation for User Story 2
 
-- [x] T054 [P] [US2] Create Concert model with optimistic locking (version field) in backend/concert-management/src/models/concert.py
-- [x] T055 [P] [US2] Create ConcertArtist junction model in backend/concert-management/src/models/concert_artist.py
-- [x] T056 [US2] Create database migration for Concert and ConcertArtist tables in backend/shared/db/migrations/
-- [x] T057 [US2] Implement ConcertService for managing concerts with conflict detection in backend/concert-management/src/services/concert_service.py
-- [x] T058 [US2] Implement concert list endpoint (GET /api/v1/concerts) in backend/concert-management/src/api/concerts.py
-- [x] T059 [US2] Implement concert detail endpoint (GET /api/v1/concerts/{id}) in backend/concert-management/src/api/concerts.py
-- [x] T060 [US2] Create frontend concert schedule component in frontend/src/lib/components/ConcertSchedule.svelte
-- [x] T061 [US2] Create concert schedule route in frontend/src/routes/concerts/+page.svelte
-- [x] T062 [US2] Implement concert sorting by date (chronological) in backend/concert-management/src/services/concert_service.py
-- [x] T063 [US2] Add empty state handling in frontend/src/lib/components/ConcertSchedule.svelte
-- [x] T064 [US2] Add Prometheus metrics for concert API requests in backend/concert-management/src/metrics.py
-- [x] T065 [US2] Add structured logging for concert operations in backend/concert-management/src/main.py
-- [x] T066 [US2] Create Dockerfile for concert-management service in backend/concert-management/Dockerfile
-- [x] T067 [US2] Create Kubernetes deployment manifest in infrastructure/kubernetes/concert-management/deployment.yaml
-- [x] T068 [US2] Create Kubernetes service manifest in infrastructure/kubernetes/concert-management/service.yaml
+- [x] T054 [P] [US2] [@concerts] Create Concert model with optimistic locking (version field) in src/models/concert.py
+- [x] T055 [P] [US2] [@concerts] Create ConcertArtist junction model in src/models/concert_artist.py
+- [x] T056 [US2] [@shared] Create database migration for Concert and ConcertArtist tables in db/migrations/
+- [x] T057 [US2] [@concerts] Implement ConcertService for managing concerts with conflict detection in src/services/concert_service.py
+- [x] T058 [US2] [@concerts] Implement concert list endpoint (GET /api/v1/concerts) in src/api/concerts.py
+- [x] T059 [US2] [@concerts] Implement concert detail endpoint (GET /api/v1/concerts/{id}) in src/api/concerts.py
+- [x] T060 [US2] [@infra] Create frontend concert schedule component in frontend/src/lib/components/ConcertSchedule.svelte
+- [x] T061 [US2] [@infra] Create concert schedule route in frontend/src/routes/concerts/+page.svelte
+- [x] T062 [US2] [@concerts] Implement concert sorting by date (chronological) in src/services/concert_service.py
+- [x] T063 [US2] [@infra] Add empty state handling in frontend/src/lib/components/ConcertSchedule.svelte
+- [x] T064 [US2] [@concerts] Add Prometheus metrics for concert API requests in src/metrics.py
+- [x] T065 [US2] [@concerts] Add structured logging for concert operations in src/main.py
+- [x] T066 [US2] [@concerts] Create Dockerfile in Dockerfile
+- [x] T067 [US2] [@infra] Create Kubernetes deployment manifest in infrastructure/kubernetes/concert-management/deployment.yaml
+- [x] T068 [US2] [@infra] Create Kubernetes service manifest in infrastructure/kubernetes/concert-management/service.yaml
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. Users can view concerts and listen to radio stations.
 
@@ -155,20 +175,20 @@
 
 ### Implementation for User Story 4
 
-- [ ] T078 [P] [US4] Create AdminUser model in backend/admin-management/src/models/admin_user.py
-- [ ] T079 [US4] Create database migration for AdminUser table (if not in foundational phase) in backend/shared/db/migrations/
-- [ ] T080 [US4] Implement admin authentication middleware in backend/api-gateway/src/middleware/auth.py
-- [ ] T081 [US4] Implement concert create endpoint (POST /api/v1/concerts) with admin auth and optimistic locking in backend/concert-management/src/api/concerts.py
-- [ ] T082 [US4] Implement concert update endpoint (PUT /api/v1/concerts/{id}) with admin auth and conflict detection in backend/concert-management/src/api/concerts.py
-- [ ] T083 [US4] Implement concert delete endpoint (DELETE /api/v1/concerts/{id}) with admin auth in backend/concert-management/src/api/concerts.py
-- [ ] T084 [US4] Create frontend admin login component in frontend/src/lib/components/AdminLogin.svelte
-- [ ] T085 [US4] Create frontend concert form component in frontend/src/lib/components/ConcertForm.svelte
-- [ ] T086 [US4] Create admin concert management route in frontend/src/routes/admin/concerts/+page.svelte
-- [ ] T087 [US4] Implement authorization error handling in frontend/src/lib/stores/auth.js
-- [ ] T088 [US4] Add admin operation metrics to Prometheus in backend/concert-management/src/metrics.py
-- [ ] T089 [US4] Add admin operation logging in backend/concert-management/src/main.py
-- [ ] T090 [US4] Create Dockerfile for admin-management service in backend/admin-management/Dockerfile
-- [ ] T091 [US4] Create Kubernetes deployment manifest in infrastructure/kubernetes/admin-management/deployment.yaml
+- [x] T078 [P] [US4] Create AdminUser model in backend/admin-management/src/models/admin_user.py
+- [x] T079 [US4] Create database migration for AdminUser table (if not in foundational phase) in backend/shared/db/migrations/
+- [x] T080 [US4] Implement admin authentication middleware in backend/api-gateway/src/middleware/auth.py
+- [x] T081 [US4] Implement concert create endpoint (POST /api/v1/concerts) with admin auth and optimistic locking in backend/concert-management/src/api/concerts.py
+- [x] T082 [US4] Implement concert update endpoint (PUT /api/v1/concerts/{id}) with admin auth and conflict detection in backend/concert-management/src/api/concerts.py
+- [x] T083 [US4] Implement concert delete endpoint (DELETE /api/v1/concerts/{id}) with admin auth in backend/concert-management/src/api/concerts.py
+- [x] T084 [US4] Create frontend admin login component in frontend/src/lib/components/AdminLogin.svelte
+- [x] T085 [US4] Create frontend concert form component in frontend/src/lib/components/ConcertForm.svelte
+- [x] T086 [US4] Create admin concert management route in frontend/src/routes/admin/concerts/+page.svelte
+- [x] T087 [US4] Implement authorization error handling in frontend/src/lib/stores/auth.js
+- [x] T088 [US4] Add admin operation metrics to Prometheus in backend/concert-management/src/metrics.py
+- [x] T089 [US4] Add admin operation logging in backend/concert-management/src/main.py
+- [x] T090 [US4] Create Dockerfile for admin-management service in backend/admin-management/Dockerfile
+- [x] T091 [US4] Create Kubernetes deployment manifest in infrastructure/kubernetes/admin-management/deployment.yaml
 
 **Checkpoint**: At this point, User Stories 1-4 should all work independently. Admins can manage concerts, users can view them and listen to radio.
 
@@ -182,23 +202,23 @@
 
 ### Implementation for User Story 5
 
-- [ ] T092 [P] [US5] Create YouTube API client with circuit breaker in backend/music-discovery/src/clients/youtube_client.py
-- [ ] T093 [P] [US5] Create Bandcamp API client with circuit breaker in backend/music-discovery/src/clients/bandcamp_client.py
-- [ ] T094 [US5] Implement link extraction service from text in backend/music-discovery/src/services/link_extractor.py
-- [ ] T095 [US5] Implement music downloader service with storage quota checking in backend/music-discovery/src/services/downloader.py
-- [ ] T096 [US5] Implement storage quota monitoring and error handling in backend/music-discovery/src/services/storage_service.py
-- [ ] T097 [US5] Implement Kafka consumer for event processing in backend/music-discovery/src/consumers/kafka_consumer.py
-- [ ] T098 [US5] Implement RabbitMQ producer for download tasks in backend/music-discovery/src/producers/rabbitmq_producer.py
-- [ ] T099 [US5] Implement RabbitMQ consumer for download queue in backend/music-discovery/src/consumers/rabbitmq_consumer.py
-- [ ] T100 [US5] Implement circuit breaker for external API calls in backend/music-discovery/src/utils/circuit_breaker.py
-- [ ] T101 [US5] Implement retry logic with exponential backoff in backend/music-discovery/src/utils/retry.py
-- [ ] T102 [US5] Create music storage service for MinIO/S3 in backend/music-discovery/src/services/storage_service.py
-- [ ] T103 [US5] Implement Kafka producer for music.downloaded events in backend/music-discovery/src/producers/kafka_producer.py
-- [ ] T104 [US5] Add music discovery metrics to Prometheus in backend/music-discovery/src/metrics.py
-- [ ] T105 [US5] Add music discovery logging in backend/music-discovery/src/main.py
-- [ ] T106 [US5] Create Dockerfile for music-discovery service in backend/music-discovery/Dockerfile
-- [ ] T107 [US5] Create Kubernetes deployment manifest in infrastructure/kubernetes/music-discovery/deployment.yaml
-- [ ] T108 [US5] Create Kubernetes service manifest in infrastructure/kubernetes/music-discovery/service.yaml
+- [x] T092 [P] [US5] [@discovery] Create YouTube API client with circuit breaker in src/clients/youtube_client.py
+- [x] T093 [P] [US5] [@discovery] Create Bandcamp API client with circuit breaker in src/clients/bandcamp_client.py
+- [x] T094 [US5] [@discovery] Implement link extraction service from text in src/services/link_extractor.py
+- [x] T095 [US5] [@discovery] Implement music downloader service with storage quota checking in src/services/downloader.py
+- [x] T096 [US5] [@discovery] Implement storage quota monitoring and error handling in src/services/storage_service.py
+- [x] T097 [US5] [@discovery] Implement Kafka consumer for event processing in src/consumers/kafka_consumer.py
+- [x] T098 [US5] [@discovery] Implement RabbitMQ producer for download tasks in src/producers/rabbitmq_producer.py
+- [x] T099 [US5] [@discovery] Implement RabbitMQ consumer for download queue in src/consumers/rabbitmq_consumer.py
+- [x] T100 [US5] [@discovery] Implement circuit breaker for external API calls in src/utils/circuit_breaker.py
+- [x] T101 [US5] [@discovery] Implement retry logic with exponential backoff in src/utils/retry.py
+- [x] T102 [US5] [@discovery] Create music storage service for MinIO/S3 in src/services/storage_service.py
+- [x] T103 [US5] [@discovery] Implement Kafka producer for music.downloaded events in src/producers/kafka_producer.py
+- [x] T104 [US5] [@discovery] Add music discovery metrics to Prometheus in src/metrics.py
+- [x] T105 [US5] [@discovery] Add music discovery logging in src/main.py
+- [x] T106 [US5] [@discovery] Create Dockerfile in Dockerfile
+- [x] T107 [US5] [@infra] Create Kubernetes deployment manifest in infrastructure/kubernetes/music-discovery/deployment.yaml
+- [x] T108 [US5] [@infra] Create Kubernetes service manifest in infrastructure/kubernetes/music-discovery/service.yaml
 
 **Checkpoint**: At this point, User Story 5 should work independently. Music is automatically discovered and downloaded when concerts are created with music links.
 
@@ -212,20 +232,20 @@
 
 ### Implementation for User Story 6
 
-- [ ] T109 [P] [US6] Create Facebook Events API client with circuit breaker in backend/event-manager/src/clients/facebook_client.py
-- [ ] T110 [US6] Implement event parser service with malformed data handling in backend/event-manager/src/services/event_parser.py
-- [ ] T111 [US6] Implement scheduled job for Facebook API polling in backend/event-manager/src/jobs/facebook_poller.py
-- [ ] T112 [US6] Implement Kafka producer for facebook.events.raw topic in backend/event-manager/src/producers/kafka_producer.py
-- [ ] T113 [US6] Implement event enrichment service in backend/event-manager/src/services/enrichment_service.py
-- [ ] T114 [US6] Implement event linking service to concerts in backend/event-manager/src/services/linking_service.py
-- [ ] T115 [US6] Implement Kafka consumer for event processing pipeline in backend/event-manager/src/consumers/kafka_consumer.py
-- [ ] T116 [US6] Add circuit breaker for Facebook API calls in backend/event-manager/src/utils/circuit_breaker.py
-- [ ] T117 [US6] Add retry logic for Facebook API in backend/event-manager/src/utils/retry.py
-- [ ] T118 [US6] Add Facebook integration metrics to Prometheus in backend/event-manager/src/metrics.py
-- [ ] T119 [US6] Add Facebook integration logging in backend/event-manager/src/main.py
-- [ ] T120 [US6] Create Dockerfile for event-manager service in backend/event-manager/Dockerfile
-- [ ] T121 [US6] Create Kubernetes deployment manifest in infrastructure/kubernetes/event-manager/deployment.yaml
-- [ ] T122 [US6] Create Kubernetes CronJob for Facebook polling in infrastructure/kubernetes/event-manager/cronjob.yaml
+- [x] T109 [P] [US6] [@events] Create Facebook Events API client with circuit breaker in src/clients/facebook_client.py (PLACEHOLDER - mock implementation)
+- [x] T110 [US6] [@events] Implement event parser service with malformed data handling in src/services/event_parser.py
+- [x] T111 [US6] [@events] Implement scheduled job for Facebook API polling in src/jobs/facebook_poller.py
+- [x] T112 [US6] [@events] Implement Kafka producer for facebook.events.raw topic in src/producers/kafka_producer.py
+- [x] T113 [US6] [@events] Implement event enrichment service in src/services/enrichment_service.py
+- [x] T114 [US6] [@events] Implement event linking service to concerts in src/services/linking_service.py
+- [x] T115 [US6] [@events] Implement Kafka consumer for event processing pipeline in src/consumers/kafka_consumer.py
+- [x] T116 [US6] [@events] Add circuit breaker for Facebook API calls in src/utils/circuit_breaker.py
+- [x] T117 [US6] [@events] Add retry logic for Facebook API in src/utils/retry.py
+- [x] T118 [US6] [@events] Add Facebook integration metrics to Prometheus in src/metrics.py
+- [x] T119 [US6] [@events] Add Facebook integration logging in src/main.py
+- [x] T120 [US6] [@events] Create Dockerfile in Dockerfile
+- [x] T121 [US6] [@infra] Create Kubernetes deployment manifest in infrastructure/kubernetes/event-manager/deployment.yaml
+- [x] T122 [US6] [@infra] Create Kubernetes CronJob for Facebook polling in infrastructure/kubernetes/event-manager/cronjob.yaml
 
 **Checkpoint**: At this point, User Story 6 should work independently. Facebook events are automatically fetched and linked to concerts.
 
@@ -235,24 +255,24 @@
 
 **Purpose**: Connect all services through API Gateway and enable end-to-end functionality
 
-- [ ] T123 Create API Gateway service structure in backend/api-gateway/
-- [ ] T124 Implement API Gateway routing with versioning (/api/v1/) in backend/api-gateway/src/routes/gateway.py
-- [ ] T125 Implement request forwarding to backend services in backend/api-gateway/src/middleware/proxy.py
-- [ ] T126 Implement authentication middleware in backend/api-gateway/src/middleware/auth.py
-- [ ] T127 Implement rate limiting in backend/api-gateway/src/middleware/rate_limit.py
-- [ ] T128 [P] Create gRPC proto files for event synchronization in contracts/grpc/event_sync.proto
-- [ ] T129 [P] Create gRPC proto files for music metadata updates in contracts/grpc/music_metadata.proto
-- [ ] T130 [P] Create gRPC proto files for playback events in contracts/grpc/playback_events.proto
-- [ ] T131 Implement gRPC server in Concert Management Service in backend/concert-management/src/grpc/server.py
-- [ ] T132 Implement gRPC client in Event Manager Service in backend/event-manager/src/grpc/client.py
-- [ ] T133 Implement gRPC server in Music Discovery Service in backend/music-discovery/src/grpc/server.py
-- [ ] T134 Implement gRPC client in Radio Streaming Service in backend/radio-streaming/src/grpc/client.py
-- [ ] T135 Implement gRPC server in Analytics Service for playback events in backend/analytics/src/grpc/server.py
-- [ ] T136 Create Dockerfile for API Gateway in backend/api-gateway/Dockerfile
-- [ ] T137 Create Kubernetes deployment manifest in infrastructure/kubernetes/api-gateway/deployment.yaml
-- [ ] T138 Create Kubernetes service manifest in infrastructure/kubernetes/api-gateway/service.yaml
-- [ ] T139 Create Ingress configuration for API Gateway in infrastructure/kubernetes/api-gateway/ingress.yaml
-- [ ] T140 Update frontend to use API Gateway endpoints in frontend/src/lib/api/client.js
+- [x] T123 [@gateway] Create API Gateway service structure
+- [x] T124 [@gateway] Implement API Gateway routing with versioning (/api/v1/) in src/routes/gateway.py
+- [x] T125 [@gateway] Implement request forwarding to backend services in src/middleware/proxy.py
+- [x] T126 [@gateway] Implement authentication middleware in src/middleware/auth.py
+- [x] T127 [@gateway] Implement rate limiting in src/middleware/rate_limit.py
+- [ ] T128 [P] [@infra] Create gRPC proto files for event synchronization in contracts/grpc/event_sync.proto (OPTIONAL)
+- [ ] T129 [P] [@infra] Create gRPC proto files for music metadata updates in contracts/grpc/music_metadata.proto (OPTIONAL)
+- [ ] T130 [P] [@infra] Create gRPC proto files for playback events in contracts/grpc/playback_events.proto (OPTIONAL)
+- [ ] T131 [@concerts] Implement gRPC server in src/grpc/server.py (OPTIONAL)
+- [ ] T132 [@events] Implement gRPC client in src/grpc/client.py (OPTIONAL)
+- [ ] T133 [@discovery] Implement gRPC server in src/grpc/server.py (OPTIONAL)
+- [ ] T134 [@radio] Implement gRPC client in src/grpc/client.py (OPTIONAL)
+- [ ] T135 [@analytics] Implement gRPC server for playback events in src/grpc/server.py (OPTIONAL)
+- [x] T136 [@gateway] Create Dockerfile in Dockerfile
+- [x] T137 [@infra] Create Kubernetes deployment manifest in infrastructure/kubernetes/api-gateway/deployment.yaml
+- [x] T138 [@infra] Create Kubernetes service manifest in infrastructure/kubernetes/api-gateway/service.yaml
+- [x] T139 [@infra] Create Ingress configuration for API Gateway in infrastructure/kubernetes/api-gateway/ingress.yaml
+- [x] T140 [@infra] Update frontend to use API Gateway endpoints in frontend/src/lib/api/client.ts
 
 ---
 
@@ -260,13 +280,13 @@
 
 **Purpose**: Implement comprehensive monitoring, logging, and metrics
 
-- [ ] T141 [P] Setup Prometheus server configuration in infrastructure/kubernetes/prometheus/
-- [ ] T142 [P] Setup Grafana with dashboards in infrastructure/kubernetes/grafana/
-- [ ] T143 [P] Setup ELK Stack or Loki for centralized logging in infrastructure/kubernetes/elk/
-- [ ] T144 [P] Create Prometheus ServiceMonitor for all services in infrastructure/kubernetes/prometheus/
-- [ ] T145 [P] Create Grafana dashboards for each service in infrastructure/kubernetes/grafana/dashboards/
-- [ ] T146 [P] Configure log aggregation for all services in infrastructure/kubernetes/elk/
-- [ ] T147 Create alerting rules in infrastructure/kubernetes/prometheus/alerts.yaml
+- [x] T141 [P] [@infra] Setup Prometheus server configuration in infrastructure/kubernetes/prometheus/
+- [x] T142 [P] [@infra] Setup Grafana with dashboards in infrastructure/kubernetes/grafana/
+- [x] T143 [P] [@infra] Setup Loki for centralized logging in infrastructure/kubernetes/loki/
+- [x] T144 [P] [@infra] Create Prometheus ServiceMonitor for all services in infrastructure/kubernetes/prometheus/
+- [x] T145 [P] [@infra] Create Grafana dashboards for each service in infrastructure/kubernetes/grafana/dashboards/
+- [x] T146 [P] [@infra] Configure log aggregation (Promtail) for all services in infrastructure/kubernetes/loki/
+- [x] T147 [@infra] Create alerting rules in infrastructure/kubernetes/prometheus/alerts.yaml
 
 ---
 
@@ -274,14 +294,14 @@
 
 **Purpose**: Package and deploy all services to Kubernetes
 
-- [ ] T148 Create Helm Chart structure in infrastructure/helm/cloudsound/
-- [ ] T149 Create Chart.yaml with dependencies in infrastructure/helm/cloudsound/Chart.yaml
-- [ ] T150 Create values.yaml with environment configurations in infrastructure/helm/cloudsound/values.yaml
-- [ ] T151 [P] Create Helm templates for all services in infrastructure/helm/cloudsound/templates/
-- [ ] T152 Create Helm templates for infrastructure (Kafka, RabbitMQ, PostgreSQL) in infrastructure/helm/cloudsound/templates/
-- [ ] T153 Create CI/CD pipeline configuration in .github/workflows/deploy.yml
-- [ ] T154 Test Helm chart installation locally
-- [ ] T155 Deploy to staging Kubernetes cluster
+- [x] T148 [@infra] Create Helm Chart structure in infrastructure/helm/cloudsound/
+- [x] T149 [@infra] Create Chart.yaml with dependencies in infrastructure/helm/cloudsound/Chart.yaml
+- [x] T150 [@infra] Create values.yaml with environment configurations in infrastructure/helm/cloudsound/values.yaml
+- [x] T151 [P] [@infra] Create Helm templates for all services in infrastructure/helm/cloudsound/templates/
+- [x] T152 [@infra] Create Helm templates for infrastructure (Kafka, RabbitMQ, PostgreSQL) in infrastructure/helm/cloudsound/templates/
+- [x] T153 [@all-services] Create CI/CD pipeline configuration in .github/workflows/deploy.yml
+- [ ] T154 [@infra] Test Helm chart installation locally
+- [ ] T155 [@infra] Deploy to staging Kubernetes cluster
 
 ---
 
@@ -289,25 +309,25 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T156 [P] Add comprehensive error handling across all services
-- [ ] T157 [P] Implement request validation with Pydantic in all API endpoints
-- [ ] T158 [P] Generate OpenAPI/Swagger documentation for API Gateway in backend/api-gateway/docs/openapi.yaml
-- [ ] T159 [P] Generate OpenAPI/Swagger documentation for Concert Management Service in backend/concert-management/docs/openapi.yaml
-- [ ] T160 [P] Generate OpenAPI/Swagger documentation for Radio Streaming Service in backend/radio-streaming/docs/openapi.yaml
-- [ ] T161 [P] Generate OpenAPI/Swagger documentation for Music Discovery Service in backend/music-discovery/docs/openapi.yaml
-- [ ] T162 [P] Generate OpenAPI/Swagger documentation for Event Manager Service in backend/event-manager/docs/openapi.yaml
-- [ ] T163 [P] Generate OpenAPI/Swagger documentation for Admin Management Service in backend/admin-management/docs/openapi.yaml
-- [ ] T164 [P] Generate OpenAPI/Swagger documentation for Authentication Service in backend/authentication/docs/openapi.yaml
-- [ ] T165 [P] Setup Swagger UI for API documentation in backend/api-gateway/src/api/docs.py
-- [ ] T166 [P] Optimize database queries with proper indexing
-- [ ] T167 [P] Add caching layer for frequently accessed data (Redis optional)
-- [ ] T168 [P] Implement graceful shutdown handlers in all services
-- [ ] T169 [P] Add comprehensive logging for all critical operations
-- [ ] T170 [P] Performance testing and optimization
-- [ ] T171 [P] Security audit and hardening
-- [ ] T172 Create deployment documentation in docs/deployment.md
-- [ ] T173 Create developer setup guide in docs/development.md
-- [ ] T174 Run end-to-end validation using quickstart.md scenarios
+- [ ] T156 [P] [@all-services] Add comprehensive error handling across all services
+- [ ] T157 [P] [@all-services] Implement request validation with Pydantic in all API endpoints
+- [ ] T158 [P] [@gateway] Generate OpenAPI/Swagger documentation in docs/openapi.yaml
+- [ ] T159 [P] [@concerts] Generate OpenAPI/Swagger documentation in docs/openapi.yaml
+- [ ] T160 [P] [@radio] Generate OpenAPI/Swagger documentation in docs/openapi.yaml
+- [ ] T161 [P] [@discovery] Generate OpenAPI/Swagger documentation in docs/openapi.yaml
+- [ ] T162 [P] [@events] Generate OpenAPI/Swagger documentation in docs/openapi.yaml
+- [ ] T163 [P] [@admin] Generate OpenAPI/Swagger documentation in docs/openapi.yaml
+- [ ] T164 [P] [@auth] Generate OpenAPI/Swagger documentation in docs/openapi.yaml
+- [ ] T165 [P] [@gateway] Setup Swagger UI for API documentation in src/api/docs.py
+- [ ] T166 [P] [@shared] Optimize database queries with proper indexing
+- [ ] T167 [P] [@all-services] Add caching layer for frequently accessed data (Redis optional)
+- [ ] T168 [P] [@all-services] Implement graceful shutdown handlers
+- [ ] T169 [P] [@all-services] Add comprehensive logging for all critical operations
+- [ ] T170 [P] [@all-services] Performance testing and optimization
+- [ ] T171 [P] [@all-services] Security audit and hardening
+- [ ] T172 [@infra] Create deployment documentation in docs/deployment.md
+- [ ] T173 [@infra] Create developer setup guide in docs/development.md
+- [ ] T174 [@infra] Run end-to-end validation using quickstart.md scenarios
 
 ---
 
@@ -405,6 +425,7 @@ With two developers:
 
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
+- [@repo] label maps task to specific repository
 - Each user story should be independently completable and testable
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
@@ -412,4 +433,74 @@ With two developers:
 - Total tasks: 174
 - Estimated MVP (Phases 1-4): ~70 tasks
 - Estimated Full Implementation: 174 tasks
+
+---
+
+## Multi-Repo Development Workflow
+
+### Setting Up Your Workspace
+
+1. **Clone all repos** as siblings:
+   ```bash
+   mkdir ~/CloudSound-Workspace && cd ~/CloudSound-Workspace
+   git clone git@github.com:CloudSound-MKNZ/CloudSound.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-shared.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-radio-streaming.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-concert-management.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-authentication.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-analytics.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-admin-management.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-api-gateway.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-event-manager.git
+   git clone git@github.com:CloudSound-MKNZ/cloudsound-music-discovery.git
+   ```
+
+2. **Open multi-root workspace** in Cursor:
+   ```bash
+   cursor CloudSound/cloudsound.code-workspace
+   ```
+
+### Working on a Task
+
+1. **Identify the repo** from the `[@repo]` tag
+2. **Create feature branch** in that repo:
+   ```bash
+   cd cloudsound-radio-streaming
+   git checkout -b feature/US5-playlist-shuffle
+   ```
+3. **Make changes and commit**
+4. **Update task status** in CloudSound/specs/001-cloudsound-platform/tasks.md
+5. **Create PR** in the service repo
+
+### Cross-Repo Changes
+
+When a task affects multiple repos:
+
+1. Start with `@shared` if shared code changes
+2. Bump version and push `@shared`
+3. Update services to use new shared version
+4. Make service-specific changes
+5. Update infrastructure last
+
+### Running Locally
+
+```bash
+# From CloudSound repo
+cd CloudSound
+
+# Start infrastructure
+docker compose -f infrastructure/docker/docker-compose.dev.yml up -d
+
+# Start all services (requires repos as siblings)
+docker compose -f infrastructure/docker/docker-compose.services.yml up -d
+```
+
+### PR Checklist
+
+For each affected repo:
+- [ ] Feature branch from `main`
+- [ ] Tests pass
+- [ ] Linting passes
+- [ ] README updated if needed
+- [ ] PR links to spec/task
 

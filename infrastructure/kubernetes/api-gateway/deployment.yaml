@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: cloudsound
+  labels:
+    app: api-gateway
+spec:
+  replicas: 2  # Multiple replicas for high availability
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: cloudsound-api-gateway:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "development"
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cloudsound-secrets
+              key: secret_key
+        # Backend service URLs
+        - name: RADIO_STREAMING_URL
+          value: "http://radio-streaming:8004"
+        - name: CONCERT_MANAGEMENT_URL
+          value: "http://concert-management:8005"
+        - name: AUTHENTICATION_URL
+          value: "http://authentication:8006"
+        - name: ANALYTICS_URL
+          value: "http://analytics:8007"
+        - name: MUSIC_DISCOVERY_URL
+          value: "http://music-discovery:8003"
+        - name: EVENT_MANAGER_URL
+          value: "http://event-manager:8002"
+        - name: ADMIN_MANAGEMENT_URL
+          value: "http://admin-management:8001"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: LOG_FORMAT
+          value: "json"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: cloudsound
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - port: 80
+    targetPort: 8000
+    name: http
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-gateway-ingress
+  namespace: cloudsound
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.cloudsound.local  # Change for production
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 80
+  # TLS configuration (uncomment for production)
+  # tls:
+  # - hosts:
+  #   - api.cloudsound.local
+  #   secretName: cloudsound-tls
+

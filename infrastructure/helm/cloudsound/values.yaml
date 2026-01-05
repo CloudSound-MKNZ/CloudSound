@@ -1,0 +1,297 @@
+# CloudSound Helm Chart Values
+# Override these values for different environments
+
+# Global settings
+global:
+  namespace: cloudsound
+  imageRegistry: ""  # e.g., ghcr.io/cloudsound-mknz
+  imagePullSecrets: []
+  environment: development  # development, staging, production
+
+# =============================================================================
+# CloudSound Services
+# =============================================================================
+
+apiGateway:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: cloudsound-api-gateway
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+  ingress:
+    enabled: true
+    className: nginx
+    host: api.cloudsound.local
+    tls: false
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  env:
+    LOG_LEVEL: INFO
+    LOG_FORMAT: json
+
+radioStreaming:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: cloudsound-radio-streaming
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8004
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+concertManagement:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: cloudsound-concert-management
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8005
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+analytics:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: cloudsound-analytics
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8007
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+musicDiscovery:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: cloudsound-music-discovery
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8003
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  storage:
+    quotaGB: 10
+
+eventManager:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: cloudsound-event-manager
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8002
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  facebook:
+    enabled: false  # Enable when Facebook API is configured
+    pollIntervalMinutes: 30
+
+authentication:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: cloudsound-authentication
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8006
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+frontend:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: cloudsound-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  ingress:
+    enabled: true
+    className: nginx
+    host: cloudsound.local
+    tls: false
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# =============================================================================
+# Infrastructure Dependencies
+# =============================================================================
+
+postgresql:
+  enabled: true
+  auth:
+    username: cloudsound
+    password: cloudsound_dev  # Override in production!
+    database: cloudsound
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+  metrics:
+    enabled: true
+
+kafka:
+  enabled: true
+  replicaCount: 1
+  persistence:
+    enabled: true
+    size: 10Gi
+  metrics:
+    kafka:
+      enabled: true
+    jmx:
+      enabled: true
+
+rabbitmq:
+  enabled: true
+  auth:
+    username: cloudsound
+    password: cloudsound_dev  # Override in production!
+  persistence:
+    enabled: true
+    size: 5Gi
+  metrics:
+    enabled: true
+
+minio:
+  enabled: true
+  auth:
+    rootUser: minioadmin
+    rootPassword: minioadmin  # Override in production!
+  persistence:
+    enabled: true
+    size: 20Gi
+  defaultBuckets: "cloudsound-music"
+
+# =============================================================================
+# Observability
+# =============================================================================
+
+prometheus:
+  enabled: true
+  server:
+    retention: "15d"
+    persistentVolume:
+      enabled: true
+      size: 10Gi
+  alertmanager:
+    enabled: false  # Enable for production
+
+grafana:
+  enabled: true
+  adminUser: admin
+  adminPassword: cloudsound-admin  # Override in production!
+  persistence:
+    enabled: true
+    size: 5Gi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://{{ .Release.Name }}-prometheus-server
+          isDefault: true
+        - name: Loki
+          type: loki
+          url: http://{{ .Release.Name }}-loki:3100
+
+loki:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# =============================================================================
+# Security & Secrets
+# =============================================================================
+
+secrets:
+  # JWT secret key - MUST override in production
+  secretKey: "change-me-in-production-use-secure-random-string"
+  
+  # Database passwords are set in postgresql section above
+  
+  # Facebook API (when enabled)
+  facebookAccessToken: ""
+  facebookPageIds: ""
+
+# =============================================================================
+# Migrations & Jobs
+# =============================================================================
+
+migrations:
+  enabled: true
+  image:
+    repository: cloudsound-shared
+    tag: latest
+
+seedData:
+  enabled: false  # Enable for development only
+  image:
+    repository: cloudsound-shared
+    tag: latest
+

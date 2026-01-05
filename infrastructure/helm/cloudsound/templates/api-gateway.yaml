@@ -1,0 +1,99 @@
+{{- if .Values.apiGateway.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-api-gateway
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+    app: api-gateway
+spec:
+  replicas: {{ .Values.apiGateway.replicaCount }}
+  selector:
+    matchLabels:
+      app: api-gateway
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: api-gateway
+        image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.apiGateway) }}
+        imagePullPolicy: {{ .Values.apiGateway.image.pullPolicy }}
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        {{- include "cloudsound.commonEnv" . | nindent 8 }}
+        {{- include "cloudsound.serviceUrls" . | nindent 8 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.apiGateway.resources | nindent 10 }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-api-gateway
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+    app: api-gateway
+spec:
+  type: {{ .Values.apiGateway.service.type }}
+  ports:
+  - port: {{ .Values.apiGateway.service.port }}
+    targetPort: {{ .Values.apiGateway.service.targetPort }}
+    name: http
+  selector:
+    app: api-gateway
+    app.kubernetes.io/instance: {{ .Release.Name }}
+
+{{- if .Values.apiGateway.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-api-gateway
+  labels:
+    {{- include "cloudsound.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  ingressClassName: {{ .Values.apiGateway.ingress.className }}
+  rules:
+  - host: {{ .Values.apiGateway.ingress.host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Release.Name }}-api-gateway
+            port:
+              number: {{ .Values.apiGateway.service.port }}
+  {{- if .Values.apiGateway.ingress.tls }}
+  tls:
+  - hosts:
+    - {{ .Values.apiGateway.ingress.host }}
+    secretName: {{ .Release.Name }}-api-gateway-tls
+  {{- end }}
+{{- end }}
+{{- end }}
+

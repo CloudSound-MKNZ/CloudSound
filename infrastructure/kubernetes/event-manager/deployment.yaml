@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-manager
+  namespace: cloudsound
+  labels:
+    app: event-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-manager
+  template:
+    metadata:
+      labels:
+        app: event-manager
+    spec:
+      containers:
+      - name: event-manager
+        image: cloudsound-event-manager:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8002
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "development"
+        - name: POSTGRES_HOST
+          value: "postgres"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: "cloudsound"
+        - name: POSTGRES_USER
+          value: "cloudsound"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+        - name: CONCERT_MANAGEMENT_URL
+          value: "http://concert-management:8005"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: LOG_FORMAT
+          value: "json"
+        - name: USE_MOCK_APIS
+          value: "true"
+        # Facebook API credentials (placeholder)
+        # Uncomment and configure when ready:
+        # - name: FACEBOOK_ACCESS_TOKEN
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: facebook-secret
+        #       key: access_token
+        # - name: FACEBOOK_PAGE_IDS
+        #   value: "page-id-1,page-id-2"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8002
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-manager
+  namespace: cloudsound
+spec:
+  selector:
+    app: event-manager
+  ports:
+  - port: 8002
+    targetPort: 8002
+    name: http
+  type: ClusterIP
+
+---
+# CronJob for periodic Facebook polling (disabled by default)
+# Uncomment when Facebook API is configured
+# apiVersion: batch/v1
+# kind: CronJob
+# metadata:
+#   name: facebook-event-poller
+#   namespace: cloudsound
+# spec:
+#   schedule: "*/30 * * * *"  # Every 30 minutes
+#   jobTemplate:
+#     spec:
+#       template:
+#         spec:
+#           containers:
+#           - name: poller
+#             image: cloudsound-event-manager:latest
+#             command: ["python", "-c", "import asyncio; from src.main import trigger_poll; asyncio.run(trigger_poll())"]
+#             env:
+#             - name: FACEBOOK_ACCESS_TOKEN
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: facebook-secret
+#                   key: access_token
+#           restartPolicy: OnFailure
+
