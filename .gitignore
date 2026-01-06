@@ -85,6 +85,8 @@ kubeconfig*
 
 # Helm
 .helm/
+values-secrets.yaml
+**/values-secrets.yaml
 
 # Coverage
 coverage/

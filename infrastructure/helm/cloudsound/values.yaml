@@ -131,8 +131,9 @@ eventManager:
       memory: "512Mi"
       cpu: "500m"
   facebook:
-    enabled: false  # Enable when Facebook API is configured
+    enabled: true  # Facebook API is now configured
     pollIntervalMinutes: 30
+    apiVersion: "v24.0"
 
 authentication:
   enabled: true
@@ -275,7 +276,7 @@ secrets:
   
   # Database passwords are set in postgresql section above
   
-  # Facebook API (when enabled)
+  # Facebook API - Set via values-secrets.yaml or --set flag (DO NOT COMMIT TOKENS)
   facebookAccessToken: ""
   facebookPageIds: ""
 
