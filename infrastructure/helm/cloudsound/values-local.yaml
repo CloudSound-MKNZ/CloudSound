@@ -1,0 +1,86 @@
+# Local k3s deployment values
+# Uses simple containers instead of Bitnami charts for faster deployment
+
+global:
+  namespace: cloudsound
+  imageRegistry: ""
+  imagePullSecrets: []
+  environment: development
+
+# Disable Bitnami subcharts - use standalone pods
+postgresql:
+  enabled: false
+
+kafka:
+  enabled: false
+
+rabbitmq:
+  enabled: false
+
+minio:
+  enabled: false
+
+# Disable observability for local testing
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
+
+loki:
+  enabled: false
+
+# Service configuration - single replicas for local
+apiGateway:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: cloudsound-api-gateway
+    tag: latest
+    pullPolicy: IfNotPresent
+  ingress:
+    enabled: true
+    className: traefik
+    host: api.cloudsound.local
+  env:
+    LOG_LEVEL: INFO
+    LOG_FORMAT: text
+
+radioStreaming:
+  enabled: true
+  replicaCount: 1
+
+concertManagement:
+  enabled: true
+  replicaCount: 1
+
+analytics:
+  enabled: true
+  replicaCount: 1
+
+musicDiscovery:
+  enabled: true
+  replicaCount: 1
+
+eventManager:
+  enabled: true
+  replicaCount: 1
+
+authentication:
+  enabled: true
+  replicaCount: 1
+
+frontend:
+  enabled: true
+  replicaCount: 1
+  ingress:
+    enabled: true
+    className: traefik
+    host: cloudsound.local
+
+migrations:
+  enabled: false  # Run manually
+
+seedData:
+  enabled: false
+

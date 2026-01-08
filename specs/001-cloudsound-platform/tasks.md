@@ -300,8 +300,8 @@
 - [x] T151 [P] [@infra] Create Helm templates for all services in infrastructure/helm/cloudsound/templates/
 - [x] T152 [@infra] Create Helm templates for infrastructure (Kafka, RabbitMQ, PostgreSQL) in infrastructure/helm/cloudsound/templates/
 - [x] T153 [@all-services] Create CI/CD pipeline configuration in .github/workflows/deploy.yml
-- [ ] T154 [@infra] Test Helm chart installation locally
-- [ ] T155 [@infra] Deploy to staging Kubernetes cluster
+- [x] T154 [@infra] Test Helm chart installation locally
+- [x] T155 [@infra] Deploy to staging Kubernetes cluster (local k3s)
 
 ---
 
@@ -327,7 +327,7 @@
 - [ ] T171 [P] [@all-services] Security audit and hardening
 - [x] T172 [@infra] Create deployment documentation in docs/deployment.md
 - [x] T173 [@infra] Create developer setup guide in docs/development.md
-- [ ] T174 [@infra] Run end-to-end validation using quickstart.md scenarios
+- [x] T174 [@infra] Run end-to-end validation using quickstart.md scenarios
 
 ---
 

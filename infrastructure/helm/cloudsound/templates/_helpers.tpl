@@ -84,14 +84,18 @@ Common environment variables for all services
 - name: POSTGRES_PORT
   value: "5432"
 - name: POSTGRES_USER
-  value: {{ .Values.postgresql.auth.username | quote }}
+  value: {{ if .Values.postgresql.enabled }}{{ .Values.postgresql.auth.username | quote }}{{ else }}"cloudsound"{{ end }}
 - name: POSTGRES_PASSWORD
+  {{- if .Values.postgresql.enabled }}
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-secrets
       key: postgres-password
+  {{- else }}
+  value: "cloudsound_dev"
+  {{- end }}
 - name: POSTGRES_DB
-  value: {{ .Values.postgresql.auth.database | quote }}
+  value: {{ if .Values.postgresql.enabled }}{{ .Values.postgresql.auth.database | quote }}{{ else }}"cloudsound"{{ end }}
 - name: KAFKA_BOOTSTRAP_SERVERS
   value: {{ .Release.Name }}-kafka:9092
 - name: RABBITMQ_HOST
@@ -99,28 +103,40 @@ Common environment variables for all services
 - name: RABBITMQ_PORT
   value: "5672"
 - name: RABBITMQ_USER
-  value: {{ .Values.rabbitmq.auth.username | quote }}
+  value: {{ if .Values.rabbitmq.enabled }}{{ .Values.rabbitmq.auth.username | quote }}{{ else }}"cloudsound"{{ end }}
 - name: RABBITMQ_PASSWORD
+  {{- if .Values.rabbitmq.enabled }}
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-secrets
       key: rabbitmq-password
+  {{- else }}
+  value: "cloudsound_dev"
+  {{- end }}
 - name: MINIO_ENDPOINT
   value: {{ .Release.Name }}-minio:9000
 - name: MINIO_ACCESS_KEY
-  value: {{ .Values.minio.auth.rootUser | quote }}
+  value: {{ if .Values.minio.enabled }}{{ .Values.minio.auth.rootUser | quote }}{{ else }}"minioadmin"{{ end }}
 - name: MINIO_SECRET_KEY
+  {{- if .Values.minio.enabled }}
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-secrets
       key: minio-secret-key
+  {{- else }}
+  value: "minioadmin"
+  {{- end }}
 - name: MINIO_BUCKET
   value: cloudsound-music
 - name: SECRET_KEY
+  {{- if .Values.postgresql.enabled }}
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-secrets
       key: secret-key
+  {{- else }}
+  value: "local-dev-secret-key-change-in-production"
+  {{- end }}
 - name: LOG_LEVEL
   value: {{ .Values.apiGateway.env.LOG_LEVEL | default "INFO" | quote }}
 - name: LOG_FORMAT

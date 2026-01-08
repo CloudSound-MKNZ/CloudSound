@@ -1,0 +1,24 @@
+dependencies:
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 13.2.0
+- name: kafka
+  repository: https://charts.bitnami.com/bitnami
+  version: 26.4.0
+- name: rabbitmq
+  repository: https://charts.bitnami.com/bitnami
+  version: 12.5.0
+- name: minio
+  repository: https://charts.bitnami.com/bitnami
+  version: 12.8.0
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 25.0.0
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 7.0.0
+- name: loki
+  repository: https://grafana.github.io/helm-charts
+  version: 5.0.0
+digest: sha256:98d1beedcca828a3648d7d59f5836ed75cf884bcdcc36e260014a60eaf7ed360
+generated: "2026-01-07T17:23:55.910281198+01:00"
