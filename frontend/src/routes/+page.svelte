@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getStations, getConcerts, type Station, type Concert } from '$lib/api/client';
+	import { getStations, getConcerts, triggerEventsPoll, type Station, type Concert } from '$lib/api/client';
 
 	let stations: Station[] = [];
 	let concerts: Concert[] = [];
@@ -8,6 +8,11 @@
 	let loadingConcerts = true;
 	let stationsError: string | null = null;
 	let concertsError: string | null = null;
+	
+	// Sync state
+	let syncing = false;
+	let syncMessage: string | null = null;
+	let syncError: string | null = null;
 
 	onMount(async () => {
 		// Fetch stations
@@ -38,6 +43,44 @@
 			day: 'numeric',
 			year: 'numeric'
 		});
+	}
+	
+	async function syncEvents() {
+		if (syncing) return;
+		
+		syncing = true;
+		syncMessage = null;
+		syncError = null;
+		
+		try {
+			const result = await triggerEventsPoll();
+			syncMessage = `Synced ${result.events_fetched} events from Facebook!`;
+			
+			// Refresh concerts after sync
+			setTimeout(async () => {
+				try {
+					concerts = await getConcerts();
+					concerts = concerts
+						.filter((c) => new Date(c.date) > new Date())
+						.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+						.slice(0, 3);
+				} catch (e) {
+					// Ignore refresh error
+				}
+			}, 2000);
+			
+			// Clear message after 5 seconds
+			setTimeout(() => {
+				syncMessage = null;
+			}, 5000);
+		} catch (e) {
+			syncError = e instanceof Error ? e.message : 'Failed to sync events';
+			setTimeout(() => {
+				syncError = null;
+			}, 5000);
+		} finally {
+			syncing = false;
+		}
 	}
 </script>
 
@@ -140,7 +183,27 @@
 				<span class="link-icon">🔍</span>
 				<span class="link-label">Search Music</span>
 			</a>
+			<button 
+				class="quick-link sync-button" 
+				on:click={syncEvents}
+				disabled={syncing}
+			>
+				<span class="link-icon">{syncing ? '⏳' : '🔄'}</span>
+				<span class="link-label">{syncing ? 'Syncing...' : 'Sync Events'}</span>
+			</button>
 		</div>
+		
+		{#if syncMessage}
+			<div class="sync-toast success">
+				✅ {syncMessage}
+			</div>
+		{/if}
+		
+		{#if syncError}
+			<div class="sync-toast error">
+				❌ {syncError}
+			</div>
+		{/if}
 	</section>
 </div>
 
@@ -381,6 +444,62 @@
 
 	.link-label {
 		font-weight: 500;
+	}
+
+	/* Sync Button */
+	.sync-button {
+		border: none;
+		cursor: pointer;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		color: white;
+	}
+
+	.sync-button:hover:not(:disabled) {
+		background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+		transform: translateY(-1px);
+	}
+
+	.sync-button:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+
+	.sync-button .link-icon {
+		transition: transform 0.3s;
+	}
+
+	.sync-button:not(:disabled):hover .link-icon {
+		transform: rotate(180deg);
+	}
+
+	/* Sync Toast */
+	.sync-toast {
+		margin-top: 1rem;
+		padding: 0.75rem 1rem;
+		border-radius: 8px;
+		text-align: center;
+		animation: slideIn 0.3s ease-out;
+	}
+
+	.sync-toast.success {
+		background: #c6f6d5;
+		color: #22543d;
+	}
+
+	.sync-toast.error {
+		background: #fed7d7;
+		color: #c53030;
+	}
+
+	@keyframes slideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	@media (max-width: 600px) {

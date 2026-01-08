@@ -25,7 +25,7 @@ apiGateway:
     targetPort: 8000
   ingress:
     enabled: true
-    className: nginx
+    className: traefik  # k3s default ingress controller
     host: api.cloudsound.local
     tls: false
   resources:
@@ -166,7 +166,7 @@ frontend:
     targetPort: 3000
   ingress:
     enabled: true
-    className: nginx
+    className: traefik  # k3s default ingress controller
     host: cloudsound.local
     tls: false
   resources:
@@ -182,50 +182,23 @@ frontend:
 # =============================================================================
 
 postgresql:
-  enabled: true
+  enabled: false  # Using local definition from infrastructure-local.yaml
   auth:
     username: cloudsound
-    password: cloudsound_dev  # Override in production!
+    password: cloudsound_dev
     database: cloudsound
-  primary:
-    persistence:
-      enabled: true
-      size: 10Gi
   metrics:
     enabled: true
 
+# Disable Bitnami subcharts - use local simple definitions instead
 kafka:
-  enabled: true
-  replicaCount: 1
-  persistence:
-    enabled: true
-    size: 10Gi
-  metrics:
-    kafka:
-      enabled: true
-    jmx:
-      enabled: true
+  enabled: false  # Using local definition from infrastructure-local.yaml
 
 rabbitmq:
-  enabled: true
-  auth:
-    username: cloudsound
-    password: cloudsound_dev  # Override in production!
-  persistence:
-    enabled: true
-    size: 5Gi
-  metrics:
-    enabled: true
+  enabled: false  # Using local definition from infrastructure-local.yaml
 
 minio:
-  enabled: true
-  auth:
-    rootUser: minioadmin
-    rootPassword: minioadmin  # Override in production!
-  persistence:
-    enabled: true
-    size: 20Gi
-  defaultBuckets: "cloudsound-music"
+  enabled: false  # Using local definition from infrastructure-local.yaml
 
 # =============================================================================
 # Observability

@@ -163,6 +163,71 @@ Recommended extensions:
 - YAML
 - GitLens
 
+## Accessing CloudSound Services (k3s)
+
+When running on Kubernetes (k3s), CloudSound uses Traefik ingress for external access.
+
+### Prerequisites
+
+Add the following to your `/etc/hosts`:
+
+```
+127.0.0.1 cloudsound.local api.cloudsound.local
+```
+
+### Access URLs
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| Frontend | http://cloudsound.local | Main web application |
+| API Gateway | http://api.cloudsound.local | Backend API endpoints |
+
+### API Endpoints via Gateway
+
+- **Radio**: `http://api.cloudsound.local/api/v1/radio/stations`
+- **Concerts**: `http://api.cloudsound.local/api/v1/concerts`
+- **Authentication**: `http://api.cloudsound.local/api/v1/auth/login`
+
+### Helm Configuration
+
+The ingress is configured in `infrastructure/helm/cloudsound/values.yaml`:
+
+```yaml
+apiGateway:
+  ingress:
+    enabled: true
+    className: traefik  # k3s default ingress controller
+    host: api.cloudsound.local
+
+frontend:
+  ingress:
+    enabled: true
+    className: traefik
+    host: cloudsound.local
+```
+
+### Infrastructure Services
+
+| Service | Purpose | Notes |
+|---------|---------|-------|
+| Kafka | Event streaming | Topic: `concerts.created`, `music.downloaded` |
+| RabbitMQ | Download queue | Queue: `music.downloads` |
+| PostgreSQL | Database | Shared across services |
+| MinIO | Object storage | Bucket: `cloudsound-music` |
+
+### Troubleshooting
+
+If services are inaccessible:
+
+1. **Check ingress**: `kubectl get ingress -n cloudsound`
+2. **Check services**: `kubectl get svc -n cloudsound`
+3. **Check endpoints**: `kubectl get endpoints -n cloudsound`
+4. **Check pods**: `kubectl get pods -n cloudsound`
+
+Common issues:
+- **Service selector mismatch**: Ensure pod labels match service selectors
+- **Ingress class**: Must be `traefik` for k3s (not `nginx`)
+
 ## Repository Structure
 
 ### Main Repository (CloudSound)

@@ -3,6 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Build argument for API URL
+ARG VITE_API_URL=http://api.cloudsound.local
+ENV VITE_API_URL=$VITE_API_URL
+
 # Copy package files
 COPY package.json package-lock.json* ./
 
@@ -12,7 +16,7 @@ RUN npm install --legacy-peer-deps || npm install
 # Copy source code
 COPY . .
 
-# Build the application  
+# Build the application with environment variable
 RUN npm run build
 
 # Production stage - use nginx for static serving
