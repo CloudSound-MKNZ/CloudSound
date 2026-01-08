@@ -239,11 +239,15 @@ This architecture addresses the following course requirements:
 - ✅ **Microservices** (6 points) - Multiple independent services
 - ✅ **Kubernetes** (6 points) - Full Kubernetes deployment
 - ✅ **Event Sourcing & CQRS** (5 points) - Kafka-based event streaming
+  - See [Event Sourcing & CQRS Documentation](EVENT_SOURCING_CQRS.md) for detailed implementation
 - ✅ **Message Systems** (5 points) - Kafka + RabbitMQ
 - ✅ **Metrics Collection** (5 points) - Prometheus
 - ✅ **Centralized Logging** (5 points) - ELK Stack
 - ✅ **Health Checks** (4 points) - Kubernetes health probes
 - ✅ **GraphQL & gRPC** (4 points) - gRPC for inter-service communication
+  - See [gRPC Implementation Documentation](GRPC_IMPLEMENTATION.md) for detailed implementation
+- ✅ **Serverless Function** (5 points) - Azure Functions for audio metadata extraction
+  - See [Serverless Function Documentation](SERVERLESS_FUNCTION.md) for detailed implementation
 - ✅ **External API Integration** (3 points) - Facebook, YouTube, Bandcamp APIs
 - ✅ **GUI** (4 points) - Svelte frontend
 - ✅ **CI/CD Pipeline** (5 points) - Automated deployment

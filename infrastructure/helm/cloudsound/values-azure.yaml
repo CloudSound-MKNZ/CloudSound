@@ -1,0 +1,352 @@
+# CloudSound Helm Chart - Azure Production Values
+# Override default values for Azure AKS deployment
+
+global:
+  environment: production
+  
+  # Azure Container Registry
+  # Set via CLI: --set global.imageRegistry=<your-acr>.azurecr.io
+  imageRegistry: ""
+  
+  # Image pull secrets for ACR
+  imagePullSecrets:
+    - name: acr-secret
+
+  # Image tag (use 'latest' or specific commit SHA)
+  imageTag: "latest"
+
+# PostgreSQL Configuration
+# Using Azure Database for PostgreSQL (external)
+postgresql:
+  enabled: false  # Disable built-in PostgreSQL
+  
+  external:
+    enabled: true
+    # Set via secrets or CLI
+    host: ""  # Azure PostgreSQL FQDN
+    port: 5432
+    database: cloudsound
+    user: cloudsoundadmin
+    existingSecret: postgres-secret  # Created by azure-secrets.sh
+    existingSecretPasswordKey: password
+
+# Kafka Configuration
+kafka:
+  enabled: true  # Can switch to Azure Event Hubs
+  replicaCount: 1  # Single instance for cost optimization
+  
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: managed-premium  # Azure Premium SSD
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  # Use Azure Event Hubs instead (optional)
+  # external:
+  #   enabled: true
+  #   bootstrapServers: "cloudsound-events.servicebus.windows.net:9093"
+  #   protocol: SASL_SSL
+
+# RabbitMQ Configuration
+rabbitmq:
+  enabled: true
+  replicaCount: 1
+  
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: managed-premium
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 768Mi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  auth:
+    username: cloudsound
+    existingPasswordSecret: rabbitmq-secret
+
+# MinIO Configuration (or use Azure Blob Storage)
+minio:
+  enabled: false  # Using Azure Blob Storage
+  
+  # If using MinIO on AKS:
+  # enabled: true
+  # persistence:
+  #   size: 50Gi
+  #   storageClass: managed-premium
+
+# Azure Blob Storage Configuration
+azureStorage:
+  enabled: true
+  existingSecret: storage-secret
+  accountNameKey: account-name
+  accountKeyKey: account-key
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: nginx
+  
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  
+  hosts:
+    - host: api.cloudsound.example.com  # Replace with your domain
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: api-gateway
+              port:
+                number: 8000
+  
+  tls:
+    - secretName: cloudsound-tls
+      hosts:
+        - api.cloudsound.example.com  # Replace with your domain
+
+# Service-specific configurations
+
+apiGateway:
+  replicaCount: 2
+  
+  image:
+    repository: api-gateway
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  
+  env:
+    - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: app-insights-secret
+          key: connection-string
+          optional: true
+
+authentication:
+  replicaCount: 2
+  
+  image:
+    repository: authentication
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 150m
+      memory: 128Mi
+  
+  env:
+    - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: app-insights-secret
+          key: connection-string
+          optional: true
+
+radioStreaming:
+  replicaCount: 2
+  
+  image:
+    repository: radio-streaming
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  
+  env:
+    - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: app-insights-secret
+          key: connection-string
+          optional: true
+
+concertManagement:
+  replicaCount: 1
+  
+  image:
+    repository: concert-management
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 150m
+      memory: 128Mi
+
+analytics:
+  replicaCount: 1
+  
+  image:
+    repository: analytics
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+musicDiscovery:
+  replicaCount: 1
+  
+  image:
+    repository: music-discovery
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+eventManager:
+  replicaCount: 1
+  
+  image:
+    repository: event-manager
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 150m
+      memory: 128Mi
+
+frontend:
+  replicaCount: 2
+  
+  image:
+    repository: frontend
+    pullPolicy: Always
+  
+  resources:
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    requests:
+      cpu: 150m
+      memory: 128Mi
+  
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: app.cloudsound.example.com  # Replace with your domain
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: cloudsound-frontend-tls
+        hosts:
+          - app.cloudsound.example.com
+
+# Monitoring Configuration
+monitoring:
+  prometheus:
+    enabled: true
+    retention: 7d
+    storageSize: 10Gi
+    storageClass: managed-premium
+  
+  grafana:
+    enabled: true
+    adminPassword: ""  # Set via --set or secret
+    
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClass: managed-premium
+    
+    ingress:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - monitoring.cloudsound.example.com
+      tls:
+        - secretName: cloudsound-monitoring-tls
+          hosts:
+            - monitoring.cloudsound.example.com
+  
+  loki:
+    enabled: true
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: managed-premium
+
+# Autoscaling
+autoscaling:
+  enabled: true
+  
+  apiGateway:
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  
+  radioStreaming:
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+# Network Policies (optional)
+networkPolicies:
+  enabled: false  # Enable for production
+
+# Pod Security Policies (optional)
+podSecurityPolicy:
+  enabled: false  # Enable for production
+
+# Service Mesh (optional - Istio/Linkerd)
+serviceMesh:
+  enabled: false
+  type: istio  # or linkerd
+
+# Backup Configuration
+backup:
+  enabled: false  # Can use Velero for cluster backups
+  schedule: "0 2 * * *"  # Daily at 2 AM
+

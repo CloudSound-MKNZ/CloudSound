@@ -1,0 +1,14 @@
+# Azure Functions dependencies
+azure-functions>=1.18.0
+azure-functions-worker>=0.1.0
+
+# Metadata extraction
+mutagen>=1.47.0
+Pillow>=10.0.0
+
+# Kafka integration
+kafka-python>=2.0.2
+
+# Utilities
+python-dateutil>=2.8.2
+

@@ -82,11 +82,29 @@ kubeconfig*
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+terraform.tfvars
+!terraform.tfvars.example
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 
 # Helm
 .helm/
 values-secrets.yaml
 **/values-secrets.yaml
+*.tgz
+Chart.lock
+
+# Azure specific
+azure-credentials.json
+service-principal.json
+*.pem
+*.key
+*.crt
+*-credentials.json
 
 # Coverage
 coverage/

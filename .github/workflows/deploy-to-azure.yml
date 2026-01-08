@@ -1,0 +1,252 @@
+name: Deploy to Azure AKS
+
+on:
+  push:
+    branches:
+      - main
+      - production
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.gitignore'
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  AZURE_RESOURCE_GROUP: cloudsound-rg
+  AKS_CLUSTER_NAME: cloudsound-aks
+  HELM_CHART_PATH: ./infrastructure/helm/cloudsound
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        service:
+          - api-gateway
+          - authentication
+          - radio-streaming
+          - concert-management
+          - analytics
+          - music-discovery
+          - event-manager
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push ${{ matrix.service }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./backend/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service }}:buildcache,mode=max
+
+  build-frontend:
+    name: Build and Push Frontend
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.ACR_LOGIN_SERVER }}/frontend
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/frontend:buildcache
+          cache-to: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/frontend:buildcache,mode=max
+
+  deploy:
+    name: Deploy to AKS
+    runs-on: ubuntu-latest
+    needs: [build-and-push, build-frontend]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AKS_CLUSTER_NAME }} \
+            --overwrite-all
+      
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+      
+      - name: Add Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+      
+      - name: Update Helm dependencies
+        run: |
+          cd ${{ env.HELM_CHART_PATH }}
+          helm dependency update
+      
+      - name: Create namespace
+        run: |
+          kubectl create namespace cloudsound --dry-run=client -o yaml | kubectl apply -f -
+      
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install cloudsound ${{ env.HELM_CHART_PATH }} \
+            --namespace cloudsound \
+            --set global.imageRegistry=${{ secrets.ACR_LOGIN_SERVER }} \
+            --set global.imagePullSecrets[0].name=acr-secret \
+            --set postgresql.enabled=false \
+            --set postgresql.external.enabled=true \
+            --set postgresql.external.host=${{ secrets.POSTGRES_HOST }} \
+            --set ingress.enabled=true \
+            --set ingress.className=nginx \
+            --set ingress.hosts[0].host=${{ secrets.DOMAIN_NAME }} \
+            --set ingress.tls[0].secretName=cloudsound-tls \
+            --set ingress.tls[0].hosts[0]=${{ secrets.DOMAIN_NAME }} \
+            --wait \
+            --timeout 10m
+      
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n cloudsound
+          kubectl get services -n cloudsound
+          kubectl get ingress -n cloudsound
+      
+      - name: Run database migrations
+        run: |
+          kubectl apply -f - <<EOF
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: db-migration-$(date +%s)
+            namespace: cloudsound
+          spec:
+            template:
+              spec:
+                containers:
+                - name: migration
+                  image: ${{ secrets.ACR_LOGIN_SERVER }}/api-gateway:latest
+                  command: ["sh", "-c"]
+                  args:
+                    - |
+                      cd /app/backend/shared/db
+                      alembic upgrade head
+                  env:
+                  - name: POSTGRES_HOST
+                    valueFrom:
+                      secretKeyRef:
+                        name: postgres-secret
+                        key: host
+                  - name: POSTGRES_PORT
+                    valueFrom:
+                      secretKeyRef:
+                        name: postgres-secret
+                        key: port
+                  - name: POSTGRES_DB
+                    valueFrom:
+                      secretKeyRef:
+                        name: postgres-secret
+                        key: database
+                  - name: POSTGRES_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: postgres-secret
+                        key: user
+                  - name: POSTGRES_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: postgres-secret
+                        key: password
+                restartPolicy: OnFailure
+                imagePullSecrets:
+                - name: acr-secret
+            backoffLimit: 3
+            ttlSecondsAfterFinished: 300
+          EOF
+      
+      - name: Wait for deployment to stabilize
+        run: |
+          kubectl wait --for=condition=available --timeout=300s \
+            deployment -l app.kubernetes.io/instance=cloudsound \
+            -n cloudsound
+
+  notify:
+    name: Send Deployment Notification
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    
+    steps:
+      - name: Deployment Success
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "✅ Deployment to Azure AKS succeeded!"
+          echo "Environment: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+      
+      - name: Deployment Failure
+        if: needs.deploy.result == 'failure'
+        run: |
+          echo "❌ Deployment to Azure AKS failed!"
+          echo "Check logs for details"
+          exit 1
+
