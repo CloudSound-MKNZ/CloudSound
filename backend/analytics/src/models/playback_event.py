@@ -2,7 +2,7 @@
 from sqlalchemy import Column, Integer, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from backend.shared.models.base import Base, UUIDMixin
+from cloudsound_shared.models.base import Base, UUIDMixin
 
 
 class PlaybackEvent(Base, UUIDMixin):

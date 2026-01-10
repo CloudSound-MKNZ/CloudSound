@@ -36,6 +36,7 @@ Your CloudSound project is now **ready for Azure deployment**! Here's everything
    - AKS cluster
    - Azure Container Registry
    - PostgreSQL Flexible Server
+   - Azure Event Hubs Namespace and Event Hubs
    - Storage Account
    - Virtual Network
    - Log Analytics & Application Insights
@@ -48,7 +49,9 @@ Your CloudSound project is now **ready for Azure deployment**! Here's everything
 **What Terraform Creates**:
 - ✅ Azure Kubernetes Service (AKS) - 2 nodes
 - ✅ Azure Container Registry (ACR)
-- ✅ PostgreSQL Flexible Server (15)
+- ✅ Azure Database for PostgreSQL Flexible Server (15)
+- ✅ Azure Event Hubs Namespace (Kafka-compatible event streaming)
+- ✅ Azure Event Hubs (concert-events, music-events, playback-events, raw-events)
 - ✅ Storage Account (for audio/metadata)
 - ✅ Virtual Network with subnets
 - ✅ Log Analytics Workspace
@@ -272,10 +275,11 @@ scripts/
 |----------|--------------|-----------------|
 | AKS | 2 x Standard_B2s nodes | $30-40 |
 | PostgreSQL | B_Standard_B1ms, 32GB | $15-20 |
+| Azure Event Hubs | Standard tier, 1 throughput unit | $10-20 |
 | ACR | Basic tier | $5 |
 | Storage | Standard LRS | $1-2 |
 | Log Analytics | 5GB/day | $10-15 |
-| **Total** | | **$60-82** |
+| **Total** | | **$70-102** |
 
 ### Cost Optimization Tips:
 
@@ -465,7 +469,7 @@ Your CloudSound project now meets these requirements from `navodila_projekt_semi
 - ✅ **Serverless funkcija** - Azure Functions for metadata extraction
 - ✅ **Zunanji API** - Mock API integrations
 - ✅ **Preverjanje zdravja** - Health check endpoints
-- ✅ **Sporočilni sistemi** - Kafka and RabbitMQ
+- ✅ **Sporočilni sistemi** - Azure Event Hubs (Kafka-compatible) and RabbitMQ
 - ✅ **Centralizirano beleženje** - Loki + Azure Log Analytics
 - ✅ **Zbiranje metrik** - Prometheus + Grafana
 - ✅ **Upravljanje s konfiguracijo** - Environment variables, secrets, ConfigMaps

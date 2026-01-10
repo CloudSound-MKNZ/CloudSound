@@ -6,7 +6,7 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 from ..models import Concert, ConcertArtist
-from backend.shared.logging import get_logger
+from cloudsound_shared.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -94,7 +94,8 @@ class ConcertService:
         
         if concert:
             # Manually load artists
-            from backend.radio_streaming.src.models.artist import Artist
+            # Note: Artist model should be in shared or accessed via API
+            # from src.models.artist import Artist  # Commented out - cross-service dependency
             for ca in concert.concert_artists:
                 artist_query = select(Artist).where(Artist.id == ca.artist_id)
                 artist_result = await self.db.execute(artist_query)

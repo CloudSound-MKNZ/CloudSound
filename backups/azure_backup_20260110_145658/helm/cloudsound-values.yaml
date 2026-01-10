@@ -1,0 +1,274 @@
+USER-SUPPLIED VALUES:
+analytics:
+  image:
+    pullPolicy: Always
+    repository: analytics
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 300m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+apiGateway:
+  env:
+    APPLICATIONINSIGHTS_CONNECTION_STRING:
+      valueFrom:
+        secretKeyRef:
+          key: instrumentation-key
+          name: app-insights-secret
+          optional: true
+    LOG_FORMAT: json
+    LOG_LEVEL: INFO
+  image:
+    pullPolicy: Always
+    repository: api-gateway
+  ingress:
+    className: nginx
+    enabled: true
+    host: api.cloudsound.local
+    tls: false
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 300m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  service:
+    port: 80
+    targetPort: 8000
+    type: ClusterIP
+authentication:
+  env:
+  - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+    valueFrom:
+      secretKeyRef:
+        key: connection-string
+        name: app-insights-secret
+        optional: true
+  image:
+    pullPolicy: Always
+    repository: authentication
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 200m
+      memory: 192Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+autoscaling:
+  apiGateway:
+    maxReplicas: 10
+    minReplicas: 2
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  enabled: true
+  radioStreaming:
+    maxReplicas: 8
+    minReplicas: 2
+    targetCPUUtilizationPercentage: 70
+azureStorage:
+  accountKeyKey: account-key
+  accountNameKey: account-name
+  enabled: true
+  existingSecret: storage-secret
+backup:
+  enabled: false
+  schedule: 0 2 * * *
+concertManagement:
+  image:
+    pullPolicy: Always
+    repository: concert-management
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 200m
+      memory: 192Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+eventManager:
+  image:
+    pullPolicy: Always
+    repository: event-manager
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 200m
+      memory: 192Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+frontend:
+  image:
+    pullPolicy: Always
+    repository: frontend
+  ingress:
+    allowIPAccess: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    className: nginx
+    enabled: true
+    host: cloudsound.local
+    hosts:
+    - host: app.cloudsound.example.com
+      paths:
+      - path: /
+        pathType: Prefix
+    tls:
+    - hosts:
+      - cloudsound.local
+      secretName: cloudsound-frontend-tls
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 200m
+      memory: 192Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+global:
+  environment: production
+  imagePullSecrets:
+  - name: acr-secret
+  imageRegistry: cloudsoundacrmgo77h.azurecr.io
+  imageTag: latest
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  className: nginx
+  enabled: true
+  hosts:
+  - host: api.cloudsound.example.com
+    paths:
+    - backend:
+        service:
+          name: api-gateway
+          port:
+            number: 8000
+      path: /
+      pathType: Prefix
+  tls:
+  - hosts:
+    - api.cloudsound.example.com
+    secretName: cloudsound-tls
+kafka:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: managed-premium
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+minio:
+  enabled: false
+monitoring:
+  grafana:
+    adminPassword: ""
+    enabled: true
+    ingress:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      className: nginx
+      enabled: true
+      hosts:
+      - monitoring.cloudsound.example.com
+      tls:
+      - hosts:
+        - monitoring.cloudsound.example.com
+        secretName: cloudsound-monitoring-tls
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClass: managed-premium
+  loki:
+    enabled: true
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: managed-premium
+  prometheus:
+    enabled: true
+    retention: 7d
+    storageClass: managed-premium
+    storageSize: 10Gi
+musicDiscovery:
+  image:
+    pullPolicy: Always
+    repository: music-discovery
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 300m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+networkPolicies:
+  enabled: false
+podSecurityPolicy:
+  enabled: false
+postgresql:
+  enabled: false
+  external:
+    database: cloudsound
+    enabled: true
+    existingSecret: postgres-secret
+    existingSecretPasswordKey: password
+    host: ""
+    port: 5432
+    user: cloudsoundadmin
+rabbitmq:
+  auth:
+    existingPasswordSecret: rabbitmq-secret
+    password: cloudsound_6f7fa5208f8f8cc3
+    username: cloudsound
+  enabled: true
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: managed-premium
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 768Mi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+radioStreaming:
+  env:
+  - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+    valueFrom:
+      secretKeyRef:
+        key: connection-string
+        name: app-insights-secret
+        optional: true
+  image:
+    pullPolicy: Always
+    repository: radio-streaming
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 300m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+serviceMesh:
+  enabled: false
+  type: istio

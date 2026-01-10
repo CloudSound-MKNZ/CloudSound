@@ -2,9 +2,9 @@
 from typing import Dict, Any, Optional
 from uuid import UUID
 from datetime import datetime
-from backend.shared.kafka import KafkaProducerClient
-from backend.shared.logging import get_logger
-from backend.shared.metrics import kafka_messages_produced
+from cloudsound_shared.kafka import KafkaProducerClient
+from cloudsound_shared.logging import get_logger
+from cloudsound_shared.metrics import kafka_messages_produced
 
 logger = get_logger(__name__)
 

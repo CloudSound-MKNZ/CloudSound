@@ -5,10 +5,10 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel
-from backend.shared.db.pool import get_db
+from cloudsound_shared.db.pool import get_db
 from ..services.concert_service import ConcertService, ConcertConflictError
 from ..models import Concert, ConcertArtist
-from backend.shared.logging import get_logger
+from cloudsound_shared.logging import get_logger
 
 logger = get_logger(__name__)
 

@@ -1,0 +1,3 @@
+NAME                              STATUS   ROLES    AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+aks-default-14810409-vmss000000   Ready    <none>   22h   v1.33.5   10.0.1.33     <none>        Ubuntu 22.04.5 LTS   5.15.0-1101-azure   containerd://1.7.29-1
+aks-default-14810409-vmss000001   Ready    <none>   22h   v1.33.5   10.0.1.4      <none>        Ubuntu 22.04.5 LTS   5.15.0-1101-azure   containerd://1.7.29-1

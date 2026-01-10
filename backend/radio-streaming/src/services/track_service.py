@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 from typing import List, Optional
 from uuid import UUID
 from ..models import Track, Artist, StationTrack
-from backend.shared.logging import get_logger
+from cloudsound_shared.logging import get_logger
 
 logger = get_logger(__name__)
 

@@ -4,11 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from pydantic import BaseModel
 from uuid import UUID
-from backend.shared.db.pool import get_db
+from cloudsound_shared.db.pool import get_db
 from ..services.search_service import SearchService
 from ..models import Artist, Track
-from backend.shared.logging import get_logger
-from backend.shared.metrics import http_requests_total, http_request_duration_seconds
+from cloudsound_shared.logging import get_logger
+from cloudsound_shared.metrics import http_requests_total, http_request_duration_seconds
 from ..metrics import search_queries_total, search_results_total, search_duration_seconds
 import time
 

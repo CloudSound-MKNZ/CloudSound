@@ -3,8 +3,8 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
-from backend.shared.logging import get_logger
-from backend.shared.metrics import playback_events_total
+from cloudsound_shared.logging import get_logger
+from cloudsound_shared.metrics import playback_events_total
 from ..producers.kafka_producer import publish_playback_event
 import time
 from datetime import datetime

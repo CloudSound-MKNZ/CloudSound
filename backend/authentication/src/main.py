@@ -1,18 +1,18 @@
 """Authentication service main application."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.authentication.src.api.auth import router as auth_router
-from backend.shared.health import router as health_router
-from backend.shared.middleware.error_handler import (
+from src.api.auth import router as auth_router
+from cloudsound_shared.health import router as health_router
+from cloudsound_shared.middleware.error_handler import (
     http_exception_handler,
     validation_exception_handler,
     general_exception_handler,
 )
-from backend.shared.middleware.correlation import CorrelationIDMiddleware
+from cloudsound_shared.middleware.correlation import CorrelationIDMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
-from backend.shared.logging import configure_logging, get_logger
-from backend.shared.config.settings import app_settings
+from cloudsound_shared.logging import configure_logging, get_logger
+from cloudsound_shared.config.settings import app_settings
 import sys
 
 # Configure logging

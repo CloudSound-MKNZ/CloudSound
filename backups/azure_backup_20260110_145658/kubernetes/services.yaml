@@ -1,0 +1,1015 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:03Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: cloudsound-analytics
+    namespace: cloudsound
+    resourceVersion: "14375"
+    uid: 7e0dd8ca-7709-4a48-8cb4-eef69eab36c6
+  spec:
+    clusterIP: 10.1.108.10
+    clusterIPs:
+    - 10.1.108.10
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 8007
+      protocol: TCP
+      targetPort: 8007
+    selector:
+      app: analytics
+      app.kubernetes.io/instance: cloudsound
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app: api-gateway
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: cloudsound
+      app.kubernetes.io/version: 1.0.0
+      helm.sh/chart: cloudsound-1.0.0
+    name: cloudsound-api-gateway
+    namespace: cloudsound
+    resourceVersion: "14343"
+    uid: a1a0cd72-b2fa-4639-8fb8-9254fef0d22d
+  spec:
+    clusterIP: 10.1.152.139
+    clusterIPs:
+    - 10.1.152.139
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8000
+    selector:
+      app: api-gateway
+      app.kubernetes.io/instance: cloudsound
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:03Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: cloudsound-authentication
+    namespace: cloudsound
+    resourceVersion: "14391"
+    uid: ee6cd170-8d62-46c4-a317-bdd54cde7fe1
+  spec:
+    clusterIP: 10.1.217.113
+    clusterIPs:
+    - 10.1.217.113
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 8006
+      protocol: TCP
+      targetPort: 8006
+    selector:
+      app: authentication
+      app.kubernetes.io/instance: cloudsound
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:03Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: cloudsound-concert-management
+    namespace: cloudsound
+    resourceVersion: "14370"
+    uid: a49aa585-0971-4956-b385-74011c05e4ef
+  spec:
+    clusterIP: 10.1.104.183
+    clusterIPs:
+    - 10.1.104.183
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 8005
+      protocol: TCP
+      targetPort: 8005
+    selector:
+      app: concert-management
+      app.kubernetes.io/instance: cloudsound
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:03Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: cloudsound-event-manager
+    namespace: cloudsound
+    resourceVersion: "14385"
+    uid: f06726ff-87bf-4d11-a254-e549e1fbb55d
+  spec:
+    clusterIP: 10.1.43.45
+    clusterIPs:
+    - 10.1.43.45
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 8002
+      protocol: TCP
+      targetPort: 8002
+    selector:
+      app: event-manager
+      app.kubernetes.io/instance: cloudsound
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app: frontend
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: cloudsound
+      app.kubernetes.io/version: 1.0.0
+      helm.sh/chart: cloudsound-1.0.0
+    name: cloudsound-frontend
+    namespace: cloudsound
+    resourceVersion: "14348"
+    uid: ba955165-de71-4645-9d12-b7101d3f3609
+  spec:
+    clusterIP: 10.1.6.218
+    clusterIPs:
+    - 10.1.6.218
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 3000
+    selector:
+      app: frontend
+      app.kubernetes.io/instance: cloudsound
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: grafana
+      app.kubernetes.io/version: 10.1.5
+      helm.sh/chart: grafana-7.0.0
+    name: cloudsound-grafana
+    namespace: cloudsound
+    resourceVersion: "14268"
+    uid: ed4087b0-47c6-4f8e-88af-f383c3017ce8
+  spec:
+    clusterIP: 10.1.53.68
+    clusterIPs:
+    - 10.1.53.68
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: service
+      port: 80
+      protocol: TCP
+      targetPort: 3000
+    selector:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: grafana
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: kafka
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: kafka
+      app.kubernetes.io/version: 3.6.0
+      helm.sh/chart: kafka-26.4.0
+    name: cloudsound-kafka
+    namespace: cloudsound
+    resourceVersion: "14277"
+    uid: 2fd9bf0a-0759-4d54-92eb-782475dbaa90
+  spec:
+    clusterIP: 10.1.88.77
+    clusterIPs:
+    - 10.1.88.77
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: tcp-client
+      port: 9092
+      protocol: TCP
+      targetPort: client
+    selector:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: kafka
+      app.kubernetes.io/part-of: kafka
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: controller-eligible
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: kafka
+      app.kubernetes.io/part-of: kafka
+      app.kubernetes.io/version: 3.6.0
+      helm.sh/chart: kafka-26.4.0
+    name: cloudsound-kafka-controller-headless
+    namespace: cloudsound
+    resourceVersion: "14272"
+    uid: c0acb636-a209-4575-ad15-3ee0311e9951
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: tcp-interbroker
+      port: 9094
+      protocol: TCP
+      targetPort: interbroker
+    - name: tcp-client
+      port: 9092
+      protocol: TCP
+      targetPort: client
+    - name: tcp-controller
+      port: 9093
+      protocol: TCP
+      targetPort: controller
+    publishNotReadyAddresses: true
+    selector:
+      app.kubernetes.io/component: controller-eligible
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: kafka
+      app.kubernetes.io/part-of: kafka
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: kube-state-metrics
+      app.kubernetes.io/part-of: kube-state-metrics
+      app.kubernetes.io/version: 2.10.0
+      helm.sh/chart: kube-state-metrics-5.13.0
+    name: cloudsound-kube-state-metrics
+    namespace: cloudsound
+    resourceVersion: "14313"
+    uid: 4920f7a9-b549-425b-b97a-d254ee5505a1
+  spec:
+    clusterIP: 10.1.137.189
+    clusterIPs:
+    - 10.1.137.189
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: kube-state-metrics
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:03Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: cloudsound-minio
+    namespace: cloudsound
+    resourceVersion: "14360"
+    uid: 961c15f3-0bc8-4c5c-9932-1db4a0a0104d
+  spec:
+    clusterIP: 10.1.228.149
+    clusterIPs:
+    - 10.1.228.149
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: api
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
+    - name: console
+      port: 9001
+      protocol: TCP
+      targetPort: 9001
+    selector:
+      app: minio
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:03Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: cloudsound-music-discovery
+    namespace: cloudsound
+    resourceVersion: "14380"
+    uid: ad7bb862-aa60-4b2c-b9fc-7be1e6137990
+  spec:
+    clusterIP: 10.1.148.166
+    clusterIPs:
+    - 10.1.148.166
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 8003
+      protocol: TCP
+      targetPort: 8003
+    selector:
+      app: music-discovery
+      app.kubernetes.io/instance: cloudsound
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:03Z"
+    labels:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: cloudsound
+      app.kubernetes.io/version: 1.0.0
+      helm.sh/chart: cloudsound-1.0.0
+    name: cloudsound-postgresql
+    namespace: cloudsound
+    resourceVersion: "14354"
+    uid: 9e9dac06-04ee-4162-9a7f-066731f7cec5
+  spec:
+    clusterIP: 10.1.200.181
+    clusterIPs:
+    - 10.1.200.181
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      app: postgres
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus-node-exporter
+      app.kubernetes.io/part-of: prometheus-node-exporter
+      app.kubernetes.io/version: 1.6.1
+      helm.sh/chart: prometheus-node-exporter-4.23.0
+    name: cloudsound-prometheus-node-exporter
+    namespace: cloudsound
+    resourceVersion: "14318"
+    uid: fea5e00c-b327-4dfb-8ef6-ea77496803e2
+  spec:
+    clusterIP: 10.1.242.245
+    clusterIPs:
+    - 10.1.242.245
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: metrics
+      port: 9100
+      protocol: TCP
+      targetPort: 9100
+    selector:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: prometheus-node-exporter
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+      prometheus.io/probe: pushgateway
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus-pushgateway
+      app.kubernetes.io/version: v1.6.0
+      helm.sh/chart: prometheus-pushgateway-2.4.0
+    name: cloudsound-prometheus-pushgateway
+    namespace: cloudsound
+    resourceVersion: "14323"
+    uid: f4a39d23-2a85-4a7f-932e-967503f47743
+  spec:
+    clusterIP: 10.1.165.152
+    clusterIPs:
+    - 10.1.165.152
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 9091
+      protocol: TCP
+      targetPort: 9091
+    selector:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: prometheus-pushgateway
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: server
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus
+      app.kubernetes.io/part-of: prometheus
+      app.kubernetes.io/version: v2.47.0
+      helm.sh/chart: prometheus-25.0.0
+    name: cloudsound-prometheus-server
+    namespace: cloudsound
+    resourceVersion: "14330"
+    uid: 3066f260-de90-413d-934e-c50a6457d441
+  spec:
+    clusterIP: 10.1.43.27
+    clusterIPs:
+    - 10.1.43.27
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 9090
+    selector:
+      app.kubernetes.io/component: server
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: prometheus
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/version: 3.12.8
+      helm.sh/chart: rabbitmq-12.5.0
+    name: cloudsound-rabbitmq
+    namespace: cloudsound
+    resourceVersion: "14338"
+    uid: 6946b19f-a6e0-46dc-a0bd-335726764816
+  spec:
+    clusterIP: 10.1.225.236
+    clusterIPs:
+    - 10.1.225.236
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: amqp
+      port: 5672
+      protocol: TCP
+      targetPort: amqp
+    - name: epmd
+      port: 4369
+      protocol: TCP
+      targetPort: epmd
+    - name: dist
+      port: 25672
+      protocol: TCP
+      targetPort: dist
+    - name: http-stats
+      port: 15672
+      protocol: TCP
+      targetPort: stats
+    selector:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: rabbitmq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/version: 3.12.8
+      helm.sh/chart: rabbitmq-12.5.0
+    name: cloudsound-rabbitmq-headless
+    namespace: cloudsound
+    resourceVersion: "14333"
+    uid: c9103367-0764-4b2d-8270-61a8f7b9e99b
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: epmd
+      port: 4369
+      protocol: TCP
+      targetPort: epmd
+    - name: amqp
+      port: 5672
+      protocol: TCP
+      targetPort: amqp
+    - name: dist
+      port: 25672
+      protocol: TCP
+      targetPort: dist
+    - name: http-stats
+      port: 15672
+      protocol: TCP
+      targetPort: stats
+    publishNotReadyAddresses: true
+    selector:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: rabbitmq
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:03Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+    name: cloudsound-radio-streaming
+    namespace: cloudsound
+    resourceVersion: "14365"
+    uid: 306025c0-4dce-441d-a590-887c1f7eb462
+  spec:
+    clusterIP: 10.1.175.251
+    clusterIPs:
+    - 10.1.175.251
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 8004
+      protocol: TCP
+      targetPort: 8004
+    selector:
+      app: radio-streaming
+      app.kubernetes.io/instance: cloudsound
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: canary
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 2.8.0
+      helm.sh/chart: loki-5.0.0
+    name: loki-canary
+    namespace: cloudsound
+    resourceVersion: "14288"
+    uid: 3e0f3ca6-a728-4790-8703-1dd90fd4bd38
+  spec:
+    clusterIP: 10.1.56.91
+    clusterIPs:
+    - 10.1.56.91
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3500
+      protocol: TCP
+      targetPort: http-metrics
+    selector:
+      app.kubernetes.io/component: canary
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: gateway
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 2.8.0
+      helm.sh/chart: loki-5.0.0
+    name: loki-gateway
+    namespace: cloudsound
+    resourceVersion: "14283"
+    uid: d5af980b-0a72-4b7d-a9c3-1894c28cb0af
+  spec:
+    clusterIP: 10.1.93.7
+    clusterIPs:
+    - 10.1.93.7
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+    selector:
+      app.kubernetes.io/component: gateway
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 2.8.0
+      helm.sh/chart: loki-5.0.0
+    name: loki-memberlist
+    namespace: cloudsound
+    resourceVersion: "14300"
+    uid: 5a24bcc6-d874-4230-9d20-1090a1f085ca
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: tcp
+      port: 7946
+      protocol: TCP
+      targetPort: http-memberlist
+    selector:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/part-of: memberlist
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 2.8.0
+      helm.sh/chart: loki-5.0.0
+    name: loki-read
+    namespace: cloudsound
+    resourceVersion: "14297"
+    uid: 9fe1053b-79ac-4da9-a37e-1bec3e1a7c8a
+  spec:
+    clusterIP: 10.1.23.184
+    clusterIPs:
+    - 10.1.23.184
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      prometheus.io/service-monitor: "false"
+    name: loki-read-headless
+    namespace: cloudsound
+    resourceVersion: "14292"
+    uid: 2269354a-bbe6-45b4-a8e6-136531829b92
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - appProtocol: tcp
+      name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 2.8.0
+      helm.sh/chart: loki-5.0.0
+    name: loki-write
+    namespace: cloudsound
+    resourceVersion: "14308"
+    uid: 380e9fb4-5e6c-45a2-8294-2b38a1e6e93c
+  spec:
+    clusterIP: 10.1.35.12
+    clusterIPs:
+    - 10.1.35.12
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:02Z"
+    labels:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      prometheus.io/service-monitor: "false"
+    name: loki-write-headless
+    namespace: cloudsound
+    resourceVersion: "14303"
+    uid: 1b6890fc-73bb-430c-9a59-a1760ea6c46b
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - appProtocol: tcp
+      name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""

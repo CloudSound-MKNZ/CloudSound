@@ -1,6 +1,6 @@
 """Prometheus metrics for concert management service."""
 from prometheus_client import Counter, Histogram, Gauge
-from backend.shared.metrics import (
+from cloudsound_shared.metrics import (
     http_requests_total,
     http_request_duration_seconds,
 )

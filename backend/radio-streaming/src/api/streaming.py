@@ -4,12 +4,12 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from uuid import UUID
-from backend.shared.db.pool import get_db
+from cloudsound_shared.db.pool import get_db
 from ..services.station_service import RadioStationService
 from ..services.track_service import TrackService
-from backend.shared.storage import StorageClient
-from backend.shared.logging import get_logger
-from backend.shared.metrics import http_requests_total, http_request_duration_seconds
+from cloudsound_shared.storage import StorageClient
+from cloudsound_shared.logging import get_logger
+from cloudsound_shared.metrics import http_requests_total, http_request_duration_seconds
 from ..metrics import (
     streaming_connections_active,
     streaming_bytes_sent_total,

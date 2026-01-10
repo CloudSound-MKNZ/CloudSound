@@ -82,6 +82,17 @@ This Terraform configuration creates:
   - Blob containers for audio and metadata
   - CORS configured
 
+### Event Streaming
+- **Azure Event Hubs Namespace**
+  - Standard tier
+  - Kafka protocol enabled
+  - SASL authentication
+- **Azure Event Hubs** (4 event hubs):
+  - `concert-events` - Concert creation/update events
+  - `music-events` - Music download and metadata events
+  - `playback-events` - Playback tracking events
+  - `raw-events` - Raw Facebook events
+
 ### Monitoring
 - **Log Analytics Workspace**
   - 30-day retention
@@ -98,6 +109,7 @@ Resources follow this naming pattern:
 - AKS Cluster: `cloudsound-aks`
 - ACR: `cloudsoundacr<random>`
 - PostgreSQL: `cloudsound-postgres-<random>`
+- Event Hubs Namespace: `cloudsound-events-<random>`
 - Storage: `cloudsoundstorage<random>`
 
 The `<random>` suffix ensures globally unique names.
@@ -110,9 +122,10 @@ The `<random>` suffix ensures globally unique names.
 |----------|-----|----------------|
 | AKS (2 nodes) | Standard_B2s | ~$30-40/month |
 | PostgreSQL | B_Standard_B1ms | ~$15-20/month |
+| Azure Event Hubs | Standard tier, 1 TU | ~$10-20/month |
 | ACR | Basic | ~$5/month |
 | Storage | Standard LRS | ~$1-2/month |
-| **Total** | | **~$50-70/month** |
+| **Total** | | **~$60-90/month** |
 
 ### Cost-Saving Tips
 
@@ -142,10 +155,13 @@ terraform output
 terraform output aks_cluster_name
 terraform output acr_login_server
 terraform output postgres_server_fqdn
+terraform output eventhubs_bootstrap_servers
+terraform output eventhubs_namespace_name
 
 # View sensitive outputs
 terraform output -raw postgres_password
 terraform output -raw acr_admin_password
+terraform output -raw eventhubs_connection_string
 ```
 
 ## Post-Deployment Steps

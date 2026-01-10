@@ -4,7 +4,7 @@ from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
 from typing import List, Tuple
 from ..models import Artist, Track
-from backend.shared.logging import get_logger
+from cloudsound_shared.logging import get_logger
 
 logger = get_logger(__name__)
 

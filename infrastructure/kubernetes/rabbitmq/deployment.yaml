@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: rabbitmq
   namespace: cloudsound
 spec:
+  serviceName: rabbitmq
   replicas: 1
   selector:
     matchLabels:
@@ -29,6 +30,9 @@ spec:
             secretKeyRef:
               name: rabbitmq-secret
               key: password
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
         livenessProbe:
           exec:
             command:
@@ -43,6 +47,15 @@ spec:
             - ping
           initialDelaySeconds: 20
           periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: managed-premium
+      resources:
+        requests:
+          storage: 8Gi
 
 ---
 apiVersion: v1

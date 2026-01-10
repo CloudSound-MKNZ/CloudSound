@@ -5,19 +5,19 @@ from .api.stations import router as stations_router
 from .api.streaming import router as streaming_router
 from .api.playback import router as playback_router
 from .api.search import router as search_router
-from backend.shared.health import router as health_router
-from backend.shared.metrics import get_metrics
+from cloudsound_shared.health import router as health_router
+from cloudsound_shared.metrics import get_metrics
 from fastapi.responses import Response
-from backend.shared.middleware.error_handler import (
+from cloudsound_shared.middleware.error_handler import (
     http_exception_handler,
     validation_exception_handler,
     general_exception_handler,
 )
-from backend.shared.middleware.correlation import CorrelationIDMiddleware
+from cloudsound_shared.middleware.correlation import CorrelationIDMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.exceptions import RequestValidationError
-from backend.shared.logging import configure_logging, get_logger
-from backend.shared.config.settings import app_settings
+from cloudsound_shared.logging import configure_logging, get_logger
+from cloudsound_shared.config.settings import app_settings
 import sys
 
 # Configure logging

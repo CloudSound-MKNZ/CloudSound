@@ -4,11 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel
-from backend.shared.db.pool import get_db
+from cloudsound_shared.db.pool import get_db
 from ..services.station_service import RadioStationService
 from ..services.track_service import TrackService
 from ..models import RadioStation, StationType
-from backend.shared.logging import get_logger
+from cloudsound_shared.logging import get_logger
 
 logger = get_logger(__name__)
 

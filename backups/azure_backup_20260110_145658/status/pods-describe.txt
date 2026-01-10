@@ -1,0 +1,2755 @@
+Name:             cloudsound-analytics-78478f9b5f-lrcxw
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:43:47 +0100
+Labels:           app=analytics
+                  app.kubernetes.io/instance=cloudsound
+                  pod-template-hash=78478f9b5f
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.54
+IPs:
+  IP:           10.0.1.54
+Controlled By:  ReplicaSet/cloudsound-analytics-78478f9b5f
+Containers:
+  analytics:
+    Container ID:   containerd://18f0b4683597fac1d6f69ec3c7ccfa9a19182c5149608cfd61db599a39943de5
+    Image:          cloudsoundacrmgo77h.azurecr.io/analytics:latest
+    Image ID:       cloudsoundacrmgo77h.azurecr.io/analytics@sha256:9ce84479c64c500ee790311c1b0a1301551db33c365331b1b5c9cdc41f682c05
+    Port:           8007/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:43:49 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     300m
+      memory:  384Mi
+    Requests:
+      cpu:     100m
+      memory:  128Mi
+    Liveness:  http-get http://:8007/health delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      ENVIRONMENT:              production
+      POSTGRES_HOST:            cloudsound-postgresql
+      POSTGRES_PORT:            5432
+      POSTGRES_USER:            cloudsound
+      POSTGRES_PASSWORD:        cloudsound_dev
+      POSTGRES_DB:              cloudsound
+      KAFKA_BOOTSTRAP_SERVERS:  cloudsound-kafka:9092
+      RABBITMQ_HOST:            cloudsound-rabbitmq
+      RABBITMQ_PORT:            5672
+      RABBITMQ_USER:            cloudsound
+      RABBITMQ_PASSWORD:        <set to the key 'rabbitmq-password' in secret 'cloudsound-secrets'>  Optional: false
+      MINIO_ENDPOINT:           cloudsound-minio:9000
+      MINIO_ACCESS_KEY:         minioadmin
+      MINIO_SECRET_KEY:         minioadmin
+      MINIO_BUCKET:             cloudsound-music
+      SECRET_KEY:               local-dev-secret-key-change-in-production
+      LOG_LEVEL:                INFO
+      LOG_FORMAT:               json
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-lld56 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-lld56:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-api-gateway-76c5d5cb56-d6xxw
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:43:46 +0100
+Labels:           app=api-gateway
+                  app.kubernetes.io/instance=cloudsound
+                  pod-template-hash=76c5d5cb56
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.21
+IPs:
+  IP:           10.0.1.21
+Controlled By:  ReplicaSet/cloudsound-api-gateway-76c5d5cb56
+Containers:
+  api-gateway:
+    Container ID:   containerd://0d010f4554e58ffe61f1da8bac539dc121df1f5696f99f574cb78a047aaf9256
+    Image:          cloudsoundacrmgo77h.azurecr.io/api-gateway:latest
+    Image ID:       cloudsoundacrmgo77h.azurecr.io/api-gateway@sha256:3ac27ad38bc6395544423591e8ec2e926c74da2bd7680431c9c2b7418e016472
+    Port:           8000/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:43:59 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     300m
+      memory:  384Mi
+    Requests:
+      cpu:      100m
+      memory:   128Mi
+    Liveness:   http-get http://:8000/health delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:8000/health/ready delay=5s timeout=1s period=5s #success=1 #failure=3
+    Environment:
+      ENVIRONMENT:                            production
+      POSTGRES_HOST:                          cloudsound-postgresql
+      POSTGRES_PORT:                          5432
+      POSTGRES_USER:                          cloudsound
+      POSTGRES_PASSWORD:                      cloudsound_dev
+      POSTGRES_DB:                            cloudsound
+      KAFKA_BOOTSTRAP_SERVERS:                cloudsound-kafka:9092
+      RABBITMQ_HOST:                          cloudsound-rabbitmq
+      RABBITMQ_PORT:                          5672
+      RABBITMQ_USER:                          cloudsound
+      RABBITMQ_PASSWORD:                      <set to the key 'rabbitmq-password' in secret 'cloudsound-secrets'>  Optional: false
+      MINIO_ENDPOINT:                         cloudsound-minio:9000
+      MINIO_ACCESS_KEY:                       minioadmin
+      MINIO_SECRET_KEY:                       minioadmin
+      MINIO_BUCKET:                           cloudsound-music
+      SECRET_KEY:                             local-dev-secret-key-change-in-production
+      LOG_LEVEL:                              INFO
+      LOG_FORMAT:                             json
+      API_GATEWAY_URL:                        http://cloudsound-api-gateway:80
+      RADIO_STREAMING_URL:                    http://cloudsound-radio-streaming:8004
+      CONCERT_MANAGEMENT_URL:                 http://cloudsound-concert-management:8005
+      AUTHENTICATION_URL:                     http://cloudsound-authentication:8006
+      ANALYTICS_URL:                          http://cloudsound-analytics:8007
+      MUSIC_DISCOVERY_URL:                    http://cloudsound-music-discovery:8003
+      EVENT_MANAGER_URL:                      http://cloudsound-event-manager:8002
+      APPLICATIONINSIGHTS_CONNECTION_STRING:  <set to the key 'instrumentation-key' in secret 'app-insights-secret'>  Optional: true
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-84jq5 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-84jq5:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-authentication-9fb7bfc67-ftjw8
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:49:39 +0100
+Labels:           app=authentication
+                  app.kubernetes.io/instance=cloudsound
+                  pod-template-hash=9fb7bfc67
+Annotations:      kubectl.kubernetes.io/restartedAt: 2026-01-09T17:49:39+01:00
+Status:           Running
+IP:               10.0.1.38
+IPs:
+  IP:           10.0.1.38
+Controlled By:  ReplicaSet/cloudsound-authentication-9fb7bfc67
+Containers:
+  authentication:
+    Container ID:   containerd://853a7ed7eaa01a7bb1c0bf04620bc83d6c8297c34aac8996c6e3394b160320b6
+    Image:          cloudsoundacrmgo77h.azurecr.io/authentication:latest
+    Image ID:       cloudsoundacrmgo77h.azurecr.io/authentication@sha256:14d416d487b32f7159c6d56412ed56c8375e105aed065cc40e42a10c40203882
+    Port:           8006/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Sat, 10 Jan 2026 14:57:00 +0100
+      Finished:     Sat, 10 Jan 2026 14:58:00 +0100
+    Ready:          False
+    Restart Count:  363
+    Limits:
+      cpu:     200m
+      memory:  192Mi
+    Requests:
+      cpu:     50m
+      memory:  64Mi
+    Liveness:  http-get http://:8006/health delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      ENVIRONMENT:              production
+      POSTGRES_HOST:            cloudsound-postgresql
+      POSTGRES_PORT:            5432
+      POSTGRES_USER:            cloudsound
+      POSTGRES_PASSWORD:        cloudsound_dev
+      POSTGRES_DB:              cloudsound
+      KAFKA_BOOTSTRAP_SERVERS:  cloudsound-kafka:9092
+      RABBITMQ_HOST:            cloudsound-rabbitmq
+      RABBITMQ_PORT:            5672
+      RABBITMQ_USER:            cloudsound
+      RABBITMQ_PASSWORD:        <set to the key 'rabbitmq-password' in secret 'cloudsound-secrets'>  Optional: false
+      MINIO_ENDPOINT:           cloudsound-minio:9000
+      MINIO_ACCESS_KEY:         minioadmin
+      MINIO_SECRET_KEY:         minioadmin
+      MINIO_BUCKET:             cloudsound-music
+      SECRET_KEY:               local-dev-secret-key-change-in-production
+      LOG_LEVEL:                INFO
+      LOG_FORMAT:               json
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4ksbz (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-4ksbz:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                     From     Message
+  ----     ------     ----                    ----     -------
+  Normal   Pulled     23m (x329 over 20h)     kubelet  (combined from similar events): Successfully pulled image "cloudsoundacrmgo77h.azurecr.io/authentication:latest" in 131ms (131ms including waiting). Image size: 209250802 bytes.
+  Normal   Killing    8m24s (x361 over 21h)   kubelet  Container authentication failed liveness probe, will be restarted
+  Warning  Unhealthy  7m44s (x1084 over 21h)  kubelet  Liveness probe failed: Get "http://10.0.1.38:8006/health": dial tcp 10.0.1.38:8006: connect: connection refused
+  Warning  BackOff    2m52s (x4396 over 21h)  kubelet  Back-off restarting failed container authentication in pod cloudsound-authentication-9fb7bfc67-ftjw8_cloudsound(466738f8-97df-401a-aa1a-220c3e24cf30)
+  Normal   Pulling    2m14s (x363 over 21h)   kubelet  Pulling image "cloudsoundacrmgo77h.azurecr.io/authentication:latest"
+
+
+Name:             cloudsound-concert-management-577c876c65-2cdjz
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:43:47 +0100
+Labels:           app=concert-management
+                  app.kubernetes.io/instance=cloudsound
+                  pod-template-hash=577c876c65
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.44
+IPs:
+  IP:           10.0.1.44
+Controlled By:  ReplicaSet/cloudsound-concert-management-577c876c65
+Containers:
+  concert-management:
+    Container ID:   containerd://8f4fa10af3e23b3144bf8f474ed24c8e1262230abc239ac96a86ba68e2ea1d10
+    Image:          cloudsoundacrmgo77h.azurecr.io/concert-management:latest
+    Image ID:       cloudsoundacrmgo77h.azurecr.io/concert-management@sha256:f6a77335d1546aa8882864839f46b7572fc3bc0188b45bc963ae7f4fbcdacfd4
+    Port:           8005/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:43:49 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  192Mi
+    Requests:
+      cpu:     50m
+      memory:  64Mi
+    Liveness:  http-get http://:8005/health delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      ENVIRONMENT:              production
+      POSTGRES_HOST:            cloudsound-postgresql
+      POSTGRES_PORT:            5432
+      POSTGRES_USER:            cloudsound
+      POSTGRES_PASSWORD:        cloudsound_dev
+      POSTGRES_DB:              cloudsound
+      KAFKA_BOOTSTRAP_SERVERS:  cloudsound-kafka:9092
+      RABBITMQ_HOST:            cloudsound-rabbitmq
+      RABBITMQ_PORT:            5672
+      RABBITMQ_USER:            cloudsound
+      RABBITMQ_PASSWORD:        <set to the key 'rabbitmq-password' in secret 'cloudsound-secrets'>  Optional: false
+      MINIO_ENDPOINT:           cloudsound-minio:9000
+      MINIO_ACCESS_KEY:         minioadmin
+      MINIO_SECRET_KEY:         minioadmin
+      MINIO_BUCKET:             cloudsound-music
+      SECRET_KEY:               local-dev-secret-key-change-in-production
+      LOG_LEVEL:                INFO
+      LOG_FORMAT:               json
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-h2dbk (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-h2dbk:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-event-manager-564d77ccdc-vjqjb
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:43:51 +0100
+Labels:           app=event-manager
+                  app.kubernetes.io/instance=cloudsound
+                  pod-template-hash=564d77ccdc
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.30
+IPs:
+  IP:           10.0.1.30
+Controlled By:  ReplicaSet/cloudsound-event-manager-564d77ccdc
+Containers:
+  event-manager:
+    Container ID:   containerd://dedcfb55561cef36aec2a40ef999741871eea5ce7050742d5c80d88b6fb52dfa
+    Image:          cloudsoundacrmgo77h.azurecr.io/event-manager:latest
+    Image ID:       cloudsoundacrmgo77h.azurecr.io/event-manager@sha256:b28f32504fb68b5adc58dd6b15f158008c4f75b6f4f1dc87fa53ff340fd4235c
+    Port:           8002/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:44:05 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  192Mi
+    Requests:
+      cpu:     50m
+      memory:  64Mi
+    Liveness:  http-get http://:8002/health delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      ENVIRONMENT:              production
+      POSTGRES_HOST:            cloudsound-postgresql
+      POSTGRES_PORT:            5432
+      POSTGRES_USER:            cloudsound
+      POSTGRES_PASSWORD:        cloudsound_dev
+      POSTGRES_DB:              cloudsound
+      KAFKA_BOOTSTRAP_SERVERS:  cloudsound-kafka:9092
+      RABBITMQ_HOST:            cloudsound-rabbitmq
+      RABBITMQ_PORT:            5672
+      RABBITMQ_USER:            cloudsound
+      RABBITMQ_PASSWORD:        <set to the key 'rabbitmq-password' in secret 'cloudsound-secrets'>  Optional: false
+      MINIO_ENDPOINT:           cloudsound-minio:9000
+      MINIO_ACCESS_KEY:         minioadmin
+      MINIO_SECRET_KEY:         minioadmin
+      MINIO_BUCKET:             cloudsound-music
+      SECRET_KEY:               local-dev-secret-key-change-in-production
+      LOG_LEVEL:                INFO
+      LOG_FORMAT:               json
+      API_GATEWAY_URL:          http://cloudsound-api-gateway:80
+      RADIO_STREAMING_URL:      http://cloudsound-radio-streaming:8004
+      CONCERT_MANAGEMENT_URL:   http://cloudsound-concert-management:8005
+      AUTHENTICATION_URL:       http://cloudsound-authentication:8006
+      ANALYTICS_URL:            http://cloudsound-analytics:8007
+      MUSIC_DISCOVERY_URL:      http://cloudsound-music-discovery:8003
+      EVENT_MANAGER_URL:        http://cloudsound-event-manager:8002
+      USE_MOCK_APIS:            true
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-sj5b5 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-sj5b5:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-frontend-77bff994fb-fhhqt
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:43:46 +0100
+Labels:           app=frontend
+                  app.kubernetes.io/instance=cloudsound
+                  pod-template-hash=77bff994fb
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.55
+IPs:
+  IP:           10.0.1.55
+Controlled By:  ReplicaSet/cloudsound-frontend-77bff994fb
+Containers:
+  frontend:
+    Container ID:   containerd://adb19f9cdd3d0c4b25f9bfede10edb3c48857c649658b7307e5e08197513608f
+    Image:          cloudsoundacrmgo77h.azurecr.io/frontend:latest
+    Image ID:       cloudsoundacrmgo77h.azurecr.io/frontend@sha256:5bc4073910888a81c613fa9a7a8dddbc84f3bf20620ba0362bc0729d3c624519
+    Port:           3000/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:43:47 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     200m
+      memory:  192Mi
+    Requests:
+      cpu:      50m
+      memory:   64Mi
+    Liveness:   http-get http://:3000/ delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:3000/ delay=5s timeout=1s period=5s #success=1 #failure=3
+    Environment:
+      VITE_API_URL:  http://api.cloudsound.local
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-9wfz6 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-9wfz6:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-grafana-67458c65df-m7kls
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-grafana
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:11:05 +0100
+Labels:           app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=grafana
+                  pod-template-hash=67458c65df
+Annotations:      checksum/config: 47ae447c221c81de51f6077b5581da18d592e25134ea3ddef4703d2a9ef140f4
+                  checksum/dashboards-json-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+                  checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+                  checksum/secret: 9f12621456a32ee3f0bbef35aeb69b84695748a16909e8e549b11baa3af7f8f2
+                  kubectl.kubernetes.io/default-container: grafana
+Status:           Pending
+IP:               10.0.1.16
+IPs:
+  IP:           10.0.1.16
+Controlled By:  ReplicaSet/cloudsound-grafana-67458c65df
+Init Containers:
+  init-chown-data:
+    Container ID:    
+    Image:           cloudsoundacrmgo77h.azurecr.io/library/busybox:1.31.1
+    Image ID:        
+    Port:            <none>
+    Host Port:       <none>
+    SeccompProfile:  RuntimeDefault
+    Command:
+      chown
+      -R
+      472:472
+      /var/lib/grafana
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/lib/grafana from storage (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hnh88 (ro)
+Containers:
+  grafana:
+    Container ID:    
+    Image:           cloudsoundacrmgo77h.azurecr.io/grafana/grafana:10.1.5
+    Image ID:        
+    Ports:           3000/TCP, 9094/TCP, 9094/UDP
+    Host Ports:      0/TCP, 0/TCP, 0/UDP
+    SeccompProfile:  RuntimeDefault
+    State:           Waiting
+      Reason:        PodInitializing
+    Ready:           False
+    Restart Count:   0
+    Liveness:        http-get http://:3000/api/health delay=60s timeout=30s period=10s #success=1 #failure=10
+    Readiness:       http-get http://:3000/api/health delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      POD_IP:                       (v1:status.podIP)
+      GF_SECURITY_ADMIN_USER:      <set to the key 'admin-user' in secret 'cloudsound-grafana'>      Optional: false
+      GF_SECURITY_ADMIN_PASSWORD:  <set to the key 'admin-password' in secret 'cloudsound-grafana'>  Optional: false
+      GF_PATHS_DATA:               /var/lib/grafana/
+      GF_PATHS_LOGS:               /var/log/grafana
+      GF_PATHS_PLUGINS:            /var/lib/grafana/plugins
+      GF_PATHS_PROVISIONING:       /etc/grafana/provisioning
+    Mounts:
+      /etc/grafana/grafana.ini from config (rw,path="grafana.ini")
+      /etc/grafana/provisioning/datasources/datasources.yaml from config (rw,path="datasources.yaml")
+      /var/lib/grafana from storage (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hnh88 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 False 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      cloudsound-grafana
+    Optional:  false
+  storage:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  cloudsound-grafana
+    ReadOnly:   false
+  kube-api-access-hnh88:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason   Age                   From     Message
+  ----     ------   ----                  ----     -------
+  Normal   BackOff  97s (x5761 over 21h)  kubelet  Back-off pulling image "cloudsoundacrmgo77h.azurecr.io/library/busybox:1.31.1"
+  Warning  Failed   97s (x5761 over 21h)  kubelet  Error: ImagePullBackOff
+
+
+Name:             cloudsound-grafana-agent-operator-77944456b8-pdpqq
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-grafana-agent-operator
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:03 +0100
+Labels:           app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=grafana-agent-operator
+                  pod-template-hash=77944456b8
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.61
+IPs:
+  IP:           10.0.1.61
+Controlled By:  ReplicaSet/cloudsound-grafana-agent-operator-77944456b8
+Containers:
+  grafana-agent-operator:
+    Container ID:  containerd://6a3c7444d2f07e13edaf80d48f47ee4821084061ba9e8308aae9d7a6a700c42f
+    Image:         docker.io/grafana/agent-operator:v0.25.1
+    Image ID:      docker.io/grafana/agent-operator@sha256:a136c6208aa31db157c0a47ca515efa6c29fa784e10661a9622a9ca07880b94a
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      --kubelet-service=default/kubelet
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:24 +0100
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-874sx (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-874sx:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-kafka-controller-0
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-kafka
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:05 +0100
+Labels:           app.kubernetes.io/component=controller-eligible
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=kafka
+                  app.kubernetes.io/part-of=kafka
+                  app.kubernetes.io/version=3.6.0
+                  apps.kubernetes.io/pod-index=0
+                  controller-revision-hash=cloudsound-kafka-controller-5b5f65bc49
+                  helm.sh/chart=kafka-26.4.0
+                  statefulset.kubernetes.io/pod-name=cloudsound-kafka-controller-0
+Annotations:      checksum/configuration: ac366f80bbec51d29bad848bc3403235b2a8d95e5a7cf4689e7d5a9aeaedc7bd
+                  checksum/passwords-secret: 6a84215fd742f5936a308f981947c3ee06c056d514d36e8ca86c8084c96309d6
+Status:           Pending
+SeccompProfile:   RuntimeDefault
+IP:               10.0.1.39
+IPs:
+  IP:           10.0.1.39
+Controlled By:  StatefulSet/cloudsound-kafka-controller
+Init Containers:
+  kafka-init:
+    Container ID:  
+    Image:         cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+    Args:
+      -ec
+      /scripts/kafka-init.sh
+      
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      BITNAMI_DEBUG:                false
+      MY_POD_NAME:                  cloudsound-kafka-controller-0 (v1:metadata.name)
+      KAFKA_VOLUME_DIR:             /bitnami/kafka
+      KAFKA_MIN_ID:                 0
+      KAFKA_CLIENT_USERS:           user1
+      KAFKA_CLIENT_PASSWORDS:       <set to the key 'client-passwords' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_INTER_BROKER_USER:      inter_broker_user
+      KAFKA_INTER_BROKER_PASSWORD:  <set to the key 'inter-broker-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_CONTROLLER_USER:        controller_user
+      KAFKA_CONTROLLER_PASSWORD:    <set to the key 'controller-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+    Mounts:
+      /bitnami/kafka from data (rw)
+      /config from kafka-config (rw)
+      /configmaps from kafka-configmaps (rw)
+      /scripts from scripts (rw)
+      /secret-config from kafka-secret-config (rw)
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8rktd (ro)
+Containers:
+  kafka:
+    Container ID:   
+    Image:          cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1
+    Image ID:       
+    Ports:          9093/TCP, 9092/TCP, 9094/TCP
+    Host Ports:     0/TCP, 0/TCP, 0/TCP
+    State:          Waiting
+      Reason:       PodInitializing
+    Ready:          False
+    Restart Count:  0
+    Liveness:       tcp-socket :controller delay=10s timeout=5s period=10s #success=1 #failure=3
+    Readiness:      tcp-socket :controller delay=5s timeout=5s period=10s #success=1 #failure=6
+    Environment:
+      BITNAMI_DEBUG:                      false
+      KAFKA_HEAP_OPTS:                    -Xmx1024m -Xms1024m
+      KAFKA_KRAFT_CLUSTER_ID:             <set to the key 'kraft-cluster-id' in secret 'cloudsound-kafka-kraft-cluster-id'>  Optional: false
+      KAFKA_KRAFT_BOOTSTRAP_SCRAM_USERS:  true
+      KAFKA_CLIENT_USERS:                 user1
+      KAFKA_CLIENT_PASSWORDS:             <set to the key 'client-passwords' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_INTER_BROKER_USER:            inter_broker_user
+      KAFKA_INTER_BROKER_PASSWORD:        <set to the key 'inter-broker-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_CONTROLLER_USER:              controller_user
+      KAFKA_CONTROLLER_PASSWORD:          <set to the key 'controller-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+    Mounts:
+      /bitnami/kafka from data (rw)
+      /opt/bitnami/kafka/config/server.properties from kafka-config (rw,path="server.properties")
+      /opt/bitnami/kafka/logs from logs (rw)
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8rktd (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 False 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-cloudsound-kafka-controller-0
+    ReadOnly:   false
+  kafka-configmaps:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      cloudsound-kafka-controller-configuration
+    Optional:  false
+  kafka-secret-config:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kafka-config:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      cloudsound-kafka-scripts
+    Optional:  false
+  logs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-8rktd:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason   Age                    From     Message
+  ----     ------   ----                   ----     -------
+  Warning  Failed   16m (x117 over 21h)    kubelet  Failed to pull image "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1": rpc error: code = NotFound desc = failed to pull and unpack image "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1": failed to resolve reference "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1": cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1: not found
+  Normal   Pulling  11m (x258 over 21h)    kubelet  Pulling image "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1"
+  Warning  Failed   11m (x141 over 21h)    kubelet  Failed to pull image "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1": [rpc error: code = NotFound desc = failed to pull and unpack image "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1": failed to resolve reference "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1": cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1: not found, failed to pull and unpack image "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1": failed to resolve reference "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1": failed to authorize: failed to fetch anonymous token: unexpected status from GET request to https://cloudsoundacrmgo77h.azurecr.io/oauth2/token?scope=repository%3Abitnami%2Fkafka%3Apull&service=cloudsoundacrmgo77h.azurecr.io: 401 Unauthorized]
+  Normal   BackOff  104s (x5760 over 21h)  kubelet  Back-off pulling image "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1"
+  Warning  Failed   104s (x5760 over 21h)  kubelet  Error: ImagePullBackOff
+
+
+Name:             cloudsound-kafka-controller-1
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-kafka
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:05 +0100
+Labels:           app.kubernetes.io/component=controller-eligible
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=kafka
+                  app.kubernetes.io/part-of=kafka
+                  app.kubernetes.io/version=3.6.0
+                  apps.kubernetes.io/pod-index=1
+                  controller-revision-hash=cloudsound-kafka-controller-5b5f65bc49
+                  helm.sh/chart=kafka-26.4.0
+                  statefulset.kubernetes.io/pod-name=cloudsound-kafka-controller-1
+Annotations:      checksum/configuration: ac366f80bbec51d29bad848bc3403235b2a8d95e5a7cf4689e7d5a9aeaedc7bd
+                  checksum/passwords-secret: 6a84215fd742f5936a308f981947c3ee06c056d514d36e8ca86c8084c96309d6
+Status:           Pending
+SeccompProfile:   RuntimeDefault
+IP:               10.0.1.37
+IPs:
+  IP:           10.0.1.37
+Controlled By:  StatefulSet/cloudsound-kafka-controller
+Init Containers:
+  kafka-init:
+    Container ID:  
+    Image:         cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/bash
+    Args:
+      -ec
+      /scripts/kafka-init.sh
+      
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      BITNAMI_DEBUG:                false
+      MY_POD_NAME:                  cloudsound-kafka-controller-1 (v1:metadata.name)
+      KAFKA_VOLUME_DIR:             /bitnami/kafka
+      KAFKA_MIN_ID:                 0
+      KAFKA_CLIENT_USERS:           user1
+      KAFKA_CLIENT_PASSWORDS:       <set to the key 'client-passwords' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_INTER_BROKER_USER:      inter_broker_user
+      KAFKA_INTER_BROKER_PASSWORD:  <set to the key 'inter-broker-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_CONTROLLER_USER:        controller_user
+      KAFKA_CONTROLLER_PASSWORD:    <set to the key 'controller-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+    Mounts:
+      /bitnami/kafka from data (rw)
+      /config from kafka-config (rw)
+      /configmaps from kafka-configmaps (rw)
+      /scripts from scripts (rw)
+      /secret-config from kafka-secret-config (rw)
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-rg6z5 (ro)
+Containers:
+  kafka:
+    Container ID:   
+    Image:          cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1
+    Image ID:       
+    Ports:          9093/TCP, 9092/TCP, 9094/TCP
+    Host Ports:     0/TCP, 0/TCP, 0/TCP
+    State:          Waiting
+      Reason:       PodInitializing
+    Ready:          False
+    Restart Count:  0
+    Liveness:       tcp-socket :controller delay=10s timeout=5s period=10s #success=1 #failure=3
+    Readiness:      tcp-socket :controller delay=5s timeout=5s period=10s #success=1 #failure=6
+    Environment:
+      BITNAMI_DEBUG:                      false
+      KAFKA_HEAP_OPTS:                    -Xmx1024m -Xms1024m
+      KAFKA_KRAFT_CLUSTER_ID:             <set to the key 'kraft-cluster-id' in secret 'cloudsound-kafka-kraft-cluster-id'>  Optional: false
+      KAFKA_KRAFT_BOOTSTRAP_SCRAM_USERS:  true
+      KAFKA_CLIENT_USERS:                 user1
+      KAFKA_CLIENT_PASSWORDS:             <set to the key 'client-passwords' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_INTER_BROKER_USER:            inter_broker_user
+      KAFKA_INTER_BROKER_PASSWORD:        <set to the key 'inter-broker-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_CONTROLLER_USER:              controller_user
+      KAFKA_CONTROLLER_PASSWORD:          <set to the key 'controller-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+    Mounts:
+      /bitnami/kafka from data (rw)
+      /opt/bitnami/kafka/config/server.properties from kafka-config (rw,path="server.properties")
+      /opt/bitnami/kafka/logs from logs (rw)
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-rg6z5 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 False 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-cloudsound-kafka-controller-1
+    ReadOnly:   false
+  kafka-configmaps:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      cloudsound-kafka-controller-configuration
+    Optional:  false
+  kafka-secret-config:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kafka-config:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      cloudsound-kafka-scripts
+    Optional:  false
+  logs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-rg6z5:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason   Age                    From     Message
+  ----     ------   ----                   ----     -------
+  Normal   BackOff  100s (x5753 over 21h)  kubelet  Back-off pulling image "cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1"
+  Warning  Failed   100s (x5753 over 21h)  kubelet  Error: ImagePullBackOff
+
+
+Name:             cloudsound-kafka-controller-2
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-kafka
+Node:             <none>
+Labels:           app.kubernetes.io/component=controller-eligible
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=kafka
+                  app.kubernetes.io/part-of=kafka
+                  app.kubernetes.io/version=3.6.0
+                  apps.kubernetes.io/pod-index=2
+                  controller-revision-hash=cloudsound-kafka-controller-7558cc4c9f
+                  helm.sh/chart=kafka-26.4.0
+                  statefulset.kubernetes.io/pod-name=cloudsound-kafka-controller-2
+Annotations:      checksum/configuration: ac366f80bbec51d29bad848bc3403235b2a8d95e5a7cf4689e7d5a9aeaedc7bd
+                  checksum/passwords-secret: f713247e2897a82cc142ce7d9b62f5d2b11608d9b861f696b67538354e0449cc
+Status:           Pending
+SeccompProfile:   RuntimeDefault
+IP:               
+IPs:              <none>
+Controlled By:    StatefulSet/cloudsound-kafka-controller
+Init Containers:
+  kafka-init:
+    Image:      cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      /bin/bash
+    Args:
+      -ec
+      /scripts/kafka-init.sh
+      
+    Environment:
+      BITNAMI_DEBUG:                false
+      MY_POD_NAME:                  cloudsound-kafka-controller-2 (v1:metadata.name)
+      KAFKA_VOLUME_DIR:             /bitnami/kafka
+      KAFKA_MIN_ID:                 0
+      KAFKA_CLIENT_USERS:           user1
+      KAFKA_CLIENT_PASSWORDS:       <set to the key 'client-passwords' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_INTER_BROKER_USER:      inter_broker_user
+      KAFKA_INTER_BROKER_PASSWORD:  <set to the key 'inter-broker-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_CONTROLLER_USER:        controller_user
+      KAFKA_CONTROLLER_PASSWORD:    <set to the key 'controller-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+    Mounts:
+      /bitnami/kafka from data (rw)
+      /config from kafka-config (rw)
+      /configmaps from kafka-configmaps (rw)
+      /scripts from scripts (rw)
+      /secret-config from kafka-secret-config (rw)
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4nx4v (ro)
+Containers:
+  kafka:
+    Image:       cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1
+    Ports:       9093/TCP, 9092/TCP, 9094/TCP
+    Host Ports:  0/TCP, 0/TCP, 0/TCP
+    Liveness:    tcp-socket :controller delay=10s timeout=5s period=10s #success=1 #failure=3
+    Readiness:   tcp-socket :controller delay=5s timeout=5s period=10s #success=1 #failure=6
+    Environment:
+      BITNAMI_DEBUG:                      false
+      KAFKA_HEAP_OPTS:                    -Xmx1024m -Xms1024m
+      KAFKA_KRAFT_CLUSTER_ID:             <set to the key 'kraft-cluster-id' in secret 'cloudsound-kafka-kraft-cluster-id'>  Optional: false
+      KAFKA_KRAFT_BOOTSTRAP_SCRAM_USERS:  true
+      KAFKA_CLIENT_USERS:                 user1
+      KAFKA_CLIENT_PASSWORDS:             <set to the key 'client-passwords' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_INTER_BROKER_USER:            inter_broker_user
+      KAFKA_INTER_BROKER_PASSWORD:        <set to the key 'inter-broker-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+      KAFKA_CONTROLLER_USER:              controller_user
+      KAFKA_CONTROLLER_PASSWORD:          <set to the key 'controller-password' in secret 'cloudsound-kafka-user-passwords'>  Optional: false
+    Mounts:
+      /bitnami/kafka from data (rw)
+      /opt/bitnami/kafka/config/server.properties from kafka-config (rw,path="server.properties")
+      /opt/bitnami/kafka/logs from logs (rw)
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4nx4v (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-cloudsound-kafka-controller-2
+    ReadOnly:   false
+  kafka-configmaps:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      cloudsound-kafka-controller-configuration
+    Optional:  false
+  kafka-secret-config:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kafka-config:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  scripts:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      cloudsound-kafka-scripts
+    Optional:  false
+  logs:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-4nx4v:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                     From               Message
+  ----     ------            ----                    ----               -------
+  Warning  FailedScheduling  3m53s (x55 over 4h33m)  default-scheduler  0/2 nodes are available: 2 node(s) exceed max volume count. preemption: 0/2 nodes are available: 2 No preemption victims found for incoming pod.
+
+
+Name:             cloudsound-kube-state-metrics-5f9ddfddf4-kz7vf
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-kube-state-metrics
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:03 +0100
+Labels:           app.kubernetes.io/component=metrics
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=kube-state-metrics
+                  app.kubernetes.io/part-of=kube-state-metrics
+                  app.kubernetes.io/version=2.10.0
+                  helm.sh/chart=kube-state-metrics-5.13.0
+                  pod-template-hash=5f9ddfddf4
+Annotations:      <none>
+Status:           Pending
+SeccompProfile:   RuntimeDefault
+IP:               10.0.1.35
+IPs:
+  IP:           10.0.1.35
+Controlled By:  ReplicaSet/cloudsound-kube-state-metrics-5f9ddfddf4
+Containers:
+  kube-state-metrics:
+    Container ID:  
+    Image:         cloudsoundacrmgo77h.azurecr.io/kube-state-metrics/kube-state-metrics:v2.10.0
+    Image ID:      
+    Port:          8080/TCP
+    Host Port:     0/TCP
+    Args:
+      --port=8080
+      --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpoints,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Liveness:       http-get http://:8080/healthz delay=5s timeout=5s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:8080/ delay=5s timeout=5s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kgwcl (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-kgwcl:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason   Age                    From     Message
+  ----     ------   ----                   ----     -------
+  Normal   BackOff  116s (x5767 over 21h)  kubelet  Back-off pulling image "cloudsoundacrmgo77h.azurecr.io/kube-state-metrics/kube-state-metrics:v2.10.0"
+  Warning  Failed   116s (x5767 over 21h)  kubelet  Error: ImagePullBackOff
+
+
+Name:             cloudsound-loki-logs-6dl9j
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-loki-grafana-agent
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:25 +0100
+Labels:           app.kubernetes.io/instance=cloudsound-loki
+                  app.kubernetes.io/managed-by=grafana-agent-operator
+                  app.kubernetes.io/name=grafana-agent
+                  app.kubernetes.io/version=v0.25.1
+                  controller-revision-hash=857588bcdc
+                  grafana-agent=cloudsound-loki
+                  operator.agent.grafana.com/name=cloudsound-loki
+                  operator.agent.grafana.com/type=logs
+                  pod-template-generation=1
+Annotations:      kubectl.kubernetes.io/default-container: grafana-agent
+Status:           Running
+IP:               10.0.1.59
+IPs:
+  IP:           10.0.1.59
+Controlled By:  DaemonSet/cloudsound-loki-logs
+Containers:
+  config-reloader:
+    Container ID:  containerd://c8faa75d78dfae7df244cc7ea2d716765edcac1cab55cb5aa6a593e711d79407
+    Image:         quay.io/prometheus-operator/prometheus-config-reloader:v0.47.0
+    Image ID:      quay.io/prometheus-operator/prometheus-config-reloader@sha256:0029252e7cf8cf38fc58795928d4e1c746b9e609432a2ee5417a9cab4633b864
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      --config-file=/var/lib/grafana-agent/config-in/agent.yml
+      --config-envsubst-file=/var/lib/grafana-agent/config/agent.yml
+      --watch-interval=1m
+      --statefulset-ordinal-from-envvar=POD_NAME
+      --reload-url=http://127.0.0.1:8080/-/reload
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:40 +0100
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      POD_NAME:  cloudsound-loki-logs-6dl9j (v1:metadata.name)
+      HOSTNAME:   (v1:spec.nodeName)
+      SHARD:     0
+    Mounts:
+      /var/lib/docker/containers from dockerlogs (ro)
+      /var/lib/grafana-agent/config from config-out (rw)
+      /var/lib/grafana-agent/config-in from config (ro)
+      /var/lib/grafana-agent/data from data (rw)
+      /var/lib/grafana-agent/secrets from secrets (ro)
+      /var/log from varlog (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-k7f9z (ro)
+  grafana-agent:
+    Container ID:  containerd://0472c7c326f6d6653e93672598a10b0c887ff52048aa0a22161c76d85316d732
+    Image:         grafana/agent:v0.25.1
+    Image ID:      docker.io/grafana/agent@sha256:0650f907ba96545067845bfbfb70edb545db5635ab8534aa584c17c3f51c5e45
+    Port:          8080/TCP
+    Host Port:     0/TCP
+    Args:
+      -config.file=/var/lib/grafana-agent/config/agent.yml
+      -config.expand-env=true
+      -server.http.address=0.0.0.0:8080
+      -enable-features=integrations-next
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:47 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:http-metrics/-/ready delay=0s timeout=3s period=5s #success=1 #failure=120
+    Environment:
+      POD_NAME:  cloudsound-loki-logs-6dl9j (v1:metadata.name)
+      HOSTNAME:   (v1:spec.nodeName)
+      SHARD:     0
+    Mounts:
+      /var/lib/docker/containers from dockerlogs (ro)
+      /var/lib/grafana-agent/config from config-out (rw)
+      /var/lib/grafana-agent/config-in from config (ro)
+      /var/lib/grafana-agent/data from data (rw)
+      /var/lib/grafana-agent/secrets from secrets (ro)
+      /var/log from varlog (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-k7f9z (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  config:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  cloudsound-loki-logs-config
+    Optional:    false
+  config-out:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  secrets:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  cloudsound-loki-secrets
+    Optional:    false
+  varlog:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log
+    HostPathType:  
+  dockerlogs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/lib/docker/containers
+    HostPathType:  
+  data:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/lib/grafana-agent/data
+    HostPathType:  
+  kube-api-access-k7f9z:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists
+                             node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/unreachable:NoExecute op=Exists
+                             node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:                      <none>
+
+
+Name:             cloudsound-loki-logs-btj4d
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-loki-grafana-agent
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:11:24 +0100
+Labels:           app.kubernetes.io/instance=cloudsound-loki
+                  app.kubernetes.io/managed-by=grafana-agent-operator
+                  app.kubernetes.io/name=grafana-agent
+                  app.kubernetes.io/version=v0.25.1
+                  controller-revision-hash=857588bcdc
+                  grafana-agent=cloudsound-loki
+                  operator.agent.grafana.com/name=cloudsound-loki
+                  operator.agent.grafana.com/type=logs
+                  pod-template-generation=1
+Annotations:      kubectl.kubernetes.io/default-container: grafana-agent
+Status:           Running
+IP:               10.0.1.24
+IPs:
+  IP:           10.0.1.24
+Controlled By:  DaemonSet/cloudsound-loki-logs
+Containers:
+  config-reloader:
+    Container ID:  containerd://8898a04b616331b220cdc60db6ab4b1e6a93386eb293ad440bddb08fc32365da
+    Image:         quay.io/prometheus-operator/prometheus-config-reloader:v0.47.0
+    Image ID:      quay.io/prometheus-operator/prometheus-config-reloader@sha256:0029252e7cf8cf38fc58795928d4e1c746b9e609432a2ee5417a9cab4633b864
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      --config-file=/var/lib/grafana-agent/config-in/agent.yml
+      --config-envsubst-file=/var/lib/grafana-agent/config/agent.yml
+      --watch-interval=1m
+      --statefulset-ordinal-from-envvar=POD_NAME
+      --reload-url=http://127.0.0.1:8080/-/reload
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:30 +0100
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      POD_NAME:  cloudsound-loki-logs-btj4d (v1:metadata.name)
+      HOSTNAME:   (v1:spec.nodeName)
+      SHARD:     0
+    Mounts:
+      /var/lib/docker/containers from dockerlogs (ro)
+      /var/lib/grafana-agent/config from config-out (rw)
+      /var/lib/grafana-agent/config-in from config (ro)
+      /var/lib/grafana-agent/data from data (rw)
+      /var/lib/grafana-agent/secrets from secrets (ro)
+      /var/log from varlog (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pd5vs (ro)
+  grafana-agent:
+    Container ID:  containerd://9b70ee09ee4df4129cd108a4b1fc81e71e3e34081ca5e30c40d16e3edd44f724
+    Image:         grafana/agent:v0.25.1
+    Image ID:      docker.io/grafana/agent@sha256:0650f907ba96545067845bfbfb70edb545db5635ab8534aa584c17c3f51c5e45
+    Port:          8080/TCP
+    Host Port:     0/TCP
+    Args:
+      -config.file=/var/lib/grafana-agent/config/agent.yml
+      -config.expand-env=true
+      -server.http.address=0.0.0.0:8080
+      -enable-features=integrations-next
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:37 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:http-metrics/-/ready delay=0s timeout=3s period=5s #success=1 #failure=120
+    Environment:
+      POD_NAME:  cloudsound-loki-logs-btj4d (v1:metadata.name)
+      HOSTNAME:   (v1:spec.nodeName)
+      SHARD:     0
+    Mounts:
+      /var/lib/docker/containers from dockerlogs (ro)
+      /var/lib/grafana-agent/config from config-out (rw)
+      /var/lib/grafana-agent/config-in from config (ro)
+      /var/lib/grafana-agent/data from data (rw)
+      /var/lib/grafana-agent/secrets from secrets (ro)
+      /var/log from varlog (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pd5vs (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  config:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  cloudsound-loki-logs-config
+    Optional:    false
+  config-out:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  secrets:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  cloudsound-loki-secrets
+    Optional:    false
+  varlog:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/log
+    HostPathType:  
+  dockerlogs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/lib/docker/containers
+    HostPathType:  
+  data:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/lib/grafana-agent/data
+    HostPathType:  
+  kube-api-access-pd5vs:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists
+                             node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/unreachable:NoExecute op=Exists
+                             node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:                      <none>
+
+
+Name:             cloudsound-migrations-vvvmb
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 18:37:24 +0100
+Labels:           app=migrations
+                  batch.kubernetes.io/controller-uid=acf2dc89-6201-4ad8-abe5-3790d69eb9a4
+                  batch.kubernetes.io/job-name=cloudsound-migrations
+                  controller-uid=acf2dc89-6201-4ad8-abe5-3790d69eb9a4
+                  job-name=cloudsound-migrations
+Annotations:      <none>
+Status:           Pending
+IP:               10.0.1.29
+IPs:
+  IP:           10.0.1.29
+Controlled By:  Job/cloudsound-migrations
+Init Containers:
+  wait-for-postgres:
+    Container ID:  containerd://f7546f3260df169a18f284ae90c5a0d8d57088f3bb46838cf57a963927eca4fb
+    Image:         busybox:1.36
+    Image ID:      docker.io/library/busybox@sha256:4059babd1b7f9ad15525d28c5cdc7243eb75b4e4131aca2b4232c66eadce2250
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      until nc -z cloudsound-postgresql 5432; do echo waiting for postgres; sleep 2; done;
+    State:          Running
+      Started:      Fri, 09 Jan 2026 18:37:24 +0100
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7zq8s (ro)
+Containers:
+  migrations:
+    Container ID:  
+    Image:         cloudsoundacrmgo77h.azurecr.io/cloudsound-shared:latest
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      alembic
+      upgrade
+      head
+    State:          Waiting
+      Reason:       PodInitializing
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      ENVIRONMENT:              production
+      POSTGRES_HOST:            cloudsound-postgresql
+      POSTGRES_PORT:            5432
+      POSTGRES_USER:            cloudsound
+      POSTGRES_PASSWORD:        cloudsound_dev
+      POSTGRES_DB:              cloudsound
+      KAFKA_BOOTSTRAP_SERVERS:  cloudsound-kafka:9092
+      RABBITMQ_HOST:            cloudsound-rabbitmq
+      RABBITMQ_PORT:            5672
+      RABBITMQ_USER:            cloudsound
+      RABBITMQ_PASSWORD:        <set to the key 'rabbitmq-password' in secret 'cloudsound-secrets'>  Optional: false
+      MINIO_ENDPOINT:           cloudsound-minio:9000
+      MINIO_ACCESS_KEY:         minioadmin
+      MINIO_SECRET_KEY:         minioadmin
+      MINIO_BUCKET:             cloudsound-music
+      SECRET_KEY:               local-dev-secret-key-change-in-production
+      LOG_LEVEL:                INFO
+      LOG_FORMAT:               json
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7zq8s (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 False 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-7zq8s:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-minio-5f4784f7fd-kfsd9
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:11:04 +0100
+Labels:           app=minio
+                  pod-template-hash=5f4784f7fd
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.22
+IPs:
+  IP:           10.0.1.22
+Controlled By:  ReplicaSet/cloudsound-minio-5f4784f7fd
+Containers:
+  minio:
+    Container ID:  containerd://43c6670008acac059e334a7fbbedb974861b9176b486b98d9bff3f97a853ec7b
+    Image:         minio/minio:latest
+    Image ID:      docker.io/minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    Ports:         9000/TCP, 9001/TCP
+    Host Ports:    0/TCP, 0/TCP
+    Args:
+      server
+      /data
+      --console-address
+      :9001
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:12 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:9000/minio/health/live delay=10s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      MINIO_ROOT_USER:      minioadmin
+      MINIO_ROOT_PASSWORD:  minioadmin
+    Mounts:
+      /data from minio-data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-std56 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  minio-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-std56:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-music-discovery-78b4db6b7-bwb24
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:43:54 +0100
+Labels:           app=music-discovery
+                  app.kubernetes.io/instance=cloudsound
+                  pod-template-hash=78b4db6b7
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.56
+IPs:
+  IP:           10.0.1.56
+Controlled By:  ReplicaSet/cloudsound-music-discovery-78b4db6b7
+Containers:
+  music-discovery:
+    Container ID:   containerd://0223f4c7b98c6ae2d79f10c89d82303af9d7274d6ff2022f0fcd71314f196a84
+    Image:          cloudsoundacrmgo77h.azurecr.io/music-discovery:latest
+    Image ID:       cloudsoundacrmgo77h.azurecr.io/music-discovery@sha256:6b7c32240d87f04036ac6f0519de0f3fc7ed72c728103d0aefc55134070e32aa
+    Port:           8003/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:43:55 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     300m
+      memory:  384Mi
+    Requests:
+      cpu:     100m
+      memory:  128Mi
+    Liveness:  http-get http://:8003/health delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      ENVIRONMENT:              production
+      POSTGRES_HOST:            cloudsound-postgresql
+      POSTGRES_PORT:            5432
+      POSTGRES_USER:            cloudsound
+      POSTGRES_PASSWORD:        cloudsound_dev
+      POSTGRES_DB:              cloudsound
+      KAFKA_BOOTSTRAP_SERVERS:  cloudsound-kafka:9092
+      RABBITMQ_HOST:            cloudsound-rabbitmq
+      RABBITMQ_PORT:            5672
+      RABBITMQ_USER:            cloudsound
+      RABBITMQ_PASSWORD:        <set to the key 'rabbitmq-password' in secret 'cloudsound-secrets'>  Optional: false
+      MINIO_ENDPOINT:           cloudsound-minio:9000
+      MINIO_ACCESS_KEY:         minioadmin
+      MINIO_SECRET_KEY:         minioadmin
+      MINIO_BUCKET:             cloudsound-music
+      SECRET_KEY:               local-dev-secret-key-change-in-production
+      LOG_LEVEL:                INFO
+      LOG_FORMAT:               json
+      USE_MOCK_APIS:            true
+    Mounts:
+      /tmp/cloudsound-downloads from download-temp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-9gp7t (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  download-temp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  1Gi
+  kube-api-access-9gp7t:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-postgres-0
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           app=postgres
+                  apps.kubernetes.io/pod-index=0
+                  controller-revision-hash=cloudsound-postgres-6fc88fc4b6
+                  statefulset.kubernetes.io/pod-name=cloudsound-postgres-0
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    StatefulSet/cloudsound-postgres
+Containers:
+  postgres:
+    Image:      postgres:15-alpine
+    Port:       5432/TCP
+    Host Port:  0/TCP
+    Liveness:   exec [pg_isready -U cloudsound] delay=30s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  exec [pg_isready -U cloudsound] delay=5s timeout=1s period=5s #success=1 #failure=3
+    Environment:
+      POSTGRES_USER:      cloudsound
+      POSTGRES_PASSWORD:  cloudsound_dev
+      POSTGRES_DB:        cloudsound
+    Mounts:
+      /var/lib/postgresql/data from postgres-data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fgg6z (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  postgres-data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  postgres-data-cloudsound-postgres-0
+    ReadOnly:   false
+  kube-api-access-fgg6z:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                     From               Message
+  ----     ------            ----                    ----               -------
+  Warning  FailedScheduling  3m54s (x55 over 4h33m)  default-scheduler  0/2 nodes are available: 2 node(s) exceed max volume count. preemption: 0/2 nodes are available: 2 No preemption victims found for incoming pod.
+
+
+Name:             cloudsound-prometheus-node-exporter-mnffw
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-prometheus-node-exporter
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:03 +0100
+Labels:           app.kubernetes.io/component=metrics
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=prometheus-node-exporter
+                  app.kubernetes.io/part-of=prometheus-node-exporter
+                  app.kubernetes.io/version=1.6.1
+                  controller-revision-hash=789ff44b6f
+                  helm.sh/chart=prometheus-node-exporter-4.23.0
+                  pod-template-generation=1
+Annotations:      cluster-autoscaler.kubernetes.io/safe-to-evict: true
+Status:           Pending
+IP:               10.0.1.33
+IPs:
+  IP:           10.0.1.33
+Controlled By:  DaemonSet/cloudsound-prometheus-node-exporter
+Containers:
+  node-exporter:
+    Container ID:  
+    Image:         cloudsoundacrmgo77h.azurecr.io/prometheus/node-exporter:v1.6.1
+    Image ID:      
+    Port:          9100/TCP
+    Host Port:     9100/TCP
+    Args:
+      --path.procfs=/host/proc
+      --path.sysfs=/host/sys
+      --path.rootfs=/host/root
+      --path.udev.data=/host/root/run/udev/data
+      --web.listen-address=[$(HOST_IP)]:9100
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Liveness:       http-get http://:9100/ delay=0s timeout=1s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:9100/ delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      HOST_IP:  0.0.0.0
+    Mounts:
+      /host/proc from proc (ro)
+      /host/root from root (ro)
+      /host/sys from sys (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  proc:
+    Type:          HostPath (bare host directory volume)
+    Path:          /proc
+    HostPathType:  
+  sys:
+    Type:          HostPath (bare host directory volume)
+    Path:          /sys
+    HostPathType:  
+  root:
+    Type:          HostPath (bare host directory volume)
+    Path:          /
+    HostPathType:  
+QoS Class:         BestEffort
+Node-Selectors:    kubernetes.io/os=linux
+Tolerations:       :NoSchedule op=Exists
+                   node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                   node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                   node.kubernetes.io/network-unavailable:NoSchedule op=Exists
+                   node.kubernetes.io/not-ready:NoExecute op=Exists
+                   node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                   node.kubernetes.io/unreachable:NoExecute op=Exists
+                   node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:
+  Type     Reason   Age                    From     Message
+  ----     ------   ----                   ----     -------
+  Normal   BackOff  2m7s (x5764 over 21h)  kubelet  Back-off pulling image "cloudsoundacrmgo77h.azurecr.io/prometheus/node-exporter:v1.6.1"
+  Warning  Failed   2m7s (x5764 over 21h)  kubelet  Error: ImagePullBackOff
+
+
+Name:             cloudsound-prometheus-node-exporter-w7tbk
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-prometheus-node-exporter
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:11:03 +0100
+Labels:           app.kubernetes.io/component=metrics
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=prometheus-node-exporter
+                  app.kubernetes.io/part-of=prometheus-node-exporter
+                  app.kubernetes.io/version=1.6.1
+                  controller-revision-hash=789ff44b6f
+                  helm.sh/chart=prometheus-node-exporter-4.23.0
+                  pod-template-generation=1
+Annotations:      cluster-autoscaler.kubernetes.io/safe-to-evict: true
+Status:           Pending
+IP:               10.0.1.4
+IPs:
+  IP:           10.0.1.4
+Controlled By:  DaemonSet/cloudsound-prometheus-node-exporter
+Containers:
+  node-exporter:
+    Container ID:  
+    Image:         cloudsoundacrmgo77h.azurecr.io/prometheus/node-exporter:v1.6.1
+    Image ID:      
+    Port:          9100/TCP
+    Host Port:     9100/TCP
+    Args:
+      --path.procfs=/host/proc
+      --path.sysfs=/host/sys
+      --path.rootfs=/host/root
+      --path.udev.data=/host/root/run/udev/data
+      --web.listen-address=[$(HOST_IP)]:9100
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Liveness:       http-get http://:9100/ delay=0s timeout=1s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:9100/ delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      HOST_IP:  0.0.0.0
+    Mounts:
+      /host/proc from proc (ro)
+      /host/root from root (ro)
+      /host/sys from sys (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  proc:
+    Type:          HostPath (bare host directory volume)
+    Path:          /proc
+    HostPathType:  
+  sys:
+    Type:          HostPath (bare host directory volume)
+    Path:          /sys
+    HostPathType:  
+  root:
+    Type:          HostPath (bare host directory volume)
+    Path:          /
+    HostPathType:  
+QoS Class:         BestEffort
+Node-Selectors:    kubernetes.io/os=linux
+Tolerations:       :NoSchedule op=Exists
+                   node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                   node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                   node.kubernetes.io/network-unavailable:NoSchedule op=Exists
+                   node.kubernetes.io/not-ready:NoExecute op=Exists
+                   node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                   node.kubernetes.io/unreachable:NoExecute op=Exists
+                   node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:
+  Type     Reason   Age                    From     Message
+  ----     ------   ----                   ----     -------
+  Normal   BackOff  2m4s (x5755 over 21h)  kubelet  Back-off pulling image "cloudsoundacrmgo77h.azurecr.io/prometheus/node-exporter:v1.6.1"
+  Warning  Failed   2m4s (x5755 over 21h)  kubelet  Error: ImagePullBackOff
+
+
+Name:             cloudsound-prometheus-pushgateway-577b58858c-thkfs
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-prometheus-pushgateway
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:03 +0100
+Labels:           app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=prometheus-pushgateway
+                  app.kubernetes.io/version=v1.6.0
+                  helm.sh/chart=prometheus-pushgateway-2.4.0
+                  pod-template-hash=577b58858c
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.52
+IPs:
+  IP:           10.0.1.52
+Controlled By:  ReplicaSet/cloudsound-prometheus-pushgateway-577b58858c
+Containers:
+  pushgateway:
+    Container ID:   containerd://c0c26fb6bad0986b0ddb726f09c2b17a5242d05ae455ee64943e5a046c31d8ee
+    Image:          quay.io/prometheus/pushgateway:v1.6.0
+    Image ID:       quay.io/prometheus/pushgateway@sha256:5111de00e96999b483f3672c098f9079a4df1466c66aa6bfa45f4d1112d84e1b
+    Port:           9091/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:20 +0100
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:9091/-/healthy delay=10s timeout=10s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:9091/-/ready delay=10s timeout=10s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /data from storage-volume (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-2hthg (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  storage-volume:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-2hthg:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-prometheus-server-d6f47d676-lzfs7
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-prometheus-server
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:11:04 +0100
+Labels:           app.kubernetes.io/component=server
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=prometheus
+                  app.kubernetes.io/part-of=prometheus
+                  app.kubernetes.io/version=v2.47.0
+                  helm.sh/chart=prometheus-25.0.0
+                  pod-template-hash=d6f47d676
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.20
+IPs:
+  IP:           10.0.1.20
+Controlled By:  ReplicaSet/cloudsound-prometheus-server-d6f47d676
+Containers:
+  prometheus-server-configmap-reload:
+    Container ID:  containerd://b2435194769b7c6a09b732febd68503c3592c7efc1a9eb60cd461013af2c27f1
+    Image:         quay.io/prometheus-operator/prometheus-config-reloader:v0.67.0
+    Image ID:      quay.io/prometheus-operator/prometheus-config-reloader@sha256:14feefde1b8015de2cbdee008a19891c2af09f91b650af854e584feda9869a39
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      --watched-dir=/etc/config
+      --reload-url=http://127.0.0.1:9090/-/reload
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:30 +0100
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /etc/config from config-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kmq4x (ro)
+  prometheus-server:
+    Container ID:  containerd://8dda11dd2d2a60e5cb28f96f8ad045d7068851415af4d7ba471b56014609de99
+    Image:         quay.io/prometheus/prometheus:v2.47.0
+    Image ID:      quay.io/prometheus/prometheus@sha256:c5dd3503828713c4949ae1bccd1d8d69f382c33d441954674a6b78ebe69c3331
+    Port:          9090/TCP
+    Host Port:     0/TCP
+    Args:
+      --storage.tsdb.retention.time=15d
+      --config.file=/etc/config/prometheus.yml
+      --storage.tsdb.path=/data
+      --web.console.libraries=/etc/prometheus/console_libraries
+      --web.console.templates=/etc/prometheus/consoles
+      --web.enable-lifecycle
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:37 +0100
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:9090/-/healthy delay=30s timeout=10s period=15s #success=1 #failure=3
+    Readiness:      http-get http://:9090/-/ready delay=30s timeout=4s period=5s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /data from storage-volume (rw)
+      /etc/config from config-volume (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kmq4x (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      cloudsound-prometheus-server
+    Optional:  false
+  storage-volume:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  cloudsound-prometheus-server
+    ReadOnly:   false
+  kube-api-access-kmq4x:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             cloudsound-rabbitmq-0
+Namespace:        cloudsound
+Priority:         0
+Service Account:  cloudsound-rabbitmq
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:05 +0100
+Labels:           app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=rabbitmq
+                  app.kubernetes.io/version=3.12.8
+                  apps.kubernetes.io/pod-index=0
+                  controller-revision-hash=cloudsound-rabbitmq-76cdf96fc9
+                  helm.sh/chart=rabbitmq-12.5.0
+                  statefulset.kubernetes.io/pod-name=cloudsound-rabbitmq-0
+Annotations:      checksum/config: e6ee347e447a557271f93349e5de570242b7804ccf7bc7339ec99d7678d4fafa
+                  checksum/secret: 42f4f86a9306911cf5f43e7fafcf11dec36d15bbd37ff641119758daf058e33d
+Status:           Pending
+IP:               10.0.1.41
+IPs:
+  IP:           10.0.1.41
+Controlled By:  StatefulSet/cloudsound-rabbitmq
+Containers:
+  rabbitmq:
+    Container ID:    
+    Image:           cloudsoundacrmgo77h.azurecr.io/bitnami/rabbitmq:3.12.8-debian-11-r1
+    Image ID:        
+    Ports:           5672/TCP, 25672/TCP, 15672/TCP, 4369/TCP
+    Host Ports:      0/TCP, 0/TCP, 0/TCP, 0/TCP
+    SeccompProfile:  RuntimeDefault
+    State:           Waiting
+      Reason:        ImagePullBackOff
+    Ready:           False
+    Restart Count:   0
+    Limits:
+      cpu:     500m
+      memory:  768Mi
+    Requests:
+      cpu:      250m
+      memory:   512Mi
+    Liveness:   exec [sh -ec curl -f --user cloudsound:$RABBITMQ_PASSWORD 127.0.0.1:15672/api/health/checks/virtual-hosts] delay=120s timeout=20s period=30s #success=1 #failure=6
+    Readiness:  exec [sh -ec curl -f --user cloudsound:$RABBITMQ_PASSWORD 127.0.0.1:15672/api/health/checks/local-alarms] delay=10s timeout=20s period=30s #success=1 #failure=3
+    Environment:
+      BITNAMI_DEBUG:              false
+      MY_POD_IP:                   (v1:status.podIP)
+      MY_POD_NAME:                cloudsound-rabbitmq-0 (v1:metadata.name)
+      MY_POD_NAMESPACE:           cloudsound (v1:metadata.namespace)
+      K8S_SERVICE_NAME:           cloudsound-rabbitmq-headless
+      K8S_ADDRESS_TYPE:           hostname
+      RABBITMQ_FORCE_BOOT:        no
+      RABBITMQ_NODE_NAME:         rabbit@$(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+      K8S_HOSTNAME_SUFFIX:        .$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+      RABBITMQ_MNESIA_DIR:        /bitnami/rabbitmq/mnesia/$(RABBITMQ_NODE_NAME)
+      RABBITMQ_LDAP_ENABLE:       no
+      RABBITMQ_LOGS:              -
+      RABBITMQ_ULIMIT_NOFILES:    65536
+      RABBITMQ_USE_LONGNAME:      true
+      RABBITMQ_ERL_COOKIE:        <set to the key 'rabbitmq-erlang-cookie' in secret 'cloudsound-rabbitmq'>  Optional: false
+      RABBITMQ_LOAD_DEFINITIONS:  no
+      RABBITMQ_DEFINITIONS_FILE:  /app/load_definition.json
+      RABBITMQ_SECURE_PASSWORD:   yes
+      RABBITMQ_USERNAME:          cloudsound
+      RABBITMQ_PASSWORD:          <set to the key 'rabbitmq-password' in secret 'rabbitmq-secret'>  Optional: false
+      RABBITMQ_PLUGINS:           rabbitmq_management, rabbitmq_peer_discovery_k8s, rabbitmq_auth_backend_ldap
+    Mounts:
+      /bitnami/rabbitmq/conf from configuration (rw)
+      /bitnami/rabbitmq/mnesia from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8cpvx (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-cloudsound-rabbitmq-0
+    ReadOnly:   false
+  configuration:
+    Type:        Projected (a volume that contains injected data from multiple sources)
+    SecretName:  cloudsound-rabbitmq-config
+    Optional:    false
+  kube-api-access-8cpvx:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason   Age                    From     Message
+  ----     ------   ----                   ----     -------
+  Normal   BackOff  105s (x5753 over 21h)  kubelet  Back-off pulling image "cloudsoundacrmgo77h.azurecr.io/bitnami/rabbitmq:3.12.8-debian-11-r1"
+  Warning  Failed   105s (x5753 over 21h)  kubelet  Error: ImagePullBackOff
+
+
+Name:             cloudsound-radio-streaming-7979674cdb-68pph
+Namespace:        cloudsound
+Priority:         0
+Service Account:  default
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:43:47 +0100
+Labels:           app=radio-streaming
+                  app.kubernetes.io/instance=cloudsound
+                  pod-template-hash=7979674cdb
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.13
+IPs:
+  IP:           10.0.1.13
+Controlled By:  ReplicaSet/cloudsound-radio-streaming-7979674cdb
+Containers:
+  radio-streaming:
+    Container ID:   containerd://7eb93f1d5c9d8ec976871cfb7422ccc8f7e0445ec5af28205a15dbc8164495cc
+    Image:          cloudsoundacrmgo77h.azurecr.io/radio-streaming:latest
+    Image ID:       cloudsoundacrmgo77h.azurecr.io/radio-streaming@sha256:8bb08bb299a6fc3fc02a56fbecc37ab8d4e0a4ab025395cf01c624e9dc125c56
+    Port:           8004/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:43:48 +0100
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     300m
+      memory:  384Mi
+    Requests:
+      cpu:      100m
+      memory:   128Mi
+    Liveness:   http-get http://:8004/health delay=30s timeout=1s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:8004/health/ready delay=10s timeout=1s period=5s #success=1 #failure=3
+    Environment:
+      ENVIRONMENT:              production
+      POSTGRES_HOST:            cloudsound-postgresql
+      POSTGRES_PORT:            5432
+      POSTGRES_USER:            cloudsound
+      POSTGRES_PASSWORD:        cloudsound_dev
+      POSTGRES_DB:              cloudsound
+      KAFKA_BOOTSTRAP_SERVERS:  cloudsound-kafka:9092
+      RABBITMQ_HOST:            cloudsound-rabbitmq
+      RABBITMQ_PORT:            5672
+      RABBITMQ_USER:            cloudsound
+      RABBITMQ_PASSWORD:        <set to the key 'rabbitmq-password' in secret 'cloudsound-secrets'>  Optional: false
+      MINIO_ENDPOINT:           cloudsound-minio:9000
+      MINIO_ACCESS_KEY:         minioadmin
+      MINIO_SECRET_KEY:         minioadmin
+      MINIO_BUCKET:             cloudsound-music
+      SECRET_KEY:               local-dev-secret-key-change-in-production
+      LOG_LEVEL:                INFO
+      LOG_FORMAT:               json
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-txmfp (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-txmfp:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             loki-canary-49szr
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki-canary
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:03 +0100
+Labels:           app.kubernetes.io/component=canary
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  controller-revision-hash=6976769d87
+                  pod-template-generation=1
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.60
+IPs:
+  IP:           10.0.1.60
+Controlled By:  DaemonSet/loki-canary
+Containers:
+  loki-canary:
+    Container ID:  containerd://6df2f7a561f002edfc0d479e7071236d369e53ca68bd239d1e0f99b64404df61
+    Image:         docker.io/grafana/loki-canary:2.8.0
+    Image ID:      docker.io/grafana/loki-canary@sha256:7afcf2811358bb00c20f11c53d644acd361be6c38b987dc36fab8bc808c5754c
+    Port:          3500/TCP
+    Host Port:     0/TCP
+    Args:
+      -addr=loki-gateway.cloudsound.svc.cluster.local.
+      -labelname=pod
+      -labelvalue=$(POD_NAME)
+      -user=self-monitoring
+      -tenant-id=self-monitoring
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:16 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:http-metrics/metrics delay=15s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      POD_NAME:  loki-canary-49szr (v1:metadata.name)
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-78xrv (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-78xrv:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists
+                             node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/unreachable:NoExecute op=Exists
+                             node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:                      <none>
+
+
+Name:             loki-canary-pjrqm
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki-canary
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:11:03 +0100
+Labels:           app.kubernetes.io/component=canary
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  controller-revision-hash=6976769d87
+                  pod-template-generation=1
+Annotations:      <none>
+Status:           Running
+IP:               10.0.1.14
+IPs:
+  IP:           10.0.1.14
+Controlled By:  DaemonSet/loki-canary
+Containers:
+  loki-canary:
+    Container ID:  containerd://7a04978a954e043a93f84c1170672a76fe6ee7524800f4cbdb904bb59535b12d
+    Image:         docker.io/grafana/loki-canary:2.8.0
+    Image ID:      docker.io/grafana/loki-canary@sha256:7afcf2811358bb00c20f11c53d644acd361be6c38b987dc36fab8bc808c5754c
+    Port:          3500/TCP
+    Host Port:     0/TCP
+    Args:
+      -addr=loki-gateway.cloudsound.svc.cluster.local.
+      -labelname=pod
+      -labelvalue=$(POD_NAME)
+      -user=self-monitoring
+      -tenant-id=self-monitoring
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:10 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:http-metrics/metrics delay=15s timeout=1s period=10s #success=1 #failure=3
+    Environment:
+      POD_NAME:  loki-canary-pjrqm (v1:metadata.name)
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-5ltvr (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-5ltvr:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists
+                             node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/unreachable:NoExecute op=Exists
+                             node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:                      <none>
+
+
+Name:             loki-gateway-795b5948b6-gphjd
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:11:03 +0100
+Labels:           app.kubernetes.io/component=gateway
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  pod-template-hash=795b5948b6
+Annotations:      checksum/config: 064f2a9b133d991c2c871eff34a8292e2932a5f5f5229db342b524db4a1cac85
+Status:           Running
+IP:               10.0.1.18
+IPs:
+  IP:           10.0.1.18
+Controlled By:  ReplicaSet/loki-gateway-795b5948b6
+Containers:
+  nginx:
+    Container ID:   containerd://d6c51acab5d404dcf9e5f398daa25b70f16b8b489c9fa93dcd085a749d306234
+    Image:          docker.io/nginxinc/nginx-unprivileged:1.19-alpine
+    Image ID:       docker.io/nginxinc/nginx-unprivileged@sha256:084242d8028ce517bc214d9a1dd0e5aa9736f3a1c22549afe6a40536f6750b89
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:09 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:http/ delay=15s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /docker-entrypoint.d from docker-entrypoint-d-override (rw)
+      /etc/nginx from config (rw)
+      /tmp from tmp (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pxwrk (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki-gateway
+    Optional:  false
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  docker-entrypoint-d-override:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-pxwrk:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             loki-read-0
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:11:05 +0100
+Labels:           app.kubernetes.io/component=read
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  app.kubernetes.io/part-of=memberlist
+                  apps.kubernetes.io/pod-index=0
+                  controller-revision-hash=loki-read-75d446c89f
+                  statefulset.kubernetes.io/pod-name=loki-read-0
+Annotations:      checksum/config: 24938f2d3c247ebff14740677c599cb9adb4b5614d02ab549bb9c03d47b5f033
+Status:           Running
+IP:               10.0.1.25
+IPs:
+  IP:           10.0.1.25
+Controlled By:  StatefulSet/loki-read
+Containers:
+  loki:
+    Container ID:  containerd://2155d27f9c50c1aa6fe7dfab283e035d291340200679247e341f47cc18016dd0
+    Image:         docker.io/grafana/loki:2.8.0
+    Image ID:      docker.io/grafana/loki@sha256:0d28e4dddd4ccce1772544a501e8b8f96595accbb74ee8cd0415bce81dd2edfc
+    Ports:         3100/TCP, 9095/TCP, 7946/TCP
+    Host Ports:    0/TCP, 0/TCP, 0/TCP
+    Args:
+      -config.file=/etc/loki/config/config.yaml
+      -target=read
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:30 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:http-metrics/ready delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /etc/loki/config from config (rw)
+      /etc/loki/runtime-config from runtime-config (rw)
+      /tmp from tmp (rw)
+      /var/loki from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hpnj8 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-loki-read-0
+    ReadOnly:   false
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki
+    Optional:  false
+  runtime-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki-runtime
+    Optional:  false
+  kube-api-access-hpnj8:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             loki-read-1
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki
+Node:             <none>
+Labels:           app.kubernetes.io/component=read
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  app.kubernetes.io/part-of=memberlist
+                  apps.kubernetes.io/pod-index=1
+                  controller-revision-hash=loki-read-75d446c89f
+                  statefulset.kubernetes.io/pod-name=loki-read-1
+Annotations:      checksum/config: 24938f2d3c247ebff14740677c599cb9adb4b5614d02ab549bb9c03d47b5f033
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    StatefulSet/loki-read
+Containers:
+  loki:
+    Image:       docker.io/grafana/loki:2.8.0
+    Ports:       3100/TCP, 9095/TCP, 7946/TCP
+    Host Ports:  0/TCP, 0/TCP, 0/TCP
+    Args:
+      -config.file=/etc/loki/config/config.yaml
+      -target=read
+    Readiness:    http-get http://:http-metrics/ready delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /etc/loki/config from config (rw)
+      /etc/loki/runtime-config from runtime-config (rw)
+      /tmp from tmp (rw)
+      /var/loki from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-rt8sl (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-loki-read-1
+    ReadOnly:   false
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki
+    Optional:  false
+  runtime-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki-runtime
+    Optional:  false
+  kube-api-access-rt8sl:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                     From               Message
+  ----     ------            ----                    ----               -------
+  Warning  FailedScheduling  3m54s (x55 over 4h33m)  default-scheduler  0/2 nodes are available: 2 node(s) exceed max volume count. preemption: 0/2 nodes are available: 2 No preemption victims found for incoming pod.
+
+
+Name:             loki-read-2
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki
+Node:             <none>
+Labels:           app.kubernetes.io/component=read
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  app.kubernetes.io/part-of=memberlist
+                  apps.kubernetes.io/pod-index=2
+                  controller-revision-hash=loki-read-75d446c89f
+                  statefulset.kubernetes.io/pod-name=loki-read-2
+Annotations:      checksum/config: 24938f2d3c247ebff14740677c599cb9adb4b5614d02ab549bb9c03d47b5f033
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    StatefulSet/loki-read
+Containers:
+  loki:
+    Image:       docker.io/grafana/loki:2.8.0
+    Ports:       3100/TCP, 9095/TCP, 7946/TCP
+    Host Ports:  0/TCP, 0/TCP, 0/TCP
+    Args:
+      -config.file=/etc/loki/config/config.yaml
+      -target=read
+    Readiness:    http-get http://:http-metrics/ready delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /etc/loki/config from config (rw)
+      /etc/loki/runtime-config from runtime-config (rw)
+      /tmp from tmp (rw)
+      /var/loki from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-x9k99 (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-loki-read-2
+    ReadOnly:   false
+  tmp:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki
+    Optional:  false
+  runtime-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki-runtime
+    Optional:  false
+  kube-api-access-x9k99:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                     From               Message
+  ----     ------            ----                    ----               -------
+  Warning  FailedScheduling  3m54s (x55 over 4h33m)  default-scheduler  0/2 nodes are available: 2 node(s) exceed max volume count. preemption: 0/2 nodes are available: 2 No preemption victims found for incoming pod.
+
+
+Name:             loki-write-0
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki
+Node:             aks-default-14810409-vmss000000/10.0.1.33
+Start Time:       Fri, 09 Jan 2026 17:11:05 +0100
+Labels:           app.kubernetes.io/component=write
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  app.kubernetes.io/part-of=memberlist
+                  apps.kubernetes.io/pod-index=0
+                  controller-revision-hash=loki-write-5bdcfb944b
+                  statefulset.kubernetes.io/pod-name=loki-write-0
+Annotations:      checksum/config: 24938f2d3c247ebff14740677c599cb9adb4b5614d02ab549bb9c03d47b5f033
+Status:           Running
+IP:               10.0.1.36
+IPs:
+  IP:           10.0.1.36
+Controlled By:  StatefulSet/loki-write
+Containers:
+  loki:
+    Container ID:  containerd://a4818f4191b18c139d81984f63eda27e5e40b96d42c2bc69c518706d8a2fb844
+    Image:         docker.io/grafana/loki:2.8.0
+    Image ID:      docker.io/grafana/loki@sha256:0d28e4dddd4ccce1772544a501e8b8f96595accbb74ee8cd0415bce81dd2edfc
+    Ports:         3100/TCP, 9095/TCP, 7946/TCP
+    Host Ports:    0/TCP, 0/TCP, 0/TCP
+    Args:
+      -config.file=/etc/loki/config/config.yaml
+      -target=write
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:11:40 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:http-metrics/ready delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /etc/loki/config from config (rw)
+      /etc/loki/runtime-config from runtime-config (rw)
+      /var/loki from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-jttm9 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-loki-write-0
+    ReadOnly:   false
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki
+    Optional:  false
+  runtime-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki-runtime
+    Optional:  false
+  kube-api-access-jttm9:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>
+
+
+Name:             loki-write-1
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki
+Node:             <none>
+Labels:           app.kubernetes.io/component=write
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  app.kubernetes.io/part-of=memberlist
+                  apps.kubernetes.io/pod-index=1
+                  controller-revision-hash=loki-write-5bdcfb944b
+                  statefulset.kubernetes.io/pod-name=loki-write-1
+Annotations:      checksum/config: 24938f2d3c247ebff14740677c599cb9adb4b5614d02ab549bb9c03d47b5f033
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    StatefulSet/loki-write
+Containers:
+  loki:
+    Image:       docker.io/grafana/loki:2.8.0
+    Ports:       3100/TCP, 9095/TCP, 7946/TCP
+    Host Ports:  0/TCP, 0/TCP, 0/TCP
+    Args:
+      -config.file=/etc/loki/config/config.yaml
+      -target=write
+    Readiness:    http-get http://:http-metrics/ready delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /etc/loki/config from config (rw)
+      /etc/loki/runtime-config from runtime-config (rw)
+      /var/loki from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v56sf (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-loki-write-1
+    ReadOnly:   false
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki
+    Optional:  false
+  runtime-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki-runtime
+    Optional:  false
+  kube-api-access-v56sf:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                     From               Message
+  ----     ------            ----                    ----               -------
+  Warning  FailedScheduling  3m55s (x55 over 4h33m)  default-scheduler  0/2 nodes are available: 2 node(s) exceed max volume count. preemption: 0/2 nodes are available: 2 No preemption victims found for incoming pod.
+
+
+Name:             loki-write-2
+Namespace:        cloudsound
+Priority:         0
+Service Account:  loki
+Node:             aks-default-14810409-vmss000001/10.0.1.4
+Start Time:       Fri, 09 Jan 2026 17:23:30 +0100
+Labels:           app.kubernetes.io/component=write
+                  app.kubernetes.io/instance=cloudsound
+                  app.kubernetes.io/name=loki
+                  app.kubernetes.io/part-of=memberlist
+                  apps.kubernetes.io/pod-index=2
+                  controller-revision-hash=loki-write-5bdcfb944b
+                  statefulset.kubernetes.io/pod-name=loki-write-2
+Annotations:      checksum/config: 24938f2d3c247ebff14740677c599cb9adb4b5614d02ab549bb9c03d47b5f033
+Status:           Running
+IP:               10.0.1.8
+IPs:
+  IP:           10.0.1.8
+Controlled By:  StatefulSet/loki-write
+Containers:
+  loki:
+    Container ID:  containerd://1b79d02095c6cf6257f227ff4f495972a55918bac4d4421c81d4d0cdd8f6ca19
+    Image:         docker.io/grafana/loki:2.8.0
+    Image ID:      docker.io/grafana/loki@sha256:0d28e4dddd4ccce1772544a501e8b8f96595accbb74ee8cd0415bce81dd2edfc
+    Ports:         3100/TCP, 9095/TCP, 7946/TCP
+    Host Ports:    0/TCP, 0/TCP, 0/TCP
+    Args:
+      -config.file=/etc/loki/config/config.yaml
+      -target=write
+    State:          Running
+      Started:      Fri, 09 Jan 2026 17:23:47 +0100
+    Ready:          True
+    Restart Count:  0
+    Readiness:      http-get http://:http-metrics/ready delay=30s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /etc/loki/config from config (rw)
+      /etc/loki/runtime-config from runtime-config (rw)
+      /var/loki from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-jclfm (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-loki-write-2
+    ReadOnly:   false
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki
+    Optional:  false
+  runtime-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      loki-runtime
+    Optional:  false
+  kube-api-access-jclfm:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:                      <none>

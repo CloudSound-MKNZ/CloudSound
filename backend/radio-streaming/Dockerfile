@@ -5,18 +5,19 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
+    git \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
+# Install shared package from git
+RUN pip install --no-cache-dir git+https://github.com/CloudSound-MKNZ/cloudsound-shared.git@main
+
 # Copy requirements
-COPY backend/radio-streaming/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy shared dependencies
-COPY backend/shared /app/backend/shared
-
 # Copy service code
-COPY backend/radio-streaming/src /app/src
+COPY src /app/src
 
 # Set Python path
 ENV PYTHONPATH=/app

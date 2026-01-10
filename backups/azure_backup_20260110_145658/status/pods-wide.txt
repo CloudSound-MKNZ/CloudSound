@@ -1,0 +1,34 @@
+NAME                                                 READY   STATUS                  RESTARTS        AGE   IP          NODE                              NOMINATED NODE   READINESS GATES
+cloudsound-analytics-78478f9b5f-lrcxw                1/1     Running                 0               21h   10.0.1.54   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-api-gateway-76c5d5cb56-d6xxw              1/1     Running                 0               21h   10.0.1.21   aks-default-14810409-vmss000001   <none>           <none>
+cloudsound-authentication-9fb7bfc67-ftjw8            0/1     CrashLoopBackOff        363 (12s ago)   21h   10.0.1.38   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-concert-management-577c876c65-2cdjz       1/1     Running                 0               21h   10.0.1.44   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-event-manager-564d77ccdc-vjqjb            1/1     Running                 0               21h   10.0.1.30   aks-default-14810409-vmss000001   <none>           <none>
+cloudsound-frontend-77bff994fb-fhhqt                 1/1     Running                 0               21h   10.0.1.55   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-grafana-67458c65df-m7kls                  0/1     Init:ImagePullBackOff   0               21h   10.0.1.16   aks-default-14810409-vmss000001   <none>           <none>
+cloudsound-grafana-agent-operator-77944456b8-pdpqq   1/1     Running                 0               21h   10.0.1.61   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-kafka-controller-0                        0/1     Init:ImagePullBackOff   0               21h   10.0.1.39   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-kafka-controller-1                        0/1     Init:ImagePullBackOff   0               21h   10.0.1.37   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-kafka-controller-2                        0/1     Pending                 0               21h   <none>      <none>                            <none>           <none>
+cloudsound-kube-state-metrics-5f9ddfddf4-kz7vf       0/1     ImagePullBackOff        0               21h   10.0.1.35   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-loki-logs-6dl9j                           2/2     Running                 0               21h   10.0.1.59   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-loki-logs-btj4d                           2/2     Running                 0               21h   10.0.1.24   aks-default-14810409-vmss000001   <none>           <none>
+cloudsound-migrations-vvvmb                          0/1     Init:0/1                0               20h   10.0.1.29   aks-default-14810409-vmss000001   <none>           <none>
+cloudsound-minio-5f4784f7fd-kfsd9                    1/1     Running                 0               21h   10.0.1.22   aks-default-14810409-vmss000001   <none>           <none>
+cloudsound-music-discovery-78b4db6b7-bwb24           1/1     Running                 0               21h   10.0.1.56   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-postgres-0                                0/1     Pending                 0               21h   <none>      <none>                            <none>           <none>
+cloudsound-prometheus-node-exporter-mnffw            0/1     ImagePullBackOff        0               21h   10.0.1.33   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-prometheus-node-exporter-w7tbk            0/1     ImagePullBackOff        0               21h   10.0.1.4    aks-default-14810409-vmss000001   <none>           <none>
+cloudsound-prometheus-pushgateway-577b58858c-thkfs   1/1     Running                 0               21h   10.0.1.52   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-prometheus-server-d6f47d676-lzfs7         2/2     Running                 0               21h   10.0.1.20   aks-default-14810409-vmss000001   <none>           <none>
+cloudsound-rabbitmq-0                                0/1     ImagePullBackOff        0               21h   10.0.1.41   aks-default-14810409-vmss000000   <none>           <none>
+cloudsound-radio-streaming-7979674cdb-68pph          1/1     Running                 0               21h   10.0.1.13   aks-default-14810409-vmss000001   <none>           <none>
+loki-canary-49szr                                    1/1     Running                 0               21h   10.0.1.60   aks-default-14810409-vmss000000   <none>           <none>
+loki-canary-pjrqm                                    1/1     Running                 0               21h   10.0.1.14   aks-default-14810409-vmss000001   <none>           <none>
+loki-gateway-795b5948b6-gphjd                        1/1     Running                 0               21h   10.0.1.18   aks-default-14810409-vmss000001   <none>           <none>
+loki-read-0                                          1/1     Running                 0               21h   10.0.1.25   aks-default-14810409-vmss000001   <none>           <none>
+loki-read-1                                          0/1     Pending                 0               21h   <none>      <none>                            <none>           <none>
+loki-read-2                                          0/1     Pending                 0               21h   <none>      <none>                            <none>           <none>
+loki-write-0                                         1/1     Running                 0               21h   10.0.1.36   aks-default-14810409-vmss000000   <none>           <none>
+loki-write-1                                         0/1     Pending                 0               21h   <none>      <none>                            <none>           <none>
+loki-write-2                                         1/1     Running                 0               21h   10.0.1.8    aks-default-14810409-vmss000001   <none>           <none>

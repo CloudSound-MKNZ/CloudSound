@@ -131,6 +131,43 @@ Service logs are written to:
 - `/tmp/cloudsound-analytics.log`
 - `/tmp/cloudsound-frontend.log`
 
+## Azure Scripts
+
+### 💰 Pause/Resume Azure Resources (Save Credits!)
+
+When you're not actively using Azure resources, you can pause them to save credits:
+
+```bash
+# Stop AKS and PostgreSQL (save ~$45-60/month)
+./scripts/azure-pause-resources.sh stop
+
+# Start everything back up
+./scripts/azure-pause-resources.sh start
+
+# Check current status
+./scripts/azure-pause-resources.sh status
+```
+
+**What gets stopped:**
+- ✅ AKS Cluster (~$30-40/month savings)
+- ✅ PostgreSQL Flexible Server (~$15-20/month savings)
+
+**What keeps running (minimal cost):**
+- Event Hubs (~$10-20/month)
+- Storage (~$1-2/month)
+- ACR (~$5/month)
+- Log Analytics (~$5-15/month)
+
+**Total savings when stopped: ~$45-60/month**
+
+### 📊 Check Azure Costs
+
+```bash
+./scripts/check-azure-costs.sh
+```
+
+Shows current month costs, resource breakdown, and cost optimization tips.
+
 ## Helper Scripts
 
 The `bash/` and `powershell/` directories contain scripts used by the `.specify` system for spec-driven development. These should not be modified manually.

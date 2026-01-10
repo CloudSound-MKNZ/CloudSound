@@ -32,6 +32,19 @@ spec:
         env:
         {{- include "cloudsound.commonEnv" . | nindent 8 }}
         {{- include "cloudsound.serviceUrls" . | nindent 8 }}
+        {{- if .Values.apiGateway.env }}
+        {{- range $key, $value := .Values.apiGateway.env }}
+        {{- if and (ne $key "LOG_LEVEL") (ne $key "LOG_FORMAT") }}
+        {{- if kindIs "map" $value }}
+        - name: {{ $key }}
+          {{- toYaml $value | nindent 10 }}
+        {{- else }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /health

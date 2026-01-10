@@ -97,7 +97,30 @@ Common environment variables for all services
 - name: POSTGRES_DB
   value: {{ if .Values.postgresql.enabled }}{{ .Values.postgresql.auth.database | quote }}{{ else }}"cloudsound"{{ end }}
 - name: KAFKA_BOOTSTRAP_SERVERS
+  {{- if and .Values.kafka.external .Values.kafka.external.enabled }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.kafka.external.connectionStringSecret | default "eventhubs-connection-string" }}
+      key: bootstrap-servers
+  {{- else }}
   value: {{ .Release.Name }}-kafka:9092
+  {{- end }}
+{{- if and .Values.kafka.external .Values.kafka.external.enabled }}
+- name: KAFKA_SECURITY_PROTOCOL
+  value: {{ .Values.kafka.external.securityProtocol | default "SASL_SSL" | quote }}
+- name: KAFKA_SASL_MECHANISM
+  value: {{ .Values.kafka.external.saslMechanism | default "PLAIN" | quote }}
+- name: KAFKA_SASL_USERNAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.kafka.external.connectionStringSecret | default "eventhubs-connection-string" }}
+      key: username
+- name: KAFKA_SASL_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.kafka.external.connectionStringSecret | default "eventhubs-connection-string" }}
+      key: password
+{{- end }}
 - name: RABBITMQ_HOST
   value: {{ .Release.Name }}-rabbitmq
 - name: RABBITMQ_PORT

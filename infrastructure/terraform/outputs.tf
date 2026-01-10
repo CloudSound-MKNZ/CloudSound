@@ -117,6 +117,34 @@ output "storage_blob_endpoint" {
   value       = azurerm_storage_account.main.primary_blob_endpoint
 }
 
+# Event Hubs (Kafka-compatible)
+output "eventhubs_namespace_name" {
+  description = "Name of the Event Hubs namespace"
+  value       = azurerm_eventhub_namespace.main.name
+}
+
+output "eventhubs_namespace_fqdn" {
+  description = "FQDN of the Event Hubs namespace"
+  value       = "${azurerm_eventhub_namespace.main.name}.servicebus.windows.net"
+}
+
+output "eventhubs_kafka_bootstrap_servers" {
+  description = "Kafka bootstrap servers for Event Hubs"
+  value       = "${azurerm_eventhub_namespace.main.name}.servicebus.windows.net:9093"
+}
+
+output "eventhubs_connection_string" {
+  description = "Event Hubs connection string for Kafka access"
+  value       = azurerm_eventhub_namespace_authorization_rule.kafka_access.primary_connection_string
+  sensitive   = true
+}
+
+output "eventhubs_connection_string_alias" {
+  description = "Event Hubs connection string alias"
+  value       = azurerm_eventhub_namespace_authorization_rule.kafka_access.primary_connection_string_alias
+  sensitive   = true
+}
+
 # Application Insights
 output "app_insights_instrumentation_key" {
   description = "Instrumentation key for Application Insights"

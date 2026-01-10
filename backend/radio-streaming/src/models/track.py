@@ -2,7 +2,7 @@
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from backend.shared.models.base import Base, UUIDMixin, TimestampMixin
+from cloudsound_shared.models.base import Base, UUIDMixin, TimestampMixin
 
 
 class Track(Base, UUIDMixin, TimestampMixin):

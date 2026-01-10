@@ -46,7 +46,7 @@ for service in "${BACKEND_SERVICES[@]}"; do
         -f "backend/${service}/Dockerfile" \
         -t "${REGISTRY}/${service}:latest" \
         -t "${REGISTRY}/${service}:$(git rev-parse --short HEAD)" \
-        .
+        "backend/${service}"
     
     echo -e "${YELLOW}Pushing ${service}...${NC}"
     docker push "${REGISTRY}/${service}:latest"

@@ -1,0 +1,2 @@
+NAME      	NAMESPACE 	REVISION	UPDATED                                	STATUS	CHART           	APP VERSION
+cloudsound	cloudsound	7       	2026-01-09 18:37:16.439588026 +0100 CET	failed	cloudsound-1.0.0	1.0.0      

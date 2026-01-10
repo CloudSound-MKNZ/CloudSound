@@ -1,0 +1,913 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:04Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/component: controller-eligible
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: kafka
+      app.kubernetes.io/part-of: kafka
+      app.kubernetes.io/version: 3.6.0
+      helm.sh/chart: kafka-26.4.0
+    name: cloudsound-kafka-controller
+    namespace: cloudsound
+    resourceVersion: "19806"
+    uid: f7aee28e-1d82-4fb6-9bd6-c6767b36fcbd
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: Parallel
+    replicas: 3
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: controller-eligible
+        app.kubernetes.io/instance: cloudsound
+        app.kubernetes.io/name: kafka
+        app.kubernetes.io/part-of: kafka
+    serviceName: cloudsound-kafka-controller-headless
+    template:
+      metadata:
+        annotations:
+          checksum/configuration: ac366f80bbec51d29bad848bc3403235b2a8d95e5a7cf4689e7d5a9aeaedc7bd
+          checksum/passwords-secret: f713247e2897a82cc142ce7d9b62f5d2b11608d9b861f696b67538354e0449cc
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: controller-eligible
+          app.kubernetes.io/instance: cloudsound
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: kafka
+          app.kubernetes.io/part-of: kafka
+          app.kubernetes.io/version: 3.6.0
+          helm.sh/chart: kafka-26.4.0
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/component: controller-eligible
+                    app.kubernetes.io/instance: cloudsound
+                    app.kubernetes.io/name: kafka
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        containers:
+        - env:
+          - name: BITNAMI_DEBUG
+            value: "false"
+          - name: KAFKA_HEAP_OPTS
+            value: -Xmx1024m -Xms1024m
+          - name: KAFKA_KRAFT_CLUSTER_ID
+            valueFrom:
+              secretKeyRef:
+                key: kraft-cluster-id
+                name: cloudsound-kafka-kraft-cluster-id
+          - name: KAFKA_KRAFT_BOOTSTRAP_SCRAM_USERS
+            value: "true"
+          - name: KAFKA_CLIENT_USERS
+            value: user1
+          - name: KAFKA_CLIENT_PASSWORDS
+            valueFrom:
+              secretKeyRef:
+                key: client-passwords
+                name: cloudsound-kafka-user-passwords
+          - name: KAFKA_INTER_BROKER_USER
+            value: inter_broker_user
+          - name: KAFKA_INTER_BROKER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: inter-broker-password
+                name: cloudsound-kafka-user-passwords
+          - name: KAFKA_CONTROLLER_USER
+            value: controller_user
+          - name: KAFKA_CONTROLLER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: controller-password
+                name: cloudsound-kafka-user-passwords
+          image: cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: controller
+            timeoutSeconds: 5
+          name: kafka
+          ports:
+          - containerPort: 9093
+            name: controller
+            protocol: TCP
+          - containerPort: 9092
+            name: client
+            protocol: TCP
+          - containerPort: 9094
+            name: interbroker
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: controller
+            timeoutSeconds: 5
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /bitnami/kafka
+            name: data
+          - mountPath: /opt/bitnami/kafka/logs
+            name: logs
+          - mountPath: /opt/bitnami/kafka/config/server.properties
+            name: kafka-config
+            subPath: server.properties
+          - mountPath: /tmp
+            name: tmp
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        imagePullSecrets:
+        - name: acr-secret
+        initContainers:
+        - args:
+          - -ec
+          - |
+            /scripts/kafka-init.sh
+          command:
+          - /bin/bash
+          env:
+          - name: BITNAMI_DEBUG
+            value: "false"
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: KAFKA_VOLUME_DIR
+            value: /bitnami/kafka
+          - name: KAFKA_MIN_ID
+            value: "0"
+          - name: KAFKA_CLIENT_USERS
+            value: user1
+          - name: KAFKA_CLIENT_PASSWORDS
+            valueFrom:
+              secretKeyRef:
+                key: client-passwords
+                name: cloudsound-kafka-user-passwords
+          - name: KAFKA_INTER_BROKER_USER
+            value: inter_broker_user
+          - name: KAFKA_INTER_BROKER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: inter-broker-password
+                name: cloudsound-kafka-user-passwords
+          - name: KAFKA_CONTROLLER_USER
+            value: controller_user
+          - name: KAFKA_CONTROLLER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: controller-password
+                name: cloudsound-kafka-user-passwords
+          image: cloudsoundacrmgo77h.azurecr.io/bitnami/kafka:3.6.0-debian-11-r1
+          imagePullPolicy: IfNotPresent
+          name: kafka-init
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /bitnami/kafka
+            name: data
+          - mountPath: /config
+            name: kafka-config
+          - mountPath: /configmaps
+            name: kafka-configmaps
+          - mountPath: /secret-config
+            name: kafka-secret-config
+          - mountPath: /scripts
+            name: scripts
+          - mountPath: /tmp
+            name: tmp
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1001
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: cloudsound-kafka
+        serviceAccountName: cloudsound-kafka
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: cloudsound-kafka-controller-configuration
+          name: kafka-configmaps
+        - emptyDir: {}
+          name: kafka-secret-config
+        - emptyDir: {}
+          name: kafka-config
+        - emptyDir: {}
+          name: tmp
+        - configMap:
+            defaultMode: 493
+            name: cloudsound-kafka-scripts
+          name: scripts
+        - emptyDir: {}
+          name: logs
+    updateStrategy:
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  status:
+    availableReplicas: 0
+    collisionCount: 0
+    currentReplicas: 2
+    currentRevision: cloudsound-kafka-controller-5b5f65bc49
+    observedGeneration: 2
+    replicas: 3
+    updateRevision: cloudsound-kafka-controller-7558cc4c9f
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:04Z"
+    generation: 1
+    labels:
+      app: postgres
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: cloudsound
+      app.kubernetes.io/version: 1.0.0
+      helm.sh/chart: cloudsound-1.0.0
+    name: cloudsound-postgres
+    namespace: cloudsound
+    resourceVersion: "14862"
+    uid: 84047d59-99da-4461-a891-3548306beea5
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: OrderedReady
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: postgres
+    serviceName: postgres
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: postgres
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_USER
+            value: cloudsound
+          - name: POSTGRES_PASSWORD
+            value: cloudsound_dev
+          - name: POSTGRES_DB
+            value: cloudsound
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - cloudsound
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: postgres
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - cloudsound
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgres-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        name: postgres-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  status:
+    availableReplicas: 0
+    collisionCount: 0
+    currentReplicas: 1
+    currentRevision: cloudsound-postgres-6fc88fc4b6
+    observedGeneration: 1
+    replicas: 1
+    updateRevision: cloudsound-postgres-6fc88fc4b6
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:04Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/version: 3.12.8
+      helm.sh/chart: rabbitmq-12.5.0
+    name: cloudsound-rabbitmq
+    namespace: cloudsound
+    resourceVersion: "19783"
+    uid: f5db48b8-205a-426f-b444-e5ddb2dcecd2
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: OrderedReady
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: cloudsound
+        app.kubernetes.io/name: rabbitmq
+    serviceName: cloudsound-rabbitmq-headless
+    template:
+      metadata:
+        annotations:
+          checksum/config: e6ee347e447a557271f93349e5de570242b7804ccf7bc7339ec99d7678d4fafa
+          checksum/secret: 2ba4aa0830e3e5886d4de36be38cafc3714f1502453dfd593cbb5b942dc126f1
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: cloudsound
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: rabbitmq
+          app.kubernetes.io/version: 3.12.8
+          helm.sh/chart: rabbitmq-12.5.0
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: cloudsound
+                    app.kubernetes.io/name: rabbitmq
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        containers:
+        - env:
+          - name: BITNAMI_DEBUG
+            value: "false"
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: K8S_SERVICE_NAME
+            value: cloudsound-rabbitmq-headless
+          - name: K8S_ADDRESS_TYPE
+            value: hostname
+          - name: RABBITMQ_FORCE_BOOT
+            value: "no"
+          - name: RABBITMQ_NODE_NAME
+            value: rabbit@$(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+          - name: K8S_HOSTNAME_SUFFIX
+            value: .$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+          - name: RABBITMQ_MNESIA_DIR
+            value: /bitnami/rabbitmq/mnesia/$(RABBITMQ_NODE_NAME)
+          - name: RABBITMQ_LDAP_ENABLE
+            value: "no"
+          - name: RABBITMQ_LOGS
+            value: '-'
+          - name: RABBITMQ_ULIMIT_NOFILES
+            value: "65536"
+          - name: RABBITMQ_USE_LONGNAME
+            value: "true"
+          - name: RABBITMQ_ERL_COOKIE
+            valueFrom:
+              secretKeyRef:
+                key: rabbitmq-erlang-cookie
+                name: cloudsound-rabbitmq
+          - name: RABBITMQ_LOAD_DEFINITIONS
+            value: "no"
+          - name: RABBITMQ_DEFINITIONS_FILE
+            value: /app/load_definition.json
+          - name: RABBITMQ_SECURE_PASSWORD
+            value: "yes"
+          - name: RABBITMQ_USERNAME
+            value: cloudsound
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: rabbitmq-password
+                name: rabbitmq-secret
+          - name: RABBITMQ_PLUGINS
+            value: rabbitmq_management, rabbitmq_peer_discovery_k8s, rabbitmq_auth_backend_ldap
+          image: cloudsoundacrmgo77h.azurecr.io/bitnami/rabbitmq:3.12.8-debian-11-r1
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - /bin/bash
+                - -ec
+                - |
+                  if [[ -f /opt/bitnami/scripts/rabbitmq/nodeshutdown.sh ]]; then
+                      /opt/bitnami/scripts/rabbitmq/nodeshutdown.sh -t "120" -d "false"
+                  else
+                      rabbitmqctl stop_app
+                  fi
+          livenessProbe:
+            exec:
+              command:
+              - sh
+              - -ec
+              - curl -f --user cloudsound:$RABBITMQ_PASSWORD 127.0.0.1:15672/api/health/checks/virtual-hosts
+            failureThreshold: 6
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 20
+          name: rabbitmq
+          ports:
+          - containerPort: 5672
+            name: amqp
+            protocol: TCP
+          - containerPort: 25672
+            name: dist
+            protocol: TCP
+          - containerPort: 15672
+            name: stats
+            protocol: TCP
+          - containerPort: 4369
+            name: epmd
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - sh
+              - -ec
+              - curl -f --user cloudsound:$RABBITMQ_PASSWORD 127.0.0.1:15672/api/health/checks/local-alarms
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 20
+          resources:
+            limits:
+              cpu: 500m
+              memory: 768Mi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /bitnami/rabbitmq/conf
+            name: configuration
+          - mountPath: /bitnami/rabbitmq/mnesia
+            name: data
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        imagePullSecrets:
+        - name: acr-secret
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1001
+        serviceAccount: cloudsound-rabbitmq
+        serviceAccountName: cloudsound-rabbitmq
+        terminationGracePeriodSeconds: 120
+        volumes:
+        - name: configuration
+          projected:
+            defaultMode: 420
+            sources:
+            - secret:
+                name: cloudsound-rabbitmq-config
+    updateStrategy:
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: cloudsound
+          app.kubernetes.io/name: rabbitmq
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+        storageClassName: managed-premium
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  status:
+    availableReplicas: 0
+    collisionCount: 0
+    currentReplicas: 1
+    currentRevision: cloudsound-rabbitmq-76cdf96fc9
+    observedGeneration: 2
+    replicas: 1
+    updateRevision: cloudsound-rabbitmq-586954845
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:04Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/part-of: memberlist
+      app.kubernetes.io/version: 2.8.0
+      helm.sh/chart: loki-5.0.0
+    name: loki-read
+    namespace: cloudsound
+    resourceVersion: "15694"
+    uid: d13ee071-1e28-4a79-8e4d-0fc7e0aaed95
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Delete
+      whenScaled: Delete
+    podManagementPolicy: Parallel
+    replicas: 3
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: read
+        app.kubernetes.io/instance: cloudsound
+        app.kubernetes.io/name: loki
+    serviceName: loki-read-headless
+    template:
+      metadata:
+        annotations:
+          checksum/config: 24938f2d3c247ebff14740677c599cb9adb4b5614d02ab549bb9c03d47b5f033
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: read
+          app.kubernetes.io/instance: cloudsound
+          app.kubernetes.io/name: loki
+          app.kubernetes.io/part-of: memberlist
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: read
+                  app.kubernetes.io/instance: cloudsound
+                  app.kubernetes.io/name: loki
+              topologyKey: kubernetes.io/hostname
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - -config.file=/etc/loki/config/config.yaml
+          - -target=read
+          image: docker.io/grafana/loki:2.8.0
+          imagePullPolicy: IfNotPresent
+          name: loki
+          ports:
+          - containerPort: 3100
+            name: http-metrics
+            protocol: TCP
+          - containerPort: 9095
+            name: grpc
+            protocol: TCP
+          - containerPort: 7946
+            name: http-memberlist
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/loki/config
+            name: config
+          - mountPath: /etc/loki/runtime-config
+            name: runtime-config
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /var/loki
+            name: data
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 10001
+          runAsGroup: 10001
+          runAsNonRoot: true
+          runAsUser: 10001
+        serviceAccount: loki
+        serviceAccountName: loki
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: tmp
+        - configMap:
+            defaultMode: 420
+            name: loki
+          name: config
+        - configMap:
+            defaultMode: 420
+            name: loki-runtime
+          name: runtime-config
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  status:
+    availableReplicas: 1
+    collisionCount: 0
+    currentReplicas: 3
+    currentRevision: loki-read-75d446c89f
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 3
+    updateRevision: loki-read-75d446c89f
+    updatedReplicas: 3
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cloudsound
+      meta.helm.sh/release-namespace: cloudsound
+    creationTimestamp: "2026-01-09T16:11:04Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: cloudsound
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/part-of: memberlist
+      app.kubernetes.io/version: 2.8.0
+      helm.sh/chart: loki-5.0.0
+    name: loki-write
+    namespace: cloudsound
+    resourceVersion: "20283"
+    uid: 4476a74a-64e8-4e93-918c-e78bdde05e3a
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: Parallel
+    replicas: 3
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: write
+        app.kubernetes.io/instance: cloudsound
+        app.kubernetes.io/name: loki
+    serviceName: loki-write-headless
+    template:
+      metadata:
+        annotations:
+          checksum/config: 24938f2d3c247ebff14740677c599cb9adb4b5614d02ab549bb9c03d47b5f033
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: write
+          app.kubernetes.io/instance: cloudsound
+          app.kubernetes.io/name: loki
+          app.kubernetes.io/part-of: memberlist
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: write
+                  app.kubernetes.io/instance: cloudsound
+                  app.kubernetes.io/name: loki
+              topologyKey: kubernetes.io/hostname
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - -config.file=/etc/loki/config/config.yaml
+          - -target=write
+          image: docker.io/grafana/loki:2.8.0
+          imagePullPolicy: IfNotPresent
+          name: loki
+          ports:
+          - containerPort: 3100
+            name: http-metrics
+            protocol: TCP
+          - containerPort: 9095
+            name: grpc
+            protocol: TCP
+          - containerPort: 7946
+            name: http-memberlist
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/loki/config
+            name: config
+          - mountPath: /etc/loki/runtime-config
+            name: runtime-config
+          - mountPath: /var/loki
+            name: data
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 10001
+          runAsGroup: 10001
+          runAsNonRoot: true
+          runAsUser: 10001
+        serviceAccount: loki
+        serviceAccountName: loki
+        terminationGracePeriodSeconds: 300
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: loki
+          name: config
+        - configMap:
+            defaultMode: 420
+            name: loki-runtime
+          name: runtime-config
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  status:
+    availableReplicas: 2
+    collisionCount: 0
+    currentReplicas: 3
+    currentRevision: loki-write-5bdcfb944b
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 3
+    updateRevision: loki-write-5bdcfb944b
+    updatedReplicas: 3
+kind: List
+metadata:
+  resourceVersion: ""

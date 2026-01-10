@@ -2,7 +2,7 @@
 from sqlalchemy import Column, String, Boolean, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 import enum
-from backend.shared.models.base import Base, UUIDMixin, TimestampMixin
+from cloudsound_shared.models.base import Base, UUIDMixin, TimestampMixin
 
 
 class StationType(str, enum.Enum):

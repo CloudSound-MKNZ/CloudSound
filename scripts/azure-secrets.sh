@@ -46,6 +46,10 @@ STORAGE_KEY=$(terraform output -raw storage_account_key)
 
 APP_INSIGHTS_KEY=$(terraform output -raw app_insights_instrumentation_key)
 
+# Event Hubs (Kafka-compatible)
+EVENTHUBS_BOOTSTRAP_SERVERS=$(terraform output -raw eventhubs_kafka_bootstrap_servers)
+EVENTHUBS_CONNECTION_STRING=$(terraform output -raw eventhubs_connection_string)
+
 cd ../..
 
 # Create namespace
@@ -104,6 +108,23 @@ kubectl create secret generic app-insights-secret \
     --dry-run=client -o yaml | kubectl apply -f -
 
 echo -e "${GREEN}✓ Application Insights secret created${NC}"
+
+# Create Event Hubs secret (for Kafka-compatible access)
+echo -e "${YELLOW}Creating Event Hubs secret...${NC}"
+# Extract username and password from connection string
+# Format: Endpoint=sb://...;SharedAccessKeyName=...;SharedAccessKey=...
+EVENTHUBS_USERNAME="\$ConnectionString"
+EVENTHUBS_PASSWORD="$EVENTHUBS_CONNECTION_STRING"
+
+kubectl create secret generic eventhubs-connection-string \
+    --namespace $NAMESPACE \
+    --from-literal=bootstrap-servers="$EVENTHUBS_BOOTSTRAP_SERVERS" \
+    --from-literal=connection-string="$EVENTHUBS_CONNECTION_STRING" \
+    --from-literal=username="$EVENTHUBS_USERNAME" \
+    --from-literal=password="$EVENTHUBS_CONNECTION_STRING" \
+    --dry-run=client -o yaml | kubectl apply -f -
+
+echo -e "${GREEN}✓ Event Hubs secret created${NC}"
 
 # Verify secrets
 echo -e "\n${YELLOW}Verifying secrets...${NC}"

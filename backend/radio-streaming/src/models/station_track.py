@@ -2,7 +2,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from backend.shared.models.base import Base, UUIDMixin, TimestampMixin
+from cloudsound_shared.models.base import Base, UUIDMixin, TimestampMixin
 
 
 class StationTrack(Base, UUIDMixin, TimestampMixin):

@@ -507,7 +507,11 @@ az functionapp config appsettings set \
   --name cloudsound-metadata-extractor \
   --resource-group cloudsound-rg \
   --settings \
-    KAFKA_BOOTSTRAP_SERVERS="your-kafka-broker:9092" \
+    KAFKA_BOOTSTRAP_SERVERS="<namespace>.servicebus.windows.net:9093" \
+    KAFKA_SECURITY_PROTOCOL="SASL_SSL" \
+    KAFKA_SASL_MECHANISM="PLAIN" \
+    KAFKA_SASL_USERNAME="$ConnectionString" \
+    KAFKA_SASL_PASSWORD="<event-hubs-connection-string>" \
     STORAGE_CONNECTION_STRING="$STORAGE_KEY"
 ```
 

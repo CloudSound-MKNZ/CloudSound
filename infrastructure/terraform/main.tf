@@ -151,7 +151,8 @@ resource "azurerm_kubernetes_cluster" "main" {
   resource_group_name = azurerm_resource_group.main.name
   dns_prefix          = "${var.project_name}-aks"
   
-  kubernetes_version = var.kubernetes_version
+  # kubernetes_version is omitted to use the default (latest stable for Free tier)
+  # If you need a specific version, ensure it's compatible with Free tier
 
   default_node_pool {
     name                = "default"
@@ -171,6 +172,8 @@ resource "azurerm_kubernetes_cluster" "main" {
     network_plugin    = "azure"
     network_policy    = "azure"
     load_balancer_sku = "standard"
+    service_cidr      = "10.1.0.0/16"  # Separate CIDR for Kubernetes services
+    dns_service_ip    = "10.1.0.10"     # Must be within service_cidr
   }
 
   tags = azurerm_resource_group.main.tags
@@ -191,15 +194,21 @@ resource "azurerm_postgresql_flexible_server" "main" {
   location               = azurerm_resource_group.main.location
   version                = "15"
   administrator_login    = var.postgres_admin_user
-  administrator_password = var.postgres_admin_password
+  administrator_password = var.postgres_admin_password != null ? var.postgres_admin_password : random_password.postgres_password[0].result
   
   storage_mb   = var.postgres_storage_mb
   sku_name     = var.postgres_sku_name
   
   delegated_subnet_id = azurerm_subnet.postgres.id
   private_dns_zone_id = azurerm_private_dns_zone.postgres.id
+  public_network_access_enabled = false  # Must be false when using VNet integration
 
   depends_on = [azurerm_private_dns_zone_virtual_network_link.postgres]
+
+  # Ignore zone changes as Azure auto-assigns zones and they can't be changed after creation
+  lifecycle {
+    ignore_changes = [zone]
+  }
 
   tags = azurerm_resource_group.main.tags
 }
@@ -293,6 +302,64 @@ resource "azurerm_application_insights" "main" {
   workspace_id        = azurerm_log_analytics_workspace.main.id
 
   tags = azurerm_resource_group.main.tags
+}
+
+# Azure Event Hubs Namespace (Kafka-compatible)
+# Kafka protocol is automatically enabled for Standard tier and above
+resource "azurerm_eventhub_namespace" "main" {
+  name                = "${var.project_name}-events-${random_string.suffix.result}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "Standard"
+  capacity            = 1
+
+  tags = azurerm_resource_group.main.tags
+}
+
+# Event Hub for concert events
+resource "azurerm_eventhub" "concert_events" {
+  name                = "concert-events"
+  namespace_name      = azurerm_eventhub_namespace.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  partition_count     = 2
+  message_retention   = 1
+}
+
+# Event Hub for music events
+resource "azurerm_eventhub" "music_events" {
+  name                = "music-events"
+  namespace_name      = azurerm_eventhub_namespace.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  partition_count     = 2
+  message_retention   = 1
+}
+
+# Event Hub for playback events
+resource "azurerm_eventhub" "playback_events" {
+  name                = "playback-events"
+  namespace_name      = azurerm_eventhub_namespace.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  partition_count     = 2
+  message_retention   = 1
+}
+
+# Event Hub for raw Facebook events
+resource "azurerm_eventhub" "raw_events" {
+  name                = "raw-events"
+  namespace_name      = azurerm_eventhub_namespace.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  partition_count     = 2
+  message_retention   = 1
+}
+
+# Authorization rule for Event Hubs (for Kafka connection)
+resource "azurerm_eventhub_namespace_authorization_rule" "kafka_access" {
+  name                = "RootManageSharedAccessKey"
+  namespace_name      = azurerm_eventhub_namespace.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  listen              = true
+  send                = true
+  manage              = true
 }
 
 # Public IP for Application Gateway (optional, for future use)

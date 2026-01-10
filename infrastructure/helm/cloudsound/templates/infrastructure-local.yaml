@@ -31,11 +31,19 @@ spec:
         - containerPort: 5432
         env:
         - name: POSTGRES_USER
-          value: cloudsound
+          value: {{ .Values.postgresql.auth.username | default "cloudsound" }}
+        {{- if .Values.postgresql.auth.existingSecret }}
         - name: POSTGRES_PASSWORD
-          value: cloudsound_dev
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.postgresql.auth.existingSecret }}
+              key: {{ .Values.postgresql.auth.existingSecretPasswordKey | default "password" }}
+        {{- else }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.postgresql.auth.password | default "cloudsound_dev" }}
+        {{- end }}
         - name: POSTGRES_DB
-          value: cloudsound
+          value: {{ .Values.postgresql.database | default "cloudsound" }}
         volumeMounts:
         - name: postgres-data
           mountPath: /var/lib/postgresql/data
@@ -54,9 +62,14 @@ spec:
       name: postgres-data
     spec:
       accessModes: ["ReadWriteOnce"]
+      {{- if and .Values.postgresql.persistence .Values.postgresql.persistence.storageClass }}
+      storageClassName: {{ .Values.postgresql.persistence.storageClass }}
+      {{- else }}
+      storageClassName: managed-premium
+      {{- end }}
       resources:
         requests:
-          storage: 5Gi
+          storage: {{ if .Values.postgresql.persistence }}{{ .Values.postgresql.persistence.size | default "10Gi" }}{{ else }}10Gi{{ end }}
 ---
 apiVersion: v1
 kind: Service
@@ -94,6 +107,9 @@ spec:
       labels:
         app: zookeeper
     spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
       containers:
       - name: zookeeper
         image: confluentinc/cp-zookeeper:7.5.0
@@ -112,6 +128,9 @@ spec:
       name: zookeeper-data
     spec:
       accessModes: ["ReadWriteOnce"]
+      {{- if and .Values.kafka.persistence .Values.kafka.persistence.storageClass }}
+      storageClassName: {{ .Values.kafka.persistence.storageClass }}
+      {{- end }}
       resources:
         requests:
           storage: 1Gi
@@ -161,10 +180,20 @@ spec:
           value: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
         - name: KAFKA_ADVERTISED_LISTENERS
           value: PLAINTEXT://{{ .Release.Name }}-kafka:9092
+        - name: KAFKA_LISTENERS
+          value: PLAINTEXT://0.0.0.0:9092
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: PLAINTEXT
         - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+          value: "1"
+        - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
           value: "1"
         - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
           value: "true"
+        - name: KAFKA_LOG_DIRS
+          value: "/var/lib/kafka/data"
         volumeMounts:
         - name: kafka-data
           mountPath: /var/lib/kafka/data
@@ -178,9 +207,12 @@ spec:
       name: kafka-data
     spec:
       accessModes: ["ReadWriteOnce"]
+      {{- if and .Values.kafka.persistence .Values.kafka.persistence.storageClass }}
+      storageClassName: {{ .Values.kafka.persistence.storageClass }}
+      {{- end }}
       resources:
         requests:
-          storage: 5Gi
+          storage: {{ if .Values.kafka.persistence }}{{ .Values.kafka.persistence.size | default "5Gi" }}{{ else }}5Gi{{ end }}
 ---
 apiVersion: v1
 kind: Service
@@ -199,13 +231,14 @@ spec:
 ---
 # RabbitMQ
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}-rabbitmq
   labels:
     {{- include "cloudsound.labels" . | nindent 4 }}
     app: rabbitmq
 spec:
+  serviceName: rabbitmq
   replicas: 1
   selector:
     matchLabels:
@@ -220,17 +253,42 @@ spec:
         image: rabbitmq:3.12-management-alpine
         ports:
         - containerPort: 5672
+          name: amqp
         - containerPort: 15672
+          name: management
         env:
         - name: RABBITMQ_DEFAULT_USER
           value: cloudsound
         - name: RABBITMQ_DEFAULT_PASS
           value: cloudsound_dev
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+        livenessProbe:
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - ping
+          initialDelaySeconds: 60
+          periodSeconds: 30
         readinessProbe:
-          tcpSocket:
-            port: 5672
+          exec:
+            command:
+            - rabbitmq-diagnostics
+            - ping
           initialDelaySeconds: 20
           periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      {{- if .Values.rabbitmq.persistence.storageClass }}
+      storageClassName: {{ .Values.rabbitmq.persistence.storageClass }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.rabbitmq.persistence.size | default "8Gi" }}
 ---
 apiVersion: v1
 kind: Service

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from jose import JWTError, jwt
 from pydantic import BaseModel
-from backend.shared.config.settings import app_settings
+from cloudsound_shared.config.settings import app_settings
 import structlog
 
 logger = structlog.get_logger(__name__)

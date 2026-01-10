@@ -6,7 +6,7 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 from ..models import PlaybackEvent
-from backend.shared.logging import get_logger
+from cloudsound_shared.logging import get_logger
 
 logger = get_logger(__name__)
 

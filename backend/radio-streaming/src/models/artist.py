@@ -1,7 +1,7 @@
 """Artist model for radio streaming service."""
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
-from backend.shared.models.base import Base, UUIDMixin, TimestampMixin
+from cloudsound_shared.models.base import Base, UUIDMixin, TimestampMixin
 
 
 class Artist(Base, UUIDMixin, TimestampMixin):

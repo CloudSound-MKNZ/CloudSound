@@ -73,9 +73,14 @@ metadata:
   name: {{ .Release.Name }}-frontend
   labels:
     {{- include "cloudsound.labels" . | nindent 4 }}
+  {{- with .Values.frontend.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   ingressClassName: {{ .Values.frontend.ingress.className }}
   rules:
+  {{- if .Values.frontend.ingress.host }}
   - host: {{ .Values.frontend.ingress.host }}
     http:
       paths:
@@ -86,11 +91,51 @@ spec:
             name: {{ .Release.Name }}-frontend
             port:
               number: {{ .Values.frontend.service.port }}
+  {{- else if .Values.frontend.ingress.hosts }}
+  {{- range .Values.frontend.ingress.hosts }}
+  - host: {{ .host }}
+    http:
+      paths:
+      {{- range .paths }}
+      - path: {{ .path }}
+        pathType: {{ .pathType }}
+        backend:
+          service:
+            name: {{ $.Release.Name }}-frontend
+            port:
+              number: {{ $.Values.frontend.service.port }}
+      {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.frontend.ingress.allowIPAccess }}
+  # Default rule for IP-based access (no host header required)
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Release.Name }}-frontend
+            port:
+              number: {{ .Values.frontend.service.port }}
+  {{- end }}
   {{- if .Values.frontend.ingress.tls }}
   tls:
+  {{- if .Values.frontend.ingress.host }}
   - hosts:
     - {{ .Values.frontend.ingress.host }}
     secretName: {{ .Release.Name }}-frontend-tls
+  {{- else if .Values.frontend.ingress.hosts }}
+  {{- range .Values.frontend.ingress.hosts }}
+  {{- if .tls }}
+  - hosts:
+    {{- range .tls.hosts }}
+    - {{ . }}
+    {{- end }}
+    secretName: {{ .tls.secretName }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
   {{- end }}
 {{- end }}
 {{- end }}

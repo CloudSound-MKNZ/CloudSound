@@ -2,11 +2,11 @@
 import asyncio
 from typing import Dict, Any
 from uuid import UUID
-from backend.shared.kafka import KafkaConsumerClient
-from backend.shared.logging import get_logger
-from backend.shared.metrics import kafka_messages_consumed
+from cloudsound_shared.kafka import KafkaConsumerClient
+from cloudsound_shared.logging import get_logger
+from cloudsound_shared.metrics import kafka_messages_consumed
 from ..services.playback_service import PlaybackEventService
-from backend.shared.db.pool import AsyncSessionLocal
+from cloudsound_shared.db.pool import AsyncSessionLocal
 
 logger = get_logger(__name__)
 

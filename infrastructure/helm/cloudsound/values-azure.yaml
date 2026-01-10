@@ -30,23 +30,17 @@ postgresql:
     existingSecret: postgres-secret  # Created by azure-secrets.sh
     existingSecretPasswordKey: password
 
-# Kafka Configuration
+# Kafka Configuration - Using Azure Event Hubs (Kafka-compatible)
 kafka:
-  enabled: true  # Can switch to Azure Event Hubs
-  replicaCount: 1  # Single instance for cost optimization
+  enabled: false  # Disable Kafka on AKS, using Azure Event Hubs
   
-  persistence:
+  # Azure Event Hubs configuration (Kafka-compatible)
+  external:
     enabled: true
-    size: 10Gi
-    storageClass: managed-premium  # Azure Premium SSD
-  
-  resources:
-    limits:
-      cpu: 500m
-      memory: 1Gi
-    requests:
-      cpu: 250m
-      memory: 512Mi
+    bootstrapServers: ""  # Set via secret: eventhubs-kafka-bootstrap-servers
+    securityProtocol: "SASL_SSL"
+    saslMechanism: "PLAIN"
+    connectionStringSecret: "eventhubs-connection-string"  # Secret containing Event Hubs connection string
   
   # Use Azure Event Hubs instead (optional)
   # external:
@@ -123,30 +117,43 @@ ingress:
 # Service-specific configurations
 
 apiGateway:
-  replicaCount: 2
+  replicaCount: 1  # Reduced for resource constraints
   
   image:
     repository: api-gateway
     pullPolicy: Always
   
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+  
+  ingress:
+    enabled: true
+    className: nginx
+    host: api.cloudsound.local  # Update with your domain or use IP
+    tls: false  # Set to true when using domain with cert-manager
+  
   resources:
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 300m
+      memory: 384Mi
     requests:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 100m
+      memory: 128Mi
   
   env:
-    - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+    LOG_LEVEL: INFO
+    LOG_FORMAT: json
+    APPLICATIONINSIGHTS_CONNECTION_STRING:
       valueFrom:
         secretKeyRef:
           name: app-insights-secret
-          key: connection-string
+          key: instrumentation-key
           optional: true
 
 authentication:
-  replicaCount: 2
+  replicaCount: 1  # Reduced for resource constraints
   
   image:
     repository: authentication
@@ -154,11 +161,11 @@ authentication:
   
   resources:
     limits:
-      cpu: 300m
-      memory: 256Mi
+      cpu: 200m
+      memory: 192Mi
     requests:
-      cpu: 150m
-      memory: 128Mi
+      cpu: 50m
+      memory: 64Mi
   
   env:
     - name: APPLICATIONINSIGHTS_CONNECTION_STRING
@@ -169,7 +176,7 @@ authentication:
           optional: true
 
 radioStreaming:
-  replicaCount: 2
+  replicaCount: 1  # Reduced for resource constraints
   
   image:
     repository: radio-streaming
@@ -177,11 +184,11 @@ radioStreaming:
   
   resources:
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 300m
+      memory: 384Mi
     requests:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 100m
+      memory: 128Mi
   
   env:
     - name: APPLICATIONINSIGHTS_CONNECTION_STRING
@@ -200,11 +207,11 @@ concertManagement:
   
   resources:
     limits:
-      cpu: 300m
-      memory: 256Mi
+      cpu: 200m
+      memory: 192Mi
     requests:
-      cpu: 150m
-      memory: 128Mi
+      cpu: 50m
+      memory: 64Mi
 
 analytics:
   replicaCount: 1
@@ -215,11 +222,11 @@ analytics:
   
   resources:
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 300m
+      memory: 384Mi
     requests:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 100m
+      memory: 128Mi
 
 musicDiscovery:
   replicaCount: 1
@@ -230,11 +237,11 @@ musicDiscovery:
   
   resources:
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 300m
+      memory: 384Mi
     requests:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 100m
+      memory: 128Mi
 
 eventManager:
   replicaCount: 1
@@ -245,14 +252,14 @@ eventManager:
   
   resources:
     limits:
-      cpu: 300m
-      memory: 256Mi
+      cpu: 200m
+      memory: 192Mi
     requests:
-      cpu: 150m
-      memory: 128Mi
+      cpu: 50m
+      memory: 64Mi
 
 frontend:
-  replicaCount: 2
+  replicaCount: 1  # Reduced for resource constraints
   
   image:
     repository: frontend
@@ -260,26 +267,30 @@ frontend:
   
   resources:
     limits:
-      cpu: 300m
-      memory: 256Mi
+      cpu: 200m
+      memory: 192Mi
     requests:
-      cpu: 150m
-      memory: 128Mi
+      cpu: 50m
+      memory: 64Mi
   
   ingress:
     enabled: true
     className: nginx
+    allowIPAccess: true  # Allow access via IP address (without host header)
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
-    hosts:
-      - host: app.cloudsound.example.com  # Replace with your domain
-        paths:
-          - path: /
-            pathType: Prefix
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"  # Allow HTTP for IP access
+    host: cloudsound.local  # Hostname for domain-based access
+    # Alternative: use hosts array for multiple hosts
+    # hosts:
+    #   - host: app.cloudsound.example.com
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
     tls:
       - secretName: cloudsound-frontend-tls
         hosts:
-          - app.cloudsound.example.com
+          - cloudsound.local
 
 # Monitoring Configuration
 monitoring:

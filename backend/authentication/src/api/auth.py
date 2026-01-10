@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
 from typing import Optional
-from backend.authentication.src.jwt_handler import create_access_token, create_refresh_token, verify_token, TokenData
-from backend.shared.config.settings import app_settings
+from src.jwt_handler import create_access_token, create_refresh_token, verify_token, TokenData
+from cloudsound_shared.config.settings import app_settings
 import structlog
 
 logger = structlog.get_logger(__name__)

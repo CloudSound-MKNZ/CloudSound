@@ -1,0 +1,3 @@
+NAME                              CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+aks-default-14810409-vmss000000   175m         9%       2965Mi          41%         
+aks-default-14810409-vmss000001   145m         7%       3260Mi          45%         
