@@ -227,14 +227,46 @@ output "deployment_info" {
     Log Analytics: ${azurerm_log_analytics_workspace.main.name}
     App Insights: ${azurerm_application_insights.main.name}
     
+    --- Azure Functions (Serverless) ---
+    Function App: ${azurerm_linux_function_app.metadata_extractor.name}
+    Function URL: https://${azurerm_linux_function_app.metadata_extractor.default_hostname}
+    Deploy Command: cd ../azure-functions && func azure functionapp publish ${azurerm_linux_function_app.metadata_extractor.name}
+    
     ===================================================================
     Next Steps:
     1. Configure kubectl: ${format("az aks get-credentials --resource-group %s --name %s", azurerm_resource_group.main.name, azurerm_kubernetes_cluster.main.name)}
     2. Login to ACR: az acr login --name ${azurerm_container_registry.main.name}
     3. Build and push Docker images
     4. Deploy using Helm
+    5. Deploy Azure Function: cd ../azure-functions && func azure functionapp publish ${azurerm_linux_function_app.metadata_extractor.name}
     ===================================================================
   EOT
+}
+
+# Azure Functions
+output "function_app_name" {
+  description = "Name of the Azure Function App"
+  value       = azurerm_linux_function_app.metadata_extractor.name
+}
+
+output "function_app_default_hostname" {
+  description = "Default hostname of the Function App"
+  value       = azurerm_linux_function_app.metadata_extractor.default_hostname
+}
+
+output "function_app_id" {
+  description = "ID of the Function App"
+  value       = azurerm_linux_function_app.metadata_extractor.id
+}
+
+output "function_app_url" {
+  description = "URL of the Function App"
+  value       = "https://${azurerm_linux_function_app.metadata_extractor.default_hostname}"
+}
+
+output "function_deploy_command" {
+  description = "Command to deploy function code"
+  value       = "cd ../azure-functions && func azure functionapp publish ${azurerm_linux_function_app.metadata_extractor.name}"
 }
 
 # Generate random password if not provided

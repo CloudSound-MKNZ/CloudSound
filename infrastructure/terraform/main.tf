@@ -176,6 +176,11 @@ resource "azurerm_kubernetes_cluster" "main" {
     dns_service_ip    = "10.1.0.10"     # Must be within service_cidr
   }
 
+  # Ignore upgrade_settings changes to avoid modifying stopped cluster
+  lifecycle {
+    ignore_changes = [default_node_pool[0].upgrade_settings]
+  }
+
   tags = azurerm_resource_group.main.tags
 }
 
@@ -370,6 +375,68 @@ resource "azurerm_public_ip" "appgw" {
   resource_group_name = azurerm_resource_group.main.name
   allocation_method   = "Static"
   sku                 = "Standard"
+
+  tags = azurerm_resource_group.main.tags
+}
+
+# ============================================================================
+# Azure Functions for Serverless Audio Metadata Extraction
+# ============================================================================
+
+# Storage Container for music files (Function trigger)
+resource "azurerm_storage_container" "music" {
+  name                  = "music"
+  storage_account_name  = azurerm_storage_account.main.name
+  container_access_type = "private"
+}
+
+# Service Plan for Azure Functions (Basic Plan - Cheapest always-on option)
+# Note: Consumption Plan (Y1) is not available in Italy North region
+# Using B1 (Basic) plan which costs ~13 EUR/month but is supported in Italy North
+resource "azurerm_service_plan" "functions" {
+  name                = "${var.project_name}-functions-plan"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  os_type             = "Linux"
+  sku_name            = "B1"  # B1 = Basic Plan (cheapest always-on plan for Italy North)
+
+  tags = azurerm_resource_group.main.tags
+}
+
+# Linux Function App for metadata extraction
+resource "azurerm_linux_function_app" "metadata_extractor" {
+  name                       = "${var.project_name}-functions"
+  location                   = azurerm_resource_group.main.location
+  resource_group_name        = azurerm_resource_group.main.name
+  service_plan_id            = azurerm_service_plan.functions.id
+  storage_account_name       = azurerm_storage_account.main.name
+  storage_account_access_key = azurerm_storage_account.main.primary_access_key
+
+  site_config {
+    application_stack {
+      python_version = "3.11"
+    }
+    
+    # Enable Application Insights
+    application_insights_key               = azurerm_application_insights.main.instrumentation_key
+    application_insights_connection_string = azurerm_application_insights.main.connection_string
+  }
+
+  app_settings = {
+    "FUNCTIONS_WORKER_RUNTIME"       = "python"
+    "AzureWebJobsStorage"            = azurerm_storage_account.main.primary_connection_string
+    "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.main.instrumentation_key
+    "WEBSITE_RUN_FROM_PACKAGE"       = "1"
+    
+    # Kafka/Event Hubs connection for publishing metadata events
+    "KAFKA_BOOTSTRAP_SERVERS" = "${azurerm_eventhub_namespace.main.name}.servicebus.windows.net:9093"
+    "KAFKA_SASL_USERNAME"     = "$ConnectionString"
+    "KAFKA_SASL_PASSWORD"     = azurerm_eventhub_namespace_authorization_rule.kafka_access.primary_connection_string
+    "KAFKA_TOPIC"             = "music-metadata"
+    
+    # Storage connection for blob trigger
+    "STORAGE_CONNECTION_STRING" = azurerm_storage_account.main.primary_connection_string
+  }
 
   tags = azurerm_resource_group.main.tags
 }

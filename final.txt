@@ -1,0 +1,187 @@
+CloudSound
+Člana skupine: Tevž Sedmak in Matjaž Kumin
+Številka projektne skupine: 23
+Kratek opis projekta
+Cilj projekta je razviti spletno aplikacijo, ki bo omogočala lokalnemu glasbenemu
+klubu upravljanje napovednika koncertov in hkrati ponujala uporabnikom možnost
+poslušanja glasbe preko integriranega radia. Aplikacija bo avtomatsko pridobivala
+glasbo iz YouTube in Bandcamp API-jev ter omogočala poslušanje različnih radijev,
+deljenih po žanrih, preteklih izvajalcih in prihajajočih koncertih.
+Dostop do projekta
+Povezava: http://9.235.118.168/
+Testni vpisni podatki (admin):
+Uporabniško ime: admin@example.com
+Geslo: admin123
+Github organizacija: https://github.com/CloudSound-MKNZ
+Github repositoriji:
+• https://github.com/CloudSound-MKNZ/CloudSound.git
+• https://github.com/CloudSound-MKNZ/cloudsound-shared.git
+• https://github.com/CloudSound-MKNZ/cloudsound-musicdiscovery.git
+• https://github.com/CloudSound-MKNZ/cloudsound-event-manager
+• https://github.com/CloudSound-MKNZ/cloudsound-concertmanagement.git
+• https://github.com/CloudSound-MKNZ/cloudsound-radiostreaming.git
+• https://github.com/CloudSound-MKNZ/cloudsound-authentication.git
+• https://github.com/CloudSound-MKNZ/cloudsound-api-gateway.git
+• https://github.com/CloudSound-MKNZ/cloudsound-analytics.git
+• https://github.com/CloudSound-MKNZ/cloudsound-admin-
+management.git
+Ogrodje in razvojno okolje
+• Backend: Python (Flask/FastAPI)
+• Frontend: Svelte,
+• Podatkovna baza: PostgreSQL
+• Containerizacija: Docker
+• Orchestration: k3s
+• API integracije: YouTube API, Bandcamp API, Facebook Events API
+• Shranjevanje datotek: MinIO/S3 za MP3 datoteke
+• Avtentikacija: JWT (JSON Web Tokens)
+• Komunikacija: REST API + gRPC
+• Message Queue: Redis/RabbitMQ
+Shema arhitekture
+Slika 1: Arhitektura sistema
+Seznam funkcionalnosti mikrostoritev
+1. Concert Management Service
+V bazo je mogoče dodati koncerte po datumih za prihajajočo sezono, spletna
+aplikacija pa avtomatsko preko Facebook API poveže dogodke na strani z Facebook
+Eventi (glede na datum).
+2. Music Discovery & Storage Service
+Pametno preko YouTube in Bandcamp API prenesemo mp3 datoteke na strežnik.
+Prenašamo datoteke preteklih, prihajajočih bendov in podobnih priporočil. Med
+dodajanjem koncertov imamo vedno YouTube/Bandcamp link v opisu.
+3. Radio Streaming Service
+Omogoča upravljanje predvajanje zvoka, z gladkimi prehodi (crossfade) med
+skladbami ter sledenjem zgodovine poslušanja. Uporabniki lahko poslušajo različne
+radijske postaje, razvrščene po prihajajočih bendih, preteklih bendih ali glasbenih
+žanrih.
+4. Admin Management Service
+Registriranje in prijava admin profilov ter njihovo upravljanje. Statistika uporabe radia (ne
+po userjih)
+5. API Gateway
+Služi kot glavna vstopna točka sistema, ki usmerja zahtevke do posameznih mikrostoritev,
+izvaja osnovni varnostni nadzor ter omejuje pogostost dostopa.
+6. Authentication service
+Omogoča prijavo in izdajo žetonov ter preverjanje veljavnosti avtentikacije.
+7. Event manager service
+Avtomatizira integracijo z zunanjim virom dogodkov (Facebook), periodično pridobiva
+dogodke ter jih povezuje z internim napovednikom koncertov (po potrebi z ustvarjanjem ali
+posodabljanjem zapisov).
+8. Analitika
+Zbira in obdeluje podatke o predvajanju radia ter na tej osnovi omogoča pregled statistike
+poslušanja in spremljanje delovanja sistema.
+Primeri uporabe
+Osnovni primeri uporabe:
+1. Pregled prihajajočih koncertov - uporabnik si ogleda napovednik
+koncertov
+2. Poslušanje radia "Prihajajoči bendi" - uporabnik posluša glasbo
+prihajajočih izvajalcev
+3. Poslušanje radia "Pretekli bendi" - uporabnik posluša glasbo
+izvajalcev, ki so že nastopali
+4. Poslušanje radia po žanru - uporabnik izbere žanr (rock, jazz, metal)
+in posluša ustrezno glasbo
+5. Iskanje glasbe - uporabnik išče glasbo po imenu izvajalca ali skladbe
+6. Pregled zgodovine poslušanja - uporabnik si ogleda, kaj je že
+poslušal
+Dodatni primeri uporabe za organizatorje
+(admin):
+7. Admin registracija - samo administratorji se lahko registrirajo
+8. Dodajanje koncerta - organizator doda nov koncert z datumom,
+lokacijo in izvajalcem
+9. Urejanje koncerta - organizator posodobi informacije o koncertu
+10. Brisanje koncerta - organizator odstrani koncert iz napovednika
+11. Upravljanje sezone - organizator načrtuje koncerte za prihajajočo
+sezono
+12. Facebook integracija - sistem avtomatsko poveže Facebook evente z
+napovednikom Seznam opravljenih/vključenih osnovnih in dodatnih
+projektnih zahtev: Za vsako zahtevo na kratko (okvirno do 500 znakov) opišite
+kako ste zahtevo implementirali/naslovi
+Seznam opravljenih/vključenih osnovnih in
+dodatnih projektnih zahtev
+1.Repozitorij
+Projekt uporablja Git z multi-repo strukturo na GitHub (CloudSound-MKNZ
+organizacija). Vsak servis ima svoj repozitorij z README.md, Dockerfile in
+requirements.txt
+2.Mikrostoritve in »cloud-native« aplikacija
+8 mikrostoritev: api-gateway, authentication, admin-management, concertmanagement, event-manager, music-discovery, radio-streaming, analytics.
+Komunikacija prek REST API in Kafka/RabbitMQ. K8s manifesti v
+infrastructure/helm/. PostgreSQL kot relacijska baza z migracijami v
+cloudsound-shared/db/migrations/.
+3.Dokumentacija
+Dokumentacija se nahaja v docs mapi: QUICKSTART.md, deployment.md,
+development.md, PROJECT_DESIGN.md, AZURE_DEPLOYMENT.md. Vsak
+servis ima svoj README.md z navodili za zagon.
+4.Namestitev v oblak
+Azure deployment z Terraform, Github Actions workflow v datoteki deployto-auzure.yml. Dokumentacija se nahaja v AZURE_SETUP_SUMMARY.md in
+docs/QUICKSTART_AZURE.md.
+5.Dokumentacija API
+Vsi servisi uporabljajo FastAPI z avtomatsko generirano OpenAPI
+dokumentacijo na /docs (Swagger UI) in /redoc endpointih. OpenAPI schema
+se nahaja v /openapi.json
+6. Cevovod CI/CD
+GitHub Actions v .github/workflows/: build-images.yml (gradnja Docker
+slik), ci.yml (testiranje), deploy.yml, deploy-to-azure.yml, terraform.yml.
+Avtomatska gradnja in push na GitHub Container Registry. (CI/CD je omejen
+zaradi omejitev študentskega Azure računa).
+7. Helm charts
+Helm charts so v infrastructure/helm/cloudsound/ z values.yaml za
+parametrizacijo. Templates za deploymente, service, ingress. Podpora za
+različna okolja prek values datotek.
+8.»Serverless« funkcija
+Azure funkcije v azure-functions/ z metadata_extractor/ funkcijo.
+Konfiguracija v host.json, testiranje v test_k3s.py in test_local.py.
+Dokumentacija v docs/SERVERLESS_FUNCTION.md.
+9.Zunanji API
+Tri zunanji API-ji: YouTube (youtube_client.py), Bandcamp
+(bandcamp_client.py), Facebook Events (facebook_client.py). Vsi z circuit
+breaker zaščito in retry logiko. Mock implementacije za razvoj so v
+mock_apis.py.
+10. Večnajemništvo (multitenancy)
+Implementacija vse nahaja v cloudsound_shared/multitenancy/: tri sheme
+(row-level, schema-level, database-level). TenantMixin za modele,
+TenantMiddleware za ekstrakcijo tenant-a iz JWT/header,
+TenantAwareSession za avtomatsko filtriranje.
+11. Preverjanje zdravja
+Health check endpoints se nahajajo v cloudsound_shared/health/: /health,
+/health/ready, /health/live. Vključeni v vse servise. Kubernetes lahko
+spremlja te endpointe.
+12. GraphQL in gRPC
+gRPC je dokumentiran v docs/GRPC_IMPLEMENTATION.md in README
+datotekah.
+13. Sporočilni sistemi
+Projekt uporablja Kafka za event-driven komunikacijo med mikrostoritvami
+(npr. concerts.created → music-discovery → music.downloaded → radiostreaming) ter RabbitMQ za asinhrono vrsto prenosov glasbe
+(music.downloads queue v music-discovery servisu).
+14. Centralizirano beleženje dnevnikov
+Vsaka mikrostoritev uporablja strukturirano beleženje preko structlog
+knjižnice z JSON formatom v produkciji ter CorrelationIDMiddleware za
+sledenje zahtevam skozi vse servise.
+15. Zbiranje metrik
+Vsaka mikrostoritev izpostavlja Prometheus metrike na /metrics končni
+točki z definiranimi HTTP, Kafka, RabbitMQ in poslovnimi metrikami v
+__init__.py ter servisno-specifičnimi metrikami (npr. downloads_total,
+playback_events_total).
+16. Izolacija in toleranca napak
+Implementiran je circuit breaker vzorec (CircuitBreaker razred v musicdiscovery in event-manager servisih) za zaščito klicev zunanjih API-jev ter
+retry logika z eksponentnim backoff-om (retry_with_backoff dekorator).
+17. Upravljanje s konfiguracijo
+Konfiguracija je centralizirana v settings.py z uporabo pydantic-settings, ki
+bere nastavitve iz okoljskih spremenljivk in .env datotek glede na okolje
+(development/test/production), brez potrebe po ponovnem prevajanju.
+18. Grafični vmesnik
+Frontend je implementiran v SvelteKit ogrodju, in komunicira z
+mikrostoritvami preko REST API-jev prek API Gateway-a; vsebuje več 
+podstrani (radio, koncerti, admin panel, iskanje)
+19. Terraform
+Projekt vsebuje Terraform konfiguracijske datoteke v
+infrastructure/terraform/ za namestitev na Azure (AKS, PostgreSQL, Storage
+Account, Event Hubs), vključno z uporabo modulov in definiranimi
+spremenljivkami v variables.tf.
+20. API Gateway
+Mikrostoritev cloudsound-api-gateway (port 8000) deluje kot centralna
+vstopna točka z AuthMiddleware za JWT avtentikacijo, RateLimitMiddleware
+za omejevanje dostopa in ProxyMiddleware za usmerjanje zahtev na
+backend servise.
+21. Ingress Controller
+Projekt vsebuje Ingress konfiguracijo z NGINX anotacijami.
+22. IAM, OAuth2, OIDC
+Projekt uporablja JWT avtentikacijo z role-based access control (admin/user
+vloge) v jwt_handler.py in AuthMiddleware – avtentikacija temelji izključno
+na internem JWT sistemu.
