@@ -54,7 +54,16 @@
 		
 		try {
 			const result = await triggerEventsPoll();
-			syncMessage = `Synced ${result.events_fetched} events from Facebook!`;
+			const created = result.created || 0;
+			const updated = result.updated || 0;
+			const skipped = result.skipped || 0;
+			if (created > 0 || updated > 0) {
+				syncMessage = `Synced ${result.events_fetched} events: ${created} created, ${updated} updated, ${skipped} skipped`;
+			} else if (result.events_fetched > 0) {
+				syncMessage = `Fetched ${result.events_fetched} events (${skipped} skipped - check validation)`;
+			} else {
+				syncMessage = `No events found to sync`;
+			}
 			
 			// Refresh concerts after sync
 			setTimeout(async () => {
