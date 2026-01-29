@@ -6,7 +6,7 @@ including venue, artists, dates, and music links.
 import re
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 import structlog
 
 from ..clients.facebook_client import FacebookEvent
@@ -277,13 +277,15 @@ class EventParser:
         if not parsed.start_time:
             errors.append("Missing start time")
         
-        # Allow events that happened in the recent past (e.g. last 6 months)
-        # so that we can sync both upcoming concerts and recent history.
         if parsed.start_time:
-            now = datetime.now()
-            six_months_ago = now - timedelta(days=180)
-            if parsed.start_time < six_months_ago:
-                errors.append("Event is too far in the past")
+            # Make comparison timezone-aware
+            now = datetime.now(timezone.utc)
+            event_time = parsed.start_time
+            # Convert to UTC if timezone-aware, or assume UTC if naive
+            if event_time.tzinfo is None:
+                event_time = event_time.replace(tzinfo=timezone.utc)
+            if event_time < now:
+                errors.append("Event is in the past")
         
         if errors:
             parsed.is_valid = False

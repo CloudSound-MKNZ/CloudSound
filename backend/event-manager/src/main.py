@@ -335,10 +335,14 @@ async def sync_events() -> Dict[str, Any]:
             )
 
         except Exception as e:
+            import traceback
+
+            error_traceback = traceback.format_exc()
             logger.error(
                 "event_sync_failed",
                 event_id=fb_event.event_id,
                 error=str(e),
+                traceback=error_traceback,
             )
             skipped_count += 1
             results.append(
@@ -346,6 +350,7 @@ async def sync_events() -> Dict[str, Any]:
                     "event_id": fb_event.event_id,
                     "status": "error",
                     "error": str(e),
+                    "traceback": error_traceback,
                 }
             )
 
