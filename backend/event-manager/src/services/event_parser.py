@@ -277,8 +277,13 @@ class EventParser:
         if not parsed.start_time:
             errors.append("Missing start time")
         
-        if parsed.start_time and parsed.start_time < datetime.now():
-            errors.append("Event is in the past")
+        # Allow events that happened in the recent past (e.g. last 6 months)
+        # so that we can sync both upcoming concerts and recent history.
+        if parsed.start_time:
+            now = datetime.now()
+            six_months_ago = now - timedelta(days=180)
+            if parsed.start_time < six_months_ago:
+                errors.append("Event is too far in the past")
         
         if errors:
             parsed.is_valid = False

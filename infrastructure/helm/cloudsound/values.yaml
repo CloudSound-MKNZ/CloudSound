@@ -16,7 +16,7 @@ apiGateway:
   enabled: true
   replicaCount: 2
   image:
-    repository: cloudsound-api-gateway
+    repository: api-gateway
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -43,7 +43,7 @@ radioStreaming:
   enabled: true
   replicaCount: 2
   image:
-    repository: cloudsound-radio-streaming
+    repository: radio-streaming
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -61,7 +61,7 @@ concertManagement:
   enabled: true
   replicaCount: 1
   image:
-    repository: cloudsound-concert-management
+    repository: concert-management
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -79,7 +79,7 @@ analytics:
   enabled: true
   replicaCount: 1
   image:
-    repository: cloudsound-analytics
+    repository: analytics
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -97,7 +97,7 @@ musicDiscovery:
   enabled: true
   replicaCount: 1
   image:
-    repository: cloudsound-music-discovery
+    repository: music-discovery
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -117,7 +117,7 @@ eventManager:
   enabled: true
   replicaCount: 1
   image:
-    repository: cloudsound-event-manager
+    repository: event-manager
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -134,12 +134,13 @@ eventManager:
     enabled: true  # Facebook API is now configured
     pollIntervalMinutes: 30
     apiVersion: "v24.0"
+    fetchDaysBack: 30  # Fetch events from past N days (default 30 = 1 month)
 
 authentication:
   enabled: true
   replicaCount: 1
   image:
-    repository: cloudsound-authentication
+    repository: authentication
     tag: latest
     pullPolicy: IfNotPresent
   service:
@@ -157,7 +158,7 @@ frontend:
   enabled: true
   replicaCount: 2
   image:
-    repository: cloudsound-frontend
+    repository: frontend
     tag: latest
     pullPolicy: IfNotPresent
   service:

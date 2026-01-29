@@ -283,12 +283,12 @@ spec:
       name: rabbitmq-data
     spec:
       accessModes: ["ReadWriteOnce"]
-      {{- if .Values.rabbitmq.persistence.storageClass }}
+      {{- if and .Values.rabbitmq.persistence .Values.rabbitmq.persistence.storageClass }}
       storageClassName: {{ .Values.rabbitmq.persistence.storageClass }}
       {{- end }}
       resources:
         requests:
-          storage: {{ .Values.rabbitmq.persistence.size | default "8Gi" }}
+          storage: {{ if .Values.rabbitmq.persistence }}{{ .Values.rabbitmq.persistence.size | default "8Gi" }}{{ else }}8Gi{{ end }}
 ---
 apiVersion: v1
 kind: Service

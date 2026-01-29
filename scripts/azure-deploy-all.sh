@@ -201,7 +201,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     
     read -p "Enter your domain name (e.g., api.cloudsound.example.com): " DOMAIN_NAME
     
-    helm upgrade --install cloudsound . \
+    # Build Helm command with Facebook token if available
+    HELM_CMD="helm upgrade --install cloudsound . \
         --namespace cloudsound \
         --set global.imageRegistry=$ACR_LOGIN_SERVER \
         --set global.imagePullSecrets[0].name=acr-secret \
@@ -211,9 +212,44 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         --set ingress.className=nginx \
         --set ingress.hosts[0].host=$DOMAIN_NAME \
         --set ingress.tls[0].secretName=cloudsound-tls \
-        --set ingress.tls[0].hosts[0]=$DOMAIN_NAME \
-        --wait \
-        --timeout 10m
+        --set ingress.tls[0].hosts[0]=$DOMAIN_NAME"
+    
+    # Add Facebook token from values-secrets.yaml if it exists
+    SECRETS_FILE="values-secrets.yaml"
+    if [ -f "$SECRETS_FILE" ]; then
+        echo -e "${YELLOW}Found values-secrets.yaml, including Facebook token...${NC}"
+        # Extract Facebook token and page IDs using yq or grep/sed
+        if command -v yq &> /dev/null; then
+            FB_TOKEN=$(yq eval '.secrets.facebookAccessToken' "$SECRETS_FILE" 2>/dev/null || echo "")
+            FB_PAGE_IDS=$(yq eval '.secrets.facebookPageIds' "$SECRETS_FILE" 2>/dev/null || echo "")
+        else
+            # Fallback to grep/sed if yq is not available
+            FB_TOKEN=$(grep -A 1 "facebookAccessToken:" "$SECRETS_FILE" | grep -v "facebookAccessToken:" | sed 's/.*"\(.*\)".*/\1/' | head -1)
+            FB_PAGE_IDS=$(grep -A 1 "facebookPageIds:" "$SECRETS_FILE" | grep -v "facebookPageIds:" | sed 's/.*"\(.*\)".*/\1/' | head -1)
+        fi
+        
+        if [ -n "$FB_TOKEN" ] && [ "$FB_TOKEN" != "null" ] && [ "$FB_TOKEN" != "" ]; then
+            echo -e "${GREEN}✓ Facebook token found, adding to deployment${NC}"
+            HELM_CMD="$HELM_CMD --set secrets.facebookAccessToken=\"$FB_TOKEN\""
+            if [ -n "$FB_PAGE_IDS" ] && [ "$FB_PAGE_IDS" != "null" ] && [ "$FB_PAGE_IDS" != "" ]; then
+                HELM_CMD="$HELM_CMD --set secrets.facebookPageIds=\"$FB_PAGE_IDS\""
+            fi
+        else
+            echo -e "${YELLOW}⚠ No Facebook token found in values-secrets.yaml${NC}"
+        fi
+    else
+        echo -e "${YELLOW}⚠ values-secrets.yaml not found, Facebook sync will use mock mode${NC}"
+    fi
+    
+    # Use values-azure.yaml for Azure-specific overrides
+    if [ -f "values-azure.yaml" ]; then
+        HELM_CMD="$HELM_CMD --values values-azure.yaml"
+    fi
+    
+    HELM_CMD="$HELM_CMD --wait --timeout 10m"
+    
+    # Execute Helm command
+    eval $HELM_CMD
     
     cd ../../..
     

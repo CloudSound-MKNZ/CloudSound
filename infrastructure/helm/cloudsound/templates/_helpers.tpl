@@ -80,13 +80,41 @@ Common environment variables for all services
 - name: ENVIRONMENT
   value: {{ .Values.global.environment | quote }}
 - name: POSTGRES_HOST
+  {{- if and .Values.postgresql.external .Values.postgresql.external.enabled }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.postgresql.external.existingSecret | default "postgres-secret" }}
+      key: host
+  {{- else }}
   value: {{ .Release.Name }}-postgresql
+  {{- end }}
 - name: POSTGRES_PORT
+  {{- if and .Values.postgresql.external .Values.postgresql.external.enabled }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.postgresql.external.existingSecret | default "postgres-secret" }}
+      key: port
+  {{- else }}
   value: "5432"
+  {{- end }}
 - name: POSTGRES_USER
-  value: {{ if .Values.postgresql.enabled }}{{ .Values.postgresql.auth.username | quote }}{{ else }}"cloudsound"{{ end }}
+  {{- if and .Values.postgresql.external .Values.postgresql.external.enabled }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.postgresql.external.existingSecret | default "postgres-secret" }}
+      key: user
+  {{- else if .Values.postgresql.enabled }}
+  value: {{ .Values.postgresql.auth.username | quote }}
+  {{- else }}
+  value: "cloudsound"
+  {{- end }}
 - name: POSTGRES_PASSWORD
-  {{- if .Values.postgresql.enabled }}
+  {{- if and .Values.postgresql.external .Values.postgresql.external.enabled }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.postgresql.external.existingSecret | default "postgres-secret" }}
+      key: {{ .Values.postgresql.external.existingSecretPasswordKey | default "password" }}
+  {{- else if .Values.postgresql.enabled }}
   valueFrom:
     secretKeyRef:
       name: {{ .Release.Name }}-secrets
@@ -95,7 +123,16 @@ Common environment variables for all services
   value: "cloudsound_dev"
   {{- end }}
 - name: POSTGRES_DB
-  value: {{ if .Values.postgresql.enabled }}{{ .Values.postgresql.auth.database | quote }}{{ else }}"cloudsound"{{ end }}
+  {{- if and .Values.postgresql.external .Values.postgresql.external.enabled }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.postgresql.external.existingSecret | default "postgres-secret" }}
+      key: database
+  {{- else if .Values.postgresql.enabled }}
+  value: {{ .Values.postgresql.auth.database | quote }}
+  {{- else }}
+  value: "cloudsound"
+  {{- end }}
 - name: KAFKA_BOOTSTRAP_SERVERS
   {{- if and .Values.kafka.external .Values.kafka.external.enabled }}
   valueFrom:

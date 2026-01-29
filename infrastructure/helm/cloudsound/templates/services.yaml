@@ -21,6 +21,10 @@ spec:
         app: radio-streaming
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
+      {{- end }}
       containers:
       - name: radio-streaming
         image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.radioStreaming) }}
@@ -82,6 +86,10 @@ spec:
         app: concert-management
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
+      {{- end }}
       containers:
       - name: concert-management
         image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.concertManagement) }}
@@ -137,6 +145,10 @@ spec:
         app: analytics
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
+      {{- end }}
       containers:
       - name: analytics
         image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.analytics) }}
@@ -192,6 +204,10 @@ spec:
         app: music-discovery
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
+      {{- end }}
       containers:
       - name: music-discovery
         image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.musicDiscovery) }}
@@ -256,6 +272,10 @@ spec:
         app: event-manager
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
+      {{- end }}
       containers:
       - name: event-manager
         image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.eventManager) }}
@@ -265,8 +285,22 @@ spec:
         env:
         {{- include "cloudsound.commonEnv" . | nindent 8 }}
         {{- include "cloudsound.serviceUrls" . | nindent 8 }}
+        {{- if .Values.secrets.facebookAccessToken }}
+        - name: FACEBOOK_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: facebook-access-token
+        - name: FACEBOOK_PAGE_IDS
+          value: {{ .Values.secrets.facebookPageIds | quote }}
+        - name: FACEBOOK_FETCH_DAYS_BACK
+          value: {{ .Values.eventManager.facebook.fetchDaysBack | default 30 | quote }}
+        - name: USE_MOCK_APIS
+          value: "false"
+        {{- else }}
         - name: USE_MOCK_APIS
           value: "true"
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /health
@@ -314,6 +348,10 @@ spec:
         app: authentication
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
+      {{- end }}
       containers:
       - name: authentication
         image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.authentication) }}

@@ -5,8 +5,7 @@ global:
   environment: production
   
   # Azure Container Registry
-  # Set via CLI: --set global.imageRegistry=<your-acr>.azurecr.io
-  imageRegistry: ""
+  imageRegistry: "cloudsoundacrmgo77h.azurecr.io"
   
   # Image pull secrets for ACR
   imagePullSecrets:
@@ -50,11 +49,11 @@ kafka:
 
 # RabbitMQ Configuration
 rabbitmq:
-  enabled: true
+  enabled: true  # Enable RabbitMQ for music download task queues
   replicaCount: 1
   
   persistence:
-    enabled: true
+    enabled: false  # Disable persistence to avoid Azure volume limits (data will be ephemeral)
     size: 8Gi
     storageClass: managed-premium
   
@@ -257,6 +256,9 @@ eventManager:
     requests:
       cpu: 50m
       memory: 64Mi
+  
+  facebook:
+    fetchDaysBack: 30  # Fetch events from past 30 days (1 month)
 
 frontend:
   replicaCount: 1  # Reduced for resource constraints
