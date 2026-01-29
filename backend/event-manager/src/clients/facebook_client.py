@@ -171,7 +171,7 @@ class FacebookEventsClient:
         events = []
         # Generate events spanning both past and future to match fetch_days_back behavior
         # Spread events from (fetch_days_back days ago) to (30 days in future)
-        days_back = self.fetch_days_back if hasattr(self, "fetch_days_back") else 180
+        days_back = getattr(self, "fetch_days_back", 180)
         start_offset = -days_back  # Start from N days ago
         end_offset = 30  # End 30 days in future
 
@@ -187,7 +187,10 @@ class FacebookEventsClient:
                 days_offset += random.randint(-3, 3)
             else:
                 # Single event: place it somewhere in the middle of the range
-                days_offset = random.randint(start_offset // 2, end_offset // 2)
+                # Ensure first arg <= second arg for random.randint
+                min_offset = min(start_offset // 2, end_offset // 2)
+                max_offset = max(start_offset // 2, end_offset // 2)
+                days_offset = random.randint(min_offset, max_offset)
             event_date = datetime.now() + timedelta(days=days_offset)
 
             events.append(
