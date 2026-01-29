@@ -1,5 +1,8 @@
 name: Deploy to Azure AKS
 
+# Option B (multi-repo): Backend service images are built and pushed by each
+# microservice repo (cloudsound-radio-streaming, etc.). This workflow builds
+# only frontend + migrations (cloudsound-shared) and deploys to AKS.
 on:
   push:
     branches:
@@ -17,55 +20,39 @@ env:
   HELM_CHART_PATH: ./infrastructure/helm/cloudsound
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Images
+  build-migrations:
+    name: Build and Push Migrations Image
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        service:
-          - api-gateway
-          - authentication
-          - radio-streaming
-          - concert-management
-          - analytics
-          - music-discovery
-          - event-manager
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
       - name: Login to Azure Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ secrets.ACR_LOGIN_SERVER }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
-      
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service }}
+          images: ${{ secrets.ACR_LOGIN_SERVER }}/cloudsound-shared
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
-      
-      - name: Build and push ${{ matrix.service }}
+      - name: Build and push cloudsound-shared (migrations)
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./backend/${{ matrix.service }}/Dockerfile
+          context: ./backend/shared
+          file: ./backend/shared/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/cloudsound-shared:buildcache
+          cache-to: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/cloudsound-shared:buildcache,mode=max
 
   build-frontend:
     name: Build and Push Frontend
@@ -109,7 +96,7 @@ jobs:
   deploy:
     name: Deploy to AKS
     runs-on: ubuntu-latest
-    needs: [build-and-push, build-frontend]
+    needs: [build-migrations, build-frontend]
     
     steps:
       - name: Checkout code
@@ -184,12 +171,9 @@ jobs:
               spec:
                 containers:
                 - name: migration
-                  image: ${{ secrets.ACR_LOGIN_SERVER }}/api-gateway:latest
-                  command: ["sh", "-c"]
-                  args:
-                    - |
-                      cd /app/backend/shared/db
-                      alembic upgrade head
+                  image: ${{ secrets.ACR_LOGIN_SERVER }}/cloudsound-shared:latest
+                  workingDir: /app/db
+                  command: ["alembic", "upgrade", "head"]
                   env:
                   - name: POSTGRES_HOST
                     valueFrom:

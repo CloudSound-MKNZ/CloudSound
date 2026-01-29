@@ -31,6 +31,7 @@ All tasks, progress tracking, and implementation status are tracked in the `spec
 - **[Development Guide](docs/DEVELOPMENT.md)** - Environment config, testing, troubleshooting
 
 ### Azure Deployment ☁️
+- **[Multi-Repo Deploy (Option B)](docs/MULTIREPO_DEPLOY.md)** - Build from service repos, deploy from this repo
 - **[Azure Deployment Guide](docs/AZURE_DEPLOYMENT.md)** ⭐ - Complete Azure deployment guide
 - **[Azure Quick Start](docs/QUICKSTART_AZURE.md)** 🚀 - Deploy to Azure in 30 minutes
 - **[Azure Functions](docs/AZURE_FUNCTIONS.md)** - Serverless functions deployment

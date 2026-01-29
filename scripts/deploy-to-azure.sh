@@ -32,36 +32,25 @@ ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --query "passwords[0].val
 echo "$ACR_PASSWORD" | sudo docker login $REGISTRY -u $ACR_NAME --password-stdin > /dev/null 2>&1
 echo -e "${GREEN}✓ Logged into ACR${NC}\n"
 
-# Step 2: Build and push images
-echo -e "${YELLOW}Step 2: Building and pushing Docker images...${NC}"
+# Step 2: Build and push images (Option B: only frontend + migrations from this repo)
+echo -e "${YELLOW}Step 2: Building and pushing Docker images (frontend + migrations)...${NC}"
 export REGISTRY=$REGISTRY
 COMMIT=$(git rev-parse --short HEAD)
-echo -e "Building images for commit: ${BLUE}$COMMIT${NC}\n"
+echo -e "Building images for commit: ${BLUE}$COMMIT${NC}"
+echo -e "(Backend service images are built from their own repos; see docs/MULTIREPO_DEPLOY.md)\n"
 
-# Backend services
-BACKEND_SERVICES=(
-    "api-gateway"
-    "authentication"
-    "radio-streaming"
-    "concert-management"
-    "analytics"
-    "music-discovery"
-    "event-manager"
-)
+# Migrations (cloudsound-shared)
+echo -e "${YELLOW}📦 Building cloudsound-shared (migrations)...${NC}"
+sudo docker build \
+    -f "backend/shared/Dockerfile" \
+    -t "${REGISTRY}/cloudsound-shared:latest" \
+    -t "${REGISTRY}/cloudsound-shared:${COMMIT}" \
+    ./backend/shared > /dev/null 2>&1
 
-for service in "${BACKEND_SERVICES[@]}"; do
-    echo -e "${YELLOW}📦 Building ${service}...${NC}"
-    sudo docker build \
-        -f "backend/${service}/Dockerfile" \
-        -t "${REGISTRY}/${service}:latest" \
-        -t "${REGISTRY}/${service}:${COMMIT}" \
-        "backend/${service}" > /dev/null 2>&1
-    
-    echo -e "${YELLOW}⬆️  Pushing ${service}...${NC}"
-    sudo docker push "${REGISTRY}/${service}:latest" > /dev/null 2>&1
-    sudo docker push "${REGISTRY}/${service}:${COMMIT}" > /dev/null 2>&1
-    echo -e "${GREEN}✓ ${service} complete${NC}"
-done
+echo -e "${YELLOW}⬆️  Pushing cloudsound-shared...${NC}"
+sudo docker push "${REGISTRY}/cloudsound-shared:latest" > /dev/null 2>&1
+sudo docker push "${REGISTRY}/cloudsound-shared:${COMMIT}" > /dev/null 2>&1
+echo -e "${GREEN}✓ cloudsound-shared complete${NC}"
 
 # Frontend
 echo -e "${YELLOW}📦 Building frontend...${NC}"

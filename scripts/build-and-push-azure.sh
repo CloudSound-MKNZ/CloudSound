@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# Build and push all CloudSound Docker images to Azure Container Registry
+# Option B (multi-repo): Build and push only images that live in this repo:
+# - frontend
+# - cloudsound-shared (migrations)
+# Backend service images are built and pushed from their own repos.
 # Usage: ./scripts/build-and-push-azure.sh
 
 set -e
@@ -19,7 +22,7 @@ if [ -z "$REGISTRY" ]; then
     exit 1
 fi
 
-echo -e "${GREEN}Building and pushing images to ${REGISTRY}${NC}"
+echo -e "${GREEN}Building and pushing images to ${REGISTRY} (Option B: frontend + migrations only)${NC}"
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -27,33 +30,18 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 cd "$PROJECT_ROOT"
 
-# Array of backend services
-BACKEND_SERVICES=(
-    "api-gateway"
-    "authentication"
-    "radio-streaming"
-    "concert-management"
-    "analytics"
-    "music-discovery"
-    "event-manager"
-)
+# Build and push migrations (cloudsound-shared)
+echo -e "${YELLOW}Building cloudsound-shared (migrations)...${NC}"
+docker build \
+    -f "backend/shared/Dockerfile" \
+    -t "${REGISTRY}/cloudsound-shared:latest" \
+    -t "${REGISTRY}/cloudsound-shared:$(git rev-parse --short HEAD)" \
+    ./backend/shared
 
-# Build and push backend services
-for service in "${BACKEND_SERVICES[@]}"; do
-    echo -e "${YELLOW}Building ${service}...${NC}"
-    
-    docker build \
-        -f "backend/${service}/Dockerfile" \
-        -t "${REGISTRY}/${service}:latest" \
-        -t "${REGISTRY}/${service}:$(git rev-parse --short HEAD)" \
-        "backend/${service}"
-    
-    echo -e "${YELLOW}Pushing ${service}...${NC}"
-    docker push "${REGISTRY}/${service}:latest"
-    docker push "${REGISTRY}/${service}:$(git rev-parse --short HEAD)"
-    
-    echo -e "${GREEN}✓ ${service} complete${NC}"
-done
+echo -e "${YELLOW}Pushing cloudsound-shared...${NC}"
+docker push "${REGISTRY}/cloudsound-shared:latest"
+docker push "${REGISTRY}/cloudsound-shared:$(git rev-parse --short HEAD)"
+echo -e "${GREEN}✓ cloudsound-shared complete${NC}"
 
 # Build and push frontend
 echo -e "${YELLOW}Building frontend...${NC}"
@@ -74,5 +62,5 @@ echo -e "\n${GREEN}Images in Azure Container Registry:${NC}"
 ACR_NAME=$(echo $REGISTRY | cut -d'.' -f1)
 az acr repository list --name $ACR_NAME --output table
 
-echo -e "\n${GREEN}All images built and pushed successfully! 🚀${NC}"
+echo -e "\n${GREEN}Frontend and migrations built and pushed. Backend images are built from service repos (see docs/MULTIREPO_DEPLOY.md). 🚀${NC}"
 

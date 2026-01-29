@@ -2,9 +2,47 @@
 
 This guide helps you configure GitHub repository secrets for Azure CI/CD pipelines.
 
-## Required Secrets
+## Option B (Multi-Repo) Deployment
 
-You need to configure these secrets in your GitHub repository for CI/CD to work:
+We use **Option B**: each microservice is built and pushed from its **own repo**. The main **CloudSound** repo needs the full set of secrets below. Each **microservice repo** (e.g. `cloudsound-radio-streaming`, `cloudsound-api-gateway`) only needs the **ACR secrets** so it can push its image:
+
+- **ACR_LOGIN_SERVER**
+- **ACR_USERNAME**
+- **ACR_PASSWORD**
+
+See [docs/MULTIREPO_DEPLOY.md](../docs/MULTIREPO_DEPLOY.md) for the full workflow.
+
+### Organization-Level Secrets (recommended for Option B)
+
+Instead of adding ACR secrets to every microservice repo, use **organization-level secrets** so all `cloudsound-*` repos can access them.
+
+1. **Go to your GitHub organization** (e.g. `CloudSound-MKNZ`).
+2. **Settings** → **Secrets and variables** → **Actions**.
+3. Click **Secrets** (or **New organization secret**).
+4. **New organization secret**:
+   - **Name**: e.g. `ACR_LOGIN_SERVER`
+   - **Value**: your ACR URL (e.g. `yourregistry.azurecr.io`)
+   - **Repository access**: choose **Selected repositories**, then add:
+     - `cloudsound-api-gateway`
+     - `cloudsound-authentication`
+     - `cloudsound-radio-streaming`
+     - `cloudsound-concert-management`
+     - `cloudsound-analytics`
+     - `cloudsound-music-discovery`
+     - `cloudsound-event-manager`
+     - `cloudsound-admin-management`
+     - (and **CloudSound** if you want the main repo to use org secrets for ACR too)
+5. Repeat for **ACR_USERNAME** and **ACR_PASSWORD** with the same repository access.
+
+Workflows in those repos will see the secrets as `secrets.ACR_LOGIN_SERVER` etc. with no extra config. No need to add the same secrets to each repo.
+
+**Note**: You must have **organization owner** (or “manage Actions” permission) to create org secrets. On GitHub Free, org secrets are only available to **public** repos; for private repos you need GitHub Team/Enterprise or add repo-level secrets.
+
+---
+
+## Required Secrets (CloudSound Repo)
+
+You need to configure these secrets in the **CloudSound** repository for CI/CD to work:
 
 ### 1. Azure Credentials
 

@@ -32,6 +32,21 @@ Starts infrastructure using **Docker Compose** (PostgreSQL, Kafka, RabbitMQ, Min
 ./scripts/start.sh --k3s
 ```
 
+### 🔄 Sync service repos and push to GitHub (Option B)
+
+If you use **Option B** (each microservice in its own repo), use this to copy code from CloudSound into each repo and get workflows visible on GitHub:
+
+```bash
+# Sync code from CloudSound/backend/<service> into each cloudsound-<service> repo
+./scripts/sync-and-push-service-repos.sh
+
+# Then push each repo so the "Build and Push to ACR" workflow appears on GitHub
+# (or run with --push to be prompted to commit and push each repo)
+./scripts/sync-and-push-service-repos.sh --push
+```
+
+See [docs/MULTIREPO_DEPLOY.md](../docs/MULTIREPO_DEPLOY.md#syncing-code-and-making-workflows-visible-on-github).
+
 ### 📦 Docker Compose vs k3s
 
 - **Docker Compose (default)**: For local development. Automatically starts all infrastructure services.

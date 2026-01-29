@@ -19,7 +19,15 @@ spec:
       initContainers:
       - name: wait-for-postgres
         image: busybox:1.36
-        command: ['sh', '-c', 'until nc -z {{ .Release.Name }}-postgresql 5432; do echo waiting for postgres; sleep 2; done;']
+        {{- if and .Values.postgresql.external .Values.postgresql.external.enabled }}
+        env:
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.postgresql.external.existingSecret | default "postgres-secret" }}
+              key: host
+        {{- end }}
+        command: ['sh', '-c', 'until nc -z ${POSTGRES_HOST:-{{ .Release.Name }}-postgresql} 5432; do echo waiting for postgres; sleep 2; done;']
       containers:
       - name: migrations
         image: {{ include "cloudsound.image" (dict "global" .Values.global "service" .Values.migrations) }}

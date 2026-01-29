@@ -1,46 +1,34 @@
 name: Build Docker Images
 
+# Option B (multi-repo): Backend service images are built in their own repos.
+# This workflow only test-builds frontend + migrations (cloudsound-shared).
 on:
   pull_request:
     branches:
       - main
       - develop
     paths:
-      - 'backend/**'
+      - 'backend/shared/**'
       - 'frontend/**'
       - '**/Dockerfile'
   workflow_dispatch:
 
 jobs:
-  test-build-backend:
-    name: Test Build Backend Services
+  test-build-migrations:
+    name: Test Build Migrations Image
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        service:
-          - api-gateway
-          - authentication
-          - radio-streaming
-          - concert-management
-          - analytics
-          - music-discovery
-          - event-manager
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
-      - name: Test build ${{ matrix.service }}
+      - name: Test build cloudsound-shared (migrations)
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./backend/${{ matrix.service }}/Dockerfile
+          context: ./backend/shared
+          file: ./backend/shared/Dockerfile
           push: false
-          tags: cloudsound-${{ matrix.service }}:test
+          tags: cloudsound-shared:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
