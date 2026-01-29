@@ -110,9 +110,11 @@ class ProxyMiddleware(BaseHTTPMiddleware):
 
         if not service_url:
             # Not a proxied route, handle locally
+            logger.debug("proxy_skip", path=path, reason="not_proxied")
             return await call_next(request)
 
         # Forward to backend service
+        logger.debug("proxy_dispatch", path=path, service_url=service_url)
         return await self._forward_request(request, service_url)
 
     async def _forward_request(
@@ -227,7 +229,15 @@ class ProxyMiddleware(BaseHTTPMiddleware):
                 media_type="application/json",
             )
         except Exception as e:
-            logger.error("proxy_error", target=target_url, error=str(e))
+            import traceback
+
+            logger.error(
+                "proxy_error",
+                target=target_url,
+                error=str(e),
+                error_type=type(e).__name__,
+                traceback=traceback.format_exc(),
+            )
             return Response(
                 content='{"detail": "Internal gateway error"}',
                 status_code=502,
