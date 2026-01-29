@@ -578,12 +578,16 @@ Bandcamp: https://{band.lower().replace(" ", "")}.bandcamp.com/album/live
 
         return await self._circuit_breaker.call_async(_fetch)
 
-    async def poll_all_pages(self) -> List[FacebookEvent]:
+    async def poll_all_pages(self, use_date_filter: bool = True) -> List[FacebookEvent]:
         """Poll all configured pages for events.
 
-        Fetches events from the past N days (configured via fetch_days_back)
-        to ensure we catch all events, including those that might have been
-        missed or updated.
+        Fetches events from Facebook pages. By default, filters events from the past N days
+        (configured via fetch_days_back) to catch recent events. Set use_date_filter=False
+        to fetch all available events (useful for manual syncs).
+
+        Args:
+            use_date_filter: If True, only fetch events from the past N days.
+                           If False, fetch all available events without date filtering.
 
         Returns:
             List of all events from all configured pages
@@ -594,7 +598,10 @@ Bandcamp: https://{band.lower().replace(" ", "")}.bandcamp.com/album/live
         all_events = []
 
         # Calculate the "since" date: fetch events from N days ago
-        since_date = datetime.now() - timedelta(days=self.fetch_days_back)
+        # Only use date filter if requested (default True for automatic polling)
+        since_date = None
+        if use_date_filter:
+            since_date = datetime.now() - timedelta(days=self.fetch_days_back)
 
         # #region agent log
         log_path = "/home/tef/Gits/Cloudsound-Workspace/CloudSound/.cursor/debug.log"
@@ -610,9 +617,10 @@ Bandcamp: https://{band.lower().replace(" ", "")}.bandcamp.com/album/live
                             "message": "poll_all_pages entry",
                             "data": {
                                 "fetch_days_back": self.fetch_days_back,
-                                "since_date": since_date.isoformat(),
+                                "since_date": since_date.isoformat() if since_date else None,
                                 "page_ids": self.page_ids,
                                 "use_mock": self.use_mock,
+                                "use_date_filter": use_date_filter,
                             },
                             "timestamp": int(datetime.now().timestamp() * 1000),
                         }
@@ -650,8 +658,8 @@ Bandcamp: https://{band.lower().replace(" ", "")}.bandcamp.com/album/live
                     pass
                 # #endregion agent log
 
-                # Always fetch events from the configured number of days back
-                # This ensures we catch events that might have been missed or updated
+                # Fetch events with optional date filtering
+                # For manual polls, fetch all events to ensure nothing is missed
                 response = await self.get_events(
                     page_id=page_id,
                     since=since_date,
@@ -694,8 +702,9 @@ Bandcamp: https://{band.lower().replace(" ", "")}.bandcamp.com/album/live
                     "facebook_page_polled",
                     page_id=page_id,
                     event_count=len(response.events),
-                    since_date=since_date.isoformat(),
-                    fetch_days_back=self.fetch_days_back,
+                    since_date=since_date.isoformat() if since_date else None,
+                    fetch_days_back=self.fetch_days_back if use_date_filter else None,
+                    use_date_filter=use_date_filter,
                 )
 
             except Exception as e:
