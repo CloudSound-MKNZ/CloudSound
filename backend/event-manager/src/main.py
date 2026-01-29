@@ -77,23 +77,24 @@ async def lifespan(app: FastAPI):
     # Note: fetch_days_back parameter may not be available in older versions
     # of cloudsound-shared, so we'll use it only if the client supports it
     client_kwargs = {
-        'access_token': facebook_token,
-        'page_ids': page_ids,
-        'use_mock': use_mock,
+        "access_token": facebook_token,
+        "page_ids": page_ids,
+        "use_mock": use_mock,
     }
-    
+
     # Try to add fetch_days_back if available (newer version)
     try:
         import inspect
+
         sig = inspect.signature(FacebookEventsClient.__init__)
-        if 'fetch_days_back' in sig.parameters:
-            fetch_days_back = getattr(app_settings, 'facebook_fetch_days_back', None)
+        if "fetch_days_back" in sig.parameters:
+            fetch_days_back = getattr(app_settings, "facebook_fetch_days_back", None)
             if fetch_days_back is None:
-                fetch_days_back = int(os.getenv('FACEBOOK_FETCH_DAYS_BACK', '30'))
-            client_kwargs['fetch_days_back'] = fetch_days_back
+                fetch_days_back = int(os.getenv("FACEBOOK_FETCH_DAYS_BACK", "30"))
+            client_kwargs["fetch_days_back"] = fetch_days_back
     except (AttributeError, TypeError):
         pass  # Older version doesn't support it, skip
-    
+
     facebook_client = FacebookEventsClient(**client_kwargs)
 
     # Initialize services
@@ -261,6 +262,104 @@ async def trigger_poll() -> PollResponse:
 
 
 @app.post(
+    f"{app_settings.api_prefix}/events/sync",
+    response_model=Dict[str, Any],
+)
+async def sync_events() -> Dict[str, Any]:
+    """Sync Facebook events and create/update concerts.
+
+    This endpoint:
+    1. Fetches events from Facebook
+    2. Processes them through the pipeline (parse → enrich → link)
+    3. Creates/updates concerts directly
+    4. Bypasses Event Hubs for immediate processing
+
+    Returns summary of actions taken.
+    """
+    from .consumers.kafka_consumer import EventPipelineConsumer
+
+    # Fetch events
+    events = await facebook_client.poll_all_pages()
+
+    if not events:
+        return {
+            "events_fetched": 0,
+            "processed": 0,
+            "created": 0,
+            "updated": 0,
+            "skipped": 0,
+            "message": "No events found",
+        }
+
+    # Process each event through the pipeline
+    results = []
+    created_count = 0
+    updated_count = 0
+    skipped_count = 0
+
+    for fb_event in events:
+        try:
+            # Parse
+            parsed = event_parser.parse(fb_event)
+            if not parsed.is_valid:
+                skipped_count += 1
+                results.append(
+                    {
+                        "event_id": fb_event.event_id,
+                        "status": "skipped",
+                        "reason": "Invalid event data",
+                    }
+                )
+                continue
+
+            # Enrich
+            enriched = await enrichment_service.enrich(parsed)
+
+            # Link (creates/updates concert)
+            link_result = await linking_service.link_event(enriched)
+
+            if link_result.action == "created":
+                created_count += 1
+            elif link_result.action == "updated":
+                updated_count += 1
+            else:
+                skipped_count += 1
+
+            results.append(
+                {
+                    "event_id": fb_event.event_id,
+                    "status": "processed",
+                    "action": link_result.action,
+                    "concert_id": link_result.concert_id,
+                }
+            )
+
+        except Exception as e:
+            logger.error(
+                "event_sync_failed",
+                event_id=fb_event.event_id,
+                error=str(e),
+            )
+            skipped_count += 1
+            results.append(
+                {
+                    "event_id": fb_event.event_id,
+                    "status": "error",
+                    "error": str(e),
+                }
+            )
+
+    return {
+        "events_fetched": len(events),
+        "processed": len(results),
+        "created": created_count,
+        "updated": updated_count,
+        "skipped": skipped_count,
+        "results": results,
+    }
+
+
+@app.post(
     f"{app_settings.api_prefix}/events/process",
     response_model=ProcessEventResponse,
 )
@@ -311,9 +410,7 @@ async def get_status() -> Dict[str, Any]:
         "version": app_settings.app_version,
         "mock_mode": app_settings.use_mock_apis,
         "poller": facebook_poller.get_status() if facebook_poller else None,
-        "facebook_client": facebook_client.get_circuit_breaker_stats()
-        if facebook_client
-        else None,
+        "facebook_client": facebook_client.get_circuit_breaker_stats() if facebook_client else None,
     }
 
 
@@ -361,8 +458,7 @@ async def verify_facebook_token() -> Dict[str, Any]:
             "status": "success" if token_info.get("valid") else "error",
             "token_info": token_info,
             "recommendation": "Token is valid. Page Access Tokens from long-lived user tokens don't expire."
-            if token_info.get("valid")
-            and token_info.get("token_type") == "Page Access Token"
+            if token_info.get("valid") and token_info.get("token_type") == "Page Access Token"
             else "Token verification completed. Check token_info for details.",
         }
     except Exception as e:
