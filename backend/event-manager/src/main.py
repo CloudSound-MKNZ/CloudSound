@@ -90,7 +90,8 @@ async def lifespan(app: FastAPI):
         if "fetch_days_back" in sig.parameters:
             fetch_days_back = getattr(app_settings, "facebook_fetch_days_back", None)
             if fetch_days_back is None:
-                fetch_days_back = int(os.getenv("FACEBOOK_FETCH_DAYS_BACK", "30"))
+                # Default to 180 days (6 months) to sync past events as mentioned in requirements
+                fetch_days_back = int(os.getenv("FACEBOOK_FETCH_DAYS_BACK", "180"))
             client_kwargs["fetch_days_back"] = fetch_days_back
     except (AttributeError, TypeError):
         pass  # Older version doesn't support it, skip
@@ -276,12 +277,93 @@ async def sync_events() -> Dict[str, Any]:
 
     Returns summary of actions taken.
     """
+    import json
+    import os
+    from datetime import datetime
+
+    # #region agent log
+    log_path = "/home/tef/Gits/Cloudsound-Workspace/CloudSound/.cursor/debug.log"
+    try:
+        with open(log_path, "a") as f:
+            f.write(
+                json.dumps(
+                    {
+                        "sessionId": "debug-session",
+                        "runId": "run1",
+                        "hypothesisId": "A",
+                        "location": "main.py:281",
+                        "message": "sync_events entry",
+                        "data": {
+                            "fetch_days_back": getattr(facebook_client, "fetch_days_back", None)
+                            if facebook_client
+                            else None,
+                            "page_ids": facebook_client.page_ids if facebook_client else None,
+                            "use_mock": facebook_client.use_mock if facebook_client else None,
+                        },
+                        "timestamp": int(datetime.now().timestamp() * 1000),
+                    }
+                )
+                + "\n"
+            )
+    except:
+        pass
+    # #endregion agent log
+
     from .consumers.kafka_consumer import EventPipelineConsumer
 
     # Fetch events
     events = await facebook_client.poll_all_pages()
 
+    # #region agent log
+    try:
+        with open(log_path, "a") as f:
+            f.write(
+                json.dumps(
+                    {
+                        "sessionId": "debug-session",
+                        "runId": "run1",
+                        "hypothesisId": "A",
+                        "location": "main.py:310",
+                        "message": "poll_all_pages returned",
+                        "data": {
+                            "events_count": len(events),
+                            "event_ids": [e.event_id for e in events[:5]],
+                            "event_names": [e.name for e in events[:5]],
+                            "event_start_times": [
+                                e.start_time.isoformat() if e.start_time else None
+                                for e in events[:5]
+                            ],
+                        },
+                        "timestamp": int(datetime.now().timestamp() * 1000),
+                    }
+                )
+                + "\n"
+            )
+    except:
+        pass
+    # #endregion agent log
+
     if not events:
+        # #region agent log
+        try:
+            with open(log_path, "a") as f:
+                f.write(
+                    json.dumps(
+                        {
+                            "sessionId": "debug-session",
+                            "runId": "run1",
+                            "hypothesisId": "A",
+                            "location": "main.py:315",
+                            "message": "no events found - returning early",
+                            "data": {},
+                            "timestamp": int(datetime.now().timestamp() * 1000),
+                        }
+                    )
+                    + "\n"
+                )
+        except:
+            pass
+        # #endregion agent log
         return {
             "events_fetched": 0,
             "processed": 0,
@@ -299,8 +381,63 @@ async def sync_events() -> Dict[str, Any]:
 
     for fb_event in events:
         try:
+            # #region agent log
+            try:
+                with open(log_path, "a") as f:
+                    f.write(
+                        json.dumps(
+                            {
+                                "sessionId": "debug-session",
+                                "runId": "run1",
+                                "hypothesisId": "C",
+                                "location": "main.py:340",
+                                "message": "processing event",
+                                "data": {
+                                    "event_id": fb_event.event_id,
+                                    "event_name": fb_event.name,
+                                    "start_time": fb_event.start_time.isoformat()
+                                    if fb_event.start_time
+                                    else None,
+                                },
+                                "timestamp": int(datetime.now().timestamp() * 1000),
+                            }
+                        )
+                        + "\n"
+                    )
+            except:
+                pass
+            # #endregion agent log
+
             # Parse
             parsed = event_parser.parse(fb_event)
+
+            # #region agent log
+            try:
+                with open(log_path, "a") as f:
+                    f.write(
+                        json.dumps(
+                            {
+                                "sessionId": "debug-session",
+                                "runId": "run1",
+                                "hypothesisId": "C",
+                                "location": "main.py:355",
+                                "message": "parsed event",
+                                "data": {
+                                    "event_id": fb_event.event_id,
+                                    "is_valid": parsed.is_valid,
+                                    "parse_errors": parsed.parse_errors
+                                    if hasattr(parsed, "parse_errors")
+                                    else [],
+                                },
+                                "timestamp": int(datetime.now().timestamp() * 1000),
+                            }
+                        )
+                        + "\n"
+                    )
+            except:
+                pass
+            # #endregion agent log
+
             if not parsed.is_valid:
                 skipped_count += 1
                 results.append(
