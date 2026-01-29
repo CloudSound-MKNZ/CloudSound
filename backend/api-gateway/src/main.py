@@ -3,6 +3,8 @@
 Central entry point for all CloudSound API requests.
 Handles routing, authentication, rate limiting, and request forwarding.
 """
+
+# CI/CD pipeline test - trivial change for main push
 import time
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
@@ -39,18 +41,18 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
     logger.info("api_gateway_starting", version=app_settings.app_version)
-    
+
     # Initialize metrics
     init_metrics(app_settings.app_version)
-    
+
     logger.info(
         "api_gateway_started",
         version=app_settings.app_version,
         environment=app_settings.environment,
     )
-    
+
     yield
-    
+
     # Shutdown
     logger.info("api_gateway_shutdown")
 
@@ -108,11 +110,11 @@ app.include_router(gateway_router)
 async def timing_middleware(request: Request, call_next):
     """Record request timing metrics."""
     start_time = time.time()
-    
+
     response = await call_next(request)
-    
+
     duration = time.time() - start_time
-    
+
     # Record metrics
     record_request(
         method=request.method,
@@ -120,10 +122,10 @@ async def timing_middleware(request: Request, call_next):
         status=response.status_code,
         duration=duration,
     )
-    
+
     # Add timing header
     response.headers["X-Response-Time"] = f"{duration:.3f}s"
-    
+
     return response
 
 
@@ -167,5 +169,5 @@ async def api_info():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
 
+    uvicorn.run(app, host="0.0.0.0", port=8000)
