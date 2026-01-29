@@ -360,10 +360,14 @@ Bandcamp: https://{band.lower().replace(" ", "")}.bandcamp.com/album/live
 
             url = f"{self.base_url}/{target_page_id}/events"
 
-            logger.debug(
+            logger.info(
                 "facebook_api_request",
                 page_id=target_page_id,
                 url=url,
+                since=since.isoformat() if since else None,
+                until=until.isoformat() if until else None,
+                limit=limit,
+                params_count=len(params),
             )
 
             session = await self._get_session()
@@ -455,7 +459,11 @@ Bandcamp: https://{band.lower().replace(" ", "")}.bandcamp.com/album/live
                     "facebook_api_response",
                     page_id=target_page_id,
                     event_count=len(events),
+                    raw_data_count=raw_data_count,
+                    parsed_count=len(events),
                     has_more=has_more,
+                    since=since.isoformat() if since else None,
+                    sample_event_ids=[e.event_id for e in events[:3]],
                 )
 
                 return FacebookEventsResponse(

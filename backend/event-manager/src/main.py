@@ -246,8 +246,17 @@ async def trigger_poll() -> PollResponse:
     For manual polls, fetches ALL available events (no date filtering)
     to ensure nothing is missed. In mock mode, returns sample events.
     """
+    logger.info("events_poll_triggered", use_date_filter=False)
+
     # Use use_date_filter=False for manual polls to get all events
     events = await facebook_client.poll_all_pages(use_date_filter=False)
+
+    logger.info(
+        "events_poll_completed",
+        events_fetched=len(events),
+        sample_event_ids=[e.event_id for e in events[:5]],
+        sample_event_names=[e.name for e in events[:5]],
+    )
 
     return PollResponse(
         events_fetched=len(events),
